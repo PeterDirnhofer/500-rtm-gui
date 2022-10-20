@@ -3,16 +3,18 @@
 from tkinter.messagebox import showinfo
 
 from model import Model
+from usb_serial import Usb_serial
 from view import View
 
 
 class Controller:
     def __init__(self):
         self.model = Model()
+        self.usb_serial=Usb_serial()
         self.view = View(self)  # self (instance of controller) is passed to View
 
     def main(self):
-        self.view.label_text_com_port.set(self.model.get_comport()) # read default COMPORT
+        # self.view.label_text_com_port.set(self.usb_serial.get_comport()) # read default COMPORT
         self.view.main()
 
 
@@ -25,7 +27,7 @@ class Controller:
 
 
     def select_comport(this):
-        this.view.labeltext_com_read.set("COMPORT selected")
+        this.view.text_com_read.set("COMPORT selected")
         #this.model.put_comport("COM7")
         this.view.label_text_com_port.set(this.model.get_comport())
 
@@ -37,8 +39,27 @@ class Controller:
             message='Adjust clicked!'
         )
 
+    def handle_com_port(this):
+
+        print("handle_com_port")
+        cp=this.usb_serial.get_comport()
+        result=this.usb_serial.open_comport(cp)
+        if result!='CONNECTED':
+            this.view.text_status.set(this.usb_serial.open_comport(cp))
+            this.view.text_parameter.set("Fehler Connecting to COM port")
+        else:
+            pass
+
+
+
+
+        this.view.label_status.after(2000,this.handle_com_port)
+
+
+
 
 
 if __name__ == '__main__':
+    test=""
     rtm = Controller()
     rtm.main()

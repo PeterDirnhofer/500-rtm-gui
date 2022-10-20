@@ -2,9 +2,7 @@ import ctypes
 import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
-import time
-import threading
-import random
+
 
 dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
           "0\ndirection,0\n "
@@ -16,6 +14,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # Initializes methods of Tk. Tk can be used in View
         self.controller = controller  # controller can be used as attribute in class View
+
 
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -67,10 +66,10 @@ class View(tk.Tk):
         frame_com_read=ttk.LabelFrame(frame_com,text='COM read')
         frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
 
-        self.labeltext_com_read = tk.IntVar()
+        self.text_com_read = tk.IntVar()
         label_com_read = ttk.Label(frame_com_read,
                                    # text="label_com_read\nREQUEST\nREQUEST",
-                                   textvariable=self.labeltext_com_read,
+                                   textvariable=self.text_com_read,
                                    width=40)
         label_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
 
@@ -88,11 +87,18 @@ class View(tk.Tk):
 
         frame_com_port=ttk.LabelFrame(frame_com,text='COM Port')
         frame_com_port.grid(row=2,column=0,padx=10,pady=10)
+
+        listbox = tk.Listbox(frame_com_port,
+                             width=60)
+        #listbox.grid(row=0,column=0,padx=10,pady=10)
+        listbox.bind('<<ListboxSelect>>', self.listboxSelect)
+
         self.label_text_com_port = tk.IntVar()
         label_com_port = ttk.Label(frame_com_port,
                                    textvariable=self.label_text_com_port,
                                    width=40)
         label_com_port.grid(row=0, column=0, padx=10, pady=10)
+
         ###################################################################################
         # frame_left/Parameter Frame
         # frame_left add frame_parameter
@@ -115,7 +121,7 @@ class View(tk.Tk):
         self.text_status = tk.StringVar()
         self.label_status=ttk.Label(frame_status,
                                     textvariable=self.text_status)
-        self.label_status.after(2000,self.update_text_status)
+        self.label_status.after(2000,self.controller.handle_com_port)
 
         self.label_status.grid(row=0, column=0,padx=10,pady=10,sticky = 'nswe')
 
@@ -126,15 +132,14 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
-    def update_text_status(self):
-        self.t1+="."
-        self.text_status.set(self.t1)
-        self.label_status.after(2000,self.update_text_status)
-
-        print("update Status")
 
 
-
+    def listboxSelect(self,event):
+        line = self.listbox.get(ANCHOR)
+        temp = line.split(" ")[0]
+        self.com_selected=temp
+        self.label_com_selected.config(text=temp)
+        print(temp)
 
 
     def main(self):
