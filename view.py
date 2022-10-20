@@ -2,10 +2,14 @@ import ctypes
 import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
+import time
+import threading
+import random
 
 dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
           "0\ndirection,0\n "
 dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
+
 
 
 class View(tk.Tk):
@@ -34,10 +38,10 @@ class View(tk.Tk):
         frame_bottom = ttk.Frame(self)  # Status
 
         # grid placement main frames
-        frame_left.grid(row=1, column=0, rowspan=1, sticky='WENS')
-        frame_top.grid(row=0, column=0, columnspan=2, sticky='WENS')
-        frame_middle.grid(row=1, column=1, sticky='WENS')
-        frame_bottom.grid(row=2, column=0, columnspan=2, sticky='WENS')
+        frame_left.grid(row=1, column=0, rowspan=1, sticky='nesw')
+        frame_top.grid(row=0, column=0, columnspan=2, sticky='nesw')
+        frame_middle.grid(row=1, column=1, sticky='nesw')
+        frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
 
         ###################################################################################
         # frame_top: Add Measure + Adjust
@@ -90,7 +94,7 @@ class View(tk.Tk):
                                    width=40)
         label_com_port.grid(row=0, column=0, padx=10, pady=10)
         ###################################################################################
-        # Parameter Frame
+        # frame_left/Parameter Frame
         # frame_left add frame_parameter
         frame_parameter = ttk.LabelFrame(frame_left, text="Parameter")
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
@@ -103,11 +107,36 @@ class View(tk.Tk):
                                     width=40)
         label_parameter.grid(row=0, column=0, padx=10, pady=10)
 
+        ####################################################################################
+        # frame_bottom add frame_status
+
+        frame_status = ttk.LabelFrame(frame_bottom, text="Status")
+        frame_status.grid(row=0,column=0,padx=10, pady=10,sticky='nesw')
+        self.text_status = tk.StringVar()
+        self.label_status=ttk.Label(frame_status,
+                                    textvariable=self.text_status)
+        self.label_status.after(2000,self.update_text_status)
+
+        self.label_status.grid(row=0, column=0,padx=10,pady=10,sticky = 'nswe')
+
+
+
         # configure style
         self.style = ttk.Style(self)
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
-    def main(self):
+    def update_text_status(self):
+        self.t1+="."
+        self.text_status.set(self.t1)
+        self.label_status.after(2000,self.update_text_status)
 
+        print("update Status")
+
+
+
+
+
+    def main(self):
+        self.t1=""
         self.mainloop()  # Tk mainloop
