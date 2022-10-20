@@ -42,18 +42,26 @@ class Controller:
     def handle_com_port(this):
 
         print("handle_com_port")
-        cp=this.usb_serial.get_comport()
-        result=this.usb_serial.open_comport(cp)
+        akt_port=this.usb_serial.get_comport()
+        result=this.usb_serial.open_comport(akt_port)
+
         if result!='CONNECTED':
-            this.view.text_status.set(this.usb_serial.open_comport(cp))
-            this.view.text_parameter.set("Fehler Connecting to COM port")
+            # Display avaiable ports and wai for selection
+            this.view.text_status.set(this.usb_serial.open_comport(akt_port))
+            available_ports=this.usb_serial.get_ports()
+            this.view.display_comports(available_ports)
+            # Wait until new port is selected
+
+
+            print(f"in controller com selected",this.view.com_selected)
+
+
+
+
+            #this.view.text_parameter.set("Fehler Connecting to COM port")
         else:
-            pass
+            this.view.label_status.after(2000, this.handle_com_port)
 
-
-
-
-        this.view.label_status.after(2000,this.handle_com_port)
 
 
 

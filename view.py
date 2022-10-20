@@ -15,7 +15,7 @@ class View(tk.Tk):
         super().__init__()  # Initializes methods of Tk. Tk can be used in View
         self.controller = controller  # controller can be used as attribute in class View
 
-
+        self.com_selected=""
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
@@ -88,11 +88,6 @@ class View(tk.Tk):
         frame_com_port=ttk.LabelFrame(frame_com,text='COM Port')
         frame_com_port.grid(row=2,column=0,padx=10,pady=10)
 
-        listbox = tk.Listbox(frame_com_port,
-                             width=60)
-        #listbox.grid(row=0,column=0,padx=10,pady=10)
-        listbox.bind('<<ListboxSelect>>', self.listboxSelect)
-
         self.label_text_com_port = tk.IntVar()
         label_com_port = ttk.Label(frame_com_port,
                                    textvariable=self.label_text_com_port,
@@ -126,6 +121,15 @@ class View(tk.Tk):
         self.label_status.grid(row=0, column=0,padx=10,pady=10,sticky = 'nswe')
 
 
+        ####################################################################################
+        # frame_middle add listbox
+        frame_select_com = ttk.LabelFrame(frame_middle,text="Select COM")
+        frame_select_com.grid(row=0,column=1,sticky='nesw')
+
+        self.listbox = tk.Listbox(frame_select_com,
+                             width=60)
+        self.listbox.grid(row=0,column=0,padx=10,pady=10)
+        self.listbox.bind('<<ListboxSelect>>', self.listboxSelect)
 
         # configure style
         self.style = ttk.Style(self)
@@ -134,11 +138,23 @@ class View(tk.Tk):
 
 
 
+
+    def display_comports(self,ports):
+        '''
+        Gets list of actual available COM ports from laptop\
+        Displays COM List in listbox_comports
+        '''
+        #ports = self.sf.get_ports()
+        self.listbox.delete(0, 'end')
+        portsLen = len(ports)
+        self.listbox.config(height=portsLen)
+        for port in ports:
+            self.listbox.insert(END, str(port))
+
     def listboxSelect(self,event):
         line = self.listbox.get(ANCHOR)
         temp = line.split(" ")[0]
         self.com_selected=temp
-        self.label_com_selected.config(text=temp)
         print(temp)
 
 
