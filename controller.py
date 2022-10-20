@@ -1,5 +1,6 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
+from tkinter.messagebox import showinfo
 
 from model import Model
 from view import View
@@ -12,6 +13,18 @@ class Controller:
 
     def main(self):
         self.view.main()
+
+    def select_measure(self):
+        showinfo(
+            title='Information',
+            message='Measure clicked!'
+        )
+
+    def select_adjust(self):
+        showinfo(
+            title='Information',
+            message='Adjust clicked!'
+        )
 
 
 
