@@ -9,23 +9,24 @@ from view import View
 class Controller:
     def __init__(self):
         self.model = Model()
-        self.view = View(self) # self (instance of controller) is passed to View
+        self.view = View(self)  # self (instance of controller) is passed to View
 
     def main(self):
         self.view.main()
 
-    def select_measure(self):
+    @staticmethod
+    def select_measure():
         showinfo(
             title='Information',
             message='Measure clicked!'
         )
 
-    def select_adjust(self):
+    @staticmethod
+    def select_adjust():
         showinfo(
             title='Information',
             message='Adjust clicked!'
         )
-
 
 
 if __name__ == '__main__':

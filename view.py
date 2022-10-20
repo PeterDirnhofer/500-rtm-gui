@@ -3,28 +3,22 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
 
-
-dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY,0\ndirection,0\n"
+dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
+          "0\ndirection,0\n "
 dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
 
+
 class View(tk.Tk):
-
-
     def __init__(self, controller):
-
-        super().__init__() # Initializes methods of Tk. Tk can be used in View
-        self.controller = controller # controller can be used as attribute in class View
+        super().__init__()  # Initializes methods of Tk. Tk can be used in View
+        self.controller = controller  # controller can be used as attribute in class View
 
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
         self.title("500 EUR Raster Tunnel Mikroskop")
         self.geometry("900x700")
-        self.resizable(0, 0)
-
-        # UI options
-        paddings = {'padx': 5, 'pady': 5}
-        entry_font = {'font': ('Helvetica', 11)}
+        self.resizable(False, False)
 
         # define main frames
         self.columnconfigure(0, weight=3)
@@ -74,7 +68,7 @@ class View(tk.Tk):
                                     width=40)
         label_com_write.grid(row=1, column=0, padx=10, pady=10)
         ###################################################################################
-        ########## Parameter Frame
+        # Parameter Frame
         # frame_left add frame_parameter
         frame_parameter = ttk.LabelFrame(frame_left, text="Parameter")
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
@@ -89,9 +83,5 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
-
-
     def main(self):
         self.mainloop()  # Tk mainloop
-
-
