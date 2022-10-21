@@ -14,7 +14,6 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # Initializes methods of Tk. Tk can be used in View
         self.controller = controller  # controller can be used as attribute in class View
-
         self.com_selected=""
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -88,9 +87,9 @@ class View(tk.Tk):
         frame_com_port=ttk.LabelFrame(frame_com,text='COM Port')
         frame_com_port.grid(row=2,column=0,padx=10,pady=10)
 
-        self.label_text_com_port = tk.IntVar()
+        self.text_com_port = tk.IntVar()
         label_com_port = ttk.Label(frame_com_port,
-                                   textvariable=self.label_text_com_port,
+                                   textvariable=self.text_com_port,
                                    width=40)
         label_com_port.grid(row=0, column=0, padx=10, pady=10)
 
@@ -116,7 +115,7 @@ class View(tk.Tk):
         self.text_status = tk.StringVar()
         self.label_status=ttk.Label(frame_status,
                                     textvariable=self.text_status)
-        self.label_status.after(2000,self.controller.handle_com_port)
+        #self.label_status.after(2000,self.controller.handle_com_port)
 
         self.label_status.grid(row=0, column=0,padx=10,pady=10,sticky = 'nswe')
 
@@ -127,7 +126,7 @@ class View(tk.Tk):
         frame_select_com.grid(row=0,column=1,sticky='nesw')
 
         self.listbox = tk.Listbox(frame_select_com,
-                             width=60)
+                             width=70)
         self.listbox.grid(row=0,column=0,padx=10,pady=10)
         self.listbox.bind('<<ListboxSelect>>', self.listboxSelect)
 
@@ -135,9 +134,6 @@ class View(tk.Tk):
         self.style = ttk.Style(self)
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
-
-
-
 
     def display_comports(self,ports):
         '''
@@ -157,7 +153,10 @@ class View(tk.Tk):
         self.com_selected=temp
         print(temp)
 
-
+    def trigger_comloop(self,intervall_ms):
+        self.after(intervall_ms,self.controller.handle_com_port)
     def main(self):
-        self.t1=""
+
+        #self.after(5000,self.controller.handle_com_port)
+        self.trigger_comloop(0)
         self.mainloop()  # Tk mainloop
