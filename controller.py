@@ -34,7 +34,6 @@ class Controller:
             message='Measure clicked!'
         )
 
-
     def select_restart(this):
 
         this.usb_serial.write_comport(chr(3))

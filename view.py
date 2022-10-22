@@ -2,6 +2,7 @@ import ctypes
 import tkinter as tk
 from tkinter import ttk,Text
 from tkinter.constants import *
+from PIL import ImageTk, Image
 
 
 dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
@@ -19,6 +20,9 @@ class View(tk.Tk):
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
         self.title("500 EUR Raster Tunnel Mikroskop")
+
+        self.iconbitmap('data/LOGO-rsl.ico')
+
         self.geometry("900x700")
         self.resizable(False, False)
 
