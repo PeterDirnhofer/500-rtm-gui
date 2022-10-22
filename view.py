@@ -52,14 +52,12 @@ class View(tk.Tk):
         button_select_adjust = ttk.Button(frame_top, text="Adjust", command=controller.select_adjust)
         button_select_adjust.grid(row=0, column=2, padx=10,pady=2 )
 
-
-
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
         frame_com = ttk.LabelFrame(frame_left, text="COM Port")
         frame_com.grid(row=0, column=0, padx=10, pady=10)
 
-        frame_com.rowconfigure(0, weight=10)
+        frame_com.rowconfigure(0, weight=14)
         frame_com.rowconfigure(1, weight=2)
         frame_com.rowconfigure(2, weight=2)
 
@@ -80,24 +78,24 @@ class View(tk.Tk):
 
         # COM write
         frame_com_write=ttk.LabelFrame(frame_com,text='COM write')
-        frame_com_write.grid(row=1, column=0, padx=10, pady=10)
+        frame_com_write.grid(row=1, column=0, padx=10, pady=5)
 
         label_com_write = ttk.Label(frame_com_write,
                                     text="PARAMETER,?",
                                     width=40)
-        label_com_write.grid(row=0, column=0, padx=10, pady=10)
+        label_com_write.grid(row=0, column=0, padx=10)
 
         # COM port
 
 
         frame_com_port=ttk.LabelFrame(frame_com,text='COM Port')
-        frame_com_port.grid(row=2,column=0,padx=10,pady=10)
+        frame_com_port.grid(row=2,column=0,padx=10)
 
         self.text_com_port = tk.IntVar()
         label_com_port = ttk.Label(frame_com_port,
                                    textvariable=self.text_com_port,
                                    width=40)
-        label_com_port.grid(row=0, column=0, padx=10, pady=10)
+        label_com_port.grid(row=0, column=0, padx=10)
 
         ###################################################################################
         # frame_left/Parameter Frame
