@@ -61,18 +61,19 @@ class View(tk.Tk):
         frame_com.rowconfigure(1, weight=2)
         frame_com.rowconfigure(2, weight=2)
 
-        # COM read
+        # COM read ###############################################
         frame_com_read=ttk.LabelFrame(frame_com,text='COM read')
         frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
+        # add a scrollbar https://youtu.be/BckVJoE94Lk
 
-        self.text_com_read = tk.Text(frame_com_read,width=30,height=20)
-        self.text_com_read.grid(row=0, column=0, padx=10, pady=10)
-        #self.text_com_read = tk.IntVar()row=0, column=0, padx=10, pady=10)
-        #label_com_read = ttk.Label(frame_com_read,
-                                   # text="label_com_read\nREQUEST\nREQUEST",
-        #                           textvariable=self.text_com_read,
-        #                           width=40)
-        #label_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
+        self.scrollbar=ttk.Scrollbar(frame_com_read,orient='vertical')
+        self.scrollbar.pack(side=RIGHT,fill=Y)
+
+        self.text_com_read = tk.Text(frame_com_read,width=30,height=20,yscrollcommand=self.scrollbar.set)
+        self.text_com_read.pack(side=TOP,fill=X)
+
+        self.scrollbar.config(command=self.text_com_read.yview)
+
 
         # COM write
         frame_com_write=ttk.LabelFrame(frame_com,text='COM write')
