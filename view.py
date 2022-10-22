@@ -1,6 +1,6 @@
 import ctypes
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk,Text
 from tkinter.constants import *
 
 
@@ -65,12 +65,14 @@ class View(tk.Tk):
         frame_com_read=ttk.LabelFrame(frame_com,text='COM read')
         frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
 
-        self.text_com_read = tk.IntVar()
-        label_com_read = ttk.Label(frame_com_read,
+        self.text_com_read = tk.Text(frame_com_read,width=30,height=20)
+        self.text_com_read.grid(row=0, column=0, padx=10, pady=10)
+        #self.text_com_read = tk.IntVar()row=0, column=0, padx=10, pady=10)
+        #label_com_read = ttk.Label(frame_com_read,
                                    # text="label_com_read\nREQUEST\nREQUEST",
-                                   textvariable=self.text_com_read,
-                                   width=40)
-        label_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
+        #                           textvariable=self.text_com_read,
+        #                           width=40)
+        #label_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
 
         # COM write
         frame_com_write=ttk.LabelFrame(frame_com,text='COM write')
@@ -146,6 +148,12 @@ class View(tk.Tk):
         self.listbox.config(height=portsLen)
         for port in ports:
             self.listbox.insert(END, str(port))
+
+    def text_com_read_update(self, string_to_add):
+        self.text_com_read.insert(END,string_to_add)
+        self.text_com_read.insert(END, '\n')
+
+        print(f'function_from_view {string_to_add}')
 
     def listboxSelect(self,event):
         line = self.listbox.get(ANCHOR)

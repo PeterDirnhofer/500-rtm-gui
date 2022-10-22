@@ -18,7 +18,7 @@ class Controller:
         self.model = Model()
 
         self.view = View(self)  # self (instance of controller) is passed to View
-        self.usb_serial = Usb_serial(self.view.text_com_read)
+        self.usb_serial = Usb_serial(self,self.view)
         self.m_old_comport_status=""
         self.comport_status="INIT"
 

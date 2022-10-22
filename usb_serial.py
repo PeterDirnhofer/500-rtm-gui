@@ -7,34 +7,18 @@ import pickle
 import serial.tools.list_ports
 import serial
 from threading import Thread
-from os.path import exists
+
+class Usb_serial():
 
 
-#serialInst=serial.Serial()
-import tkinter as tk
-from tkinter import ttk
-
-import view
-
-
-class Usb_serial(tk.IntVar):
-
-    import view
-
-    def __init__(self,text_comread):
+    def __init__(self,text_comread,view):
         self.portList=[]
         self.comport=""
         self.serialInst=serial.Serial()
         self.status=""
         self.read_line=""
-        self.view.ttk.Label
         self.text_comread = text_comread
-
-
-
-
-
-
+        self.view = view
 
     def get_comport(self):
         try:
@@ -85,14 +69,12 @@ class Usb_serial(tk.IntVar):
     def read_comport(self):
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
-        all_lines=""
         print('read_comport starting')
         while True:
             if self.serialInst.inWaiting:
                 self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
                 print(self.read_line)
-                all_lines+=self.read_line
-                self.text_comread.set(all_lines)
-                all_lines+='\n'
+                self.view.text_com_read_update(self.read_line)
+
 
 
