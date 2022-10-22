@@ -43,14 +43,16 @@ class View(tk.Tk):
 
         ###################################################################################
         # frame_top: Add Measure + Adjust
+        button_select_restart = ttk.Button(frame_top, text="RESTART", command=controller.select_restart)
+        button_select_restart.grid(row=0, column=0, padx=10, pady=2)
+
         button_select_measure = ttk.Button(frame_top, text="Measure", command=controller.select_measure)
-        button_select_measure.grid(row=0, column=0, padx=10, pady=2)
+        button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
         button_select_adjust = ttk.Button(frame_top, text="Adjust", command=controller.select_adjust)
-        button_select_adjust.grid(row=0, column=1, pady=2)
+        button_select_adjust.grid(row=0, column=2, padx=10,pady=2 )
 
-        button_select_adjust = ttk.Button(frame_top, text="COM Port", command=controller.select_comport)
-        button_select_adjust.grid(row=0, column=2, padx=10,pady=2)
+
 
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
@@ -156,6 +158,12 @@ class View(tk.Tk):
         self.text_com_read.insert(END,string_to_add)
         self.text_com_read.insert(END, '\n')
         self.text_com_read['state'] = DISABLED
+
+    def text_com_delete(self):
+        self.text_com_read['state'] = NORMAL
+        self.text_com_read.delete(1.0, END)
+        self.text_com_read['state'] = DISABLED
+
 
     def listboxSelect(self,event):
         line = self.listbox.get(ANCHOR)

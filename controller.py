@@ -7,6 +7,8 @@ import serial
 from model import Model
 from usb_serial import Usb_serial
 from view import View
+import os
+import sys
 import time
 from threading import Timer
 
@@ -24,10 +26,7 @@ class Controller:
 
     def main(self):
         # self.view.label_text_com_port.set(self.usb_serial.get_comport()) # read default COMPORT
-
         self.view.main()
-
-
 
     def select_measure(this):
         showinfo(
@@ -36,12 +35,11 @@ class Controller:
         )
 
 
-    def select_comport(this):
-        this.view.text_com_read.set("COMPORT selected")
-        #this.model.put_comport("COM7")
-        this.view.label_text_com_port.set(this.model.get_comport())
+    def select_restart(this):
 
-
+        this.usb_serial.write_comport(chr(3))
+        this.view.text_com_delete()
+        os.execv(sys.argv[0],sys.argv)
 
     def select_adjust(this):
         if this.comport_status != "READY":
@@ -52,9 +50,7 @@ class Controller:
             return
 
         this.usb_serial.write_comport('ADJUST')
-
-
-
+        this.view.text_com_delete()
 
 
     def handle_com_port(this):
@@ -88,7 +84,6 @@ class Controller:
                 this.comport_status="READY"
 
         this.view.trigger_comloop(200)
-
 
 if __name__ == '__main__':
 

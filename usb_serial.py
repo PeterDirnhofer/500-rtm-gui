@@ -80,7 +80,7 @@ class Usb_serial():
 
     def write_comport(self,cmd):
         print(f'write_comport {cmd}')
-        self.serialInst.write(f'{cmd}\r'.encode('utf'))
+        self.serialInst.write(f'{cmd}\n'.encode('utf'))
 
 
 
