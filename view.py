@@ -158,5 +158,5 @@ class View(tk.Tk):
     def main(self):
 
         #self.after(5000,self.controller.handle_com_port)
-        self.trigger_comloop(0)
+        self.trigger_comloop(1000)
         self.mainloop()  # Tk mainloop
