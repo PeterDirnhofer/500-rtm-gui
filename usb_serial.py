@@ -73,8 +73,16 @@ class Usb_serial():
         while True:
             if self.serialInst.inWaiting:
                 self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
-                print(self.read_line)
+                #print(self.read_line)
                 self.view.text_com_read_update(self.read_line)
+                if self.read_line == "IDLE":
+                    pass
+
+    def write_comport(self,cmd):
+        print(f'write_comport {cmd}')
+        self.serialInst.write(f'{cmd}\r'.encode('utf'))
+
+
 
 
 

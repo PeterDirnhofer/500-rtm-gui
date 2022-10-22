@@ -44,10 +44,17 @@ class Controller:
 
 
     def select_adjust(this):
-        showinfo(
-            title='Information',
-            message='Adjust clicked!'
-        )
+        if this.comport_status != "READY":
+            showinfo(
+                title='Information',
+                message="STM not connected\nCOM port Status 'READY' needed"
+            )
+            return
+
+        this.usb_serial.write_comport('ADJUST')
+
+
+
 
 
     def handle_com_port(this):

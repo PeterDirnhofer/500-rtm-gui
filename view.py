@@ -69,7 +69,8 @@ class View(tk.Tk):
         self.scrollbar=ttk.Scrollbar(frame_com_read,orient='vertical')
         self.scrollbar.pack(side=RIGHT,fill=Y)
 
-        self.text_com_read = tk.Text(frame_com_read,width=30,height=20,yscrollcommand=self.scrollbar.set)
+        self.text_com_read = tk.Text(frame_com_read,width=30,height=10,
+                                     yscrollcommand=self.scrollbar.set,relief='sunken')
         self.text_com_read.pack(side=TOP,fill=X)
 
         self.scrollbar.config(command=self.text_com_read.yview)
@@ -151,10 +152,10 @@ class View(tk.Tk):
             self.listbox.insert(END, str(port))
 
     def text_com_read_update(self, string_to_add):
+        self.text_com_read['state']=NORMAL
         self.text_com_read.insert(END,string_to_add)
         self.text_com_read.insert(END, '\n')
-
-        print(f'function_from_view {string_to_add}')
+        self.text_com_read['state'] = DISABLED
 
     def listboxSelect(self,event):
         line = self.listbox.get(ANCHOR)
