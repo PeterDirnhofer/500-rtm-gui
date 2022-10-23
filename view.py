@@ -44,7 +44,7 @@ class View(tk.Tk):
 
         ###################################################################################
         # frame_top: Menu add Buttons Measure + Adjust
-        button_select_restart = ttk.Button(frame_top, text="RESTART", command=controller.select_restart)
+        button_select_restart = ttk.Button(frame_top, text="RESET", command=controller.select_restart)
         button_select_restart.grid(row=0, column=0, padx=10, pady=2)
 
         button_select_measure = ttk.Button(frame_top, text="Measure", command=controller.select_measure)
@@ -155,6 +155,8 @@ class View(tk.Tk):
 
     def main(self):
         # self.after(5000,self.controller.handle_com_port)
+
+
         self.trigger_comloop(1000)
         self.mainloop()  # Tk mainloop
 

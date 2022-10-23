@@ -4,7 +4,6 @@ import sys
 import tkinter
 from tkinter.messagebox import showinfo
 
-import serial
 
 from model import Model
 from usb_serial import Usb_serial
@@ -27,6 +26,7 @@ class Controller:
         self.comport_status="INIT"
 
     def main(self):
+
         self.view.main()
 
     def select_measure(this):
@@ -39,9 +39,10 @@ class Controller:
         this.view.frame_select_com_off()
         this.view.frame_adjust_off()
         # send restart to ESP32
-        this.view.lb_com_read_delete()
+
         this.usb_serial.write_comport(chr(3))
-        this.view.text_com_read_update("RESTART")
+        this.view.lb_com_read_delete()
+        this.view.text_com_read_update('RESET')
         this.m_old_comport_status = ""
         this.comport_status="WAIT_FOR_IDLE"
 
@@ -92,6 +93,8 @@ class Controller:
             else:
 
                 this.comport_status="WAIT_FOR_IDLE"
+                this.view.text_com_read_update('RESET')
+                this.usb_serial.write_comport(chr(3))
                 this.usb_serial.start_comport_read_thread()
 
         elif this.comport_status=="WAIT_FOR_IDLE":
