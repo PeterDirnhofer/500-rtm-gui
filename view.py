@@ -70,11 +70,11 @@ class View(tk.Tk):
         self.scrollbar = ttk.Scrollbar(frame_com_read, orient='vertical')
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.text_com_read = tk.Text(frame_com_read, width=30, height=10,
-                                     yscrollcommand=self.scrollbar.set, relief='sunken')
-        self.text_com_read.pack(side=TOP, fill=X)
+        self.lb_com_read = tk.Listbox(frame_com_read, width=30, height=10,
+                                      yscrollcommand=self.scrollbar.set, relief='sunken')
+        self.lb_com_read.pack(side=TOP, fill=X)
 
-        self.scrollbar.config(command=self.text_com_read.yview)
+        self.scrollbar.config(command=self.lb_com_read.yview)
 
         # COM write
         frame_com_write = ttk.LabelFrame(frame_com, text='COM write')
@@ -189,24 +189,24 @@ class View(tk.Tk):
             self.listbox_comports.insert(END, str(port))
 
     def text_com_read_update(self, string_to_add):
-        self.text_com_read['state'] = NORMAL
-        self.text_com_read.insert(END, string_to_add)
-        self.text_com_read.insert(END, '\n')
+        self.lb_com_read['state'] = NORMAL
+        self.lb_com_read.insert(END, string_to_add)
 
-        #self.text_com_read.selection_clear(self.text_com_read.size()-2)
-        #self.text_com_read.sel
-        #self.text_com_read.yview(END)
+        # Autoscroll to end of Listbox
+        # https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
+        self.lb_com_read.select_clear(self.lb_com_read.size()-2) #Clear the current selected item
+        self.lb_com_read.select_set(END)                         #Select the new item
+        self.lb_com_read.yview(END)                              #Set the scrollbar to the end of the listbox
 
-
-        self.text_com_read['state'] = DISABLED
+        self.lb_com_read['state'] = DISABLED
 
     def text_adjust_update(self, value):
         self.textvar_adjust.set(value)
 
     def text_com_delete(self):
-        self.text_com_read['state'] = NORMAL
-        self.text_com_read.delete(1.0, END)
-        self.text_com_read['state'] = DISABLED
+        self.lb_com_read['state'] = NORMAL
+        self.lb_com_read.delete(1.0, END)
+        self.lb_com_read['state'] = DISABLED
 
     def listbox_select(self, event):
         line = self.listbox_comports.get(ANCHOR)
