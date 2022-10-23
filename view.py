@@ -50,8 +50,11 @@ class View(tk.Tk):
         button_select_measure = ttk.Button(frame_top, text="Measure", command=controller.select_measure)
         button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
-        button_select_adjust = ttk.Button(frame_top, text="Adjust", command=controller.select_adjust)
+        button_select_adjust = ttk.Button(frame_top, text="Adjust",
+                                          command=controller.select_adjust,
+                                          state=DISABLED)
         button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
+
 
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
@@ -203,9 +206,9 @@ class View(tk.Tk):
     def text_adjust_update(self, value):
         self.textvar_adjust.set(value)
 
-    def text_com_delete(self):
+    def lb_com_read_delete(self):
         self.lb_com_read['state'] = NORMAL
-        self.lb_com_read.delete(1.0, END)
+        self.lb_com_read.delete(0, END)
         self.lb_com_read['state'] = DISABLED
 
     def listbox_select(self, event):

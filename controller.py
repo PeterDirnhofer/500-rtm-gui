@@ -38,8 +38,8 @@ class Controller:
         this.view.frame_select_com_off()
         this.view.frame_adjust_off()
         # send restart to ESP32
+        this.view.lb_com_read_delete()
         this.usb_serial.write_comport(chr(3))
-        this.view.text_com_delete()
         this.view.text_com_read_update("RESTART")
         this.m_old_comport_status = ""
         this.comport_status="READY"
