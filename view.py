@@ -50,10 +50,10 @@ class View(tk.Tk):
         button_select_measure = ttk.Button(frame_top, text="Measure", command=controller.select_measure)
         button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
-        button_select_adjust = ttk.Button(frame_top, text="Adjust",
+        self.button_select_adjust = ttk.Button(frame_top, text="Adjust",
                                           command=controller.select_adjust,
                                           state=DISABLED)
-        button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
+        self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
 
 
         ###################################################################################

@@ -1,6 +1,7 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
 import sys
+import tkinter
 from tkinter.messagebox import showinfo
 
 import serial
@@ -42,12 +43,13 @@ class Controller:
         this.usb_serial.write_comport(chr(3))
         this.view.text_com_read_update("RESTART")
         this.m_old_comport_status = ""
-        this.comport_status="READY"
+        this.comport_status="WAIT_FOR_IDLE"
 
         os.execv(__file__, sys.argv)
 
     def select_adjust(this):
-        if (this.comport_status != "READY") & (this.comport_status!= "WAIT_FOR_IDLE"):
+        this.view.button_select_adjust['state'] = tkinter.DISABLED
+        if (this.comport_status != "IDLE"):
             showinfo(
                 title='Information',
                 message=f"STM not connected\nCOM port Status 'READY' needed\n Status is {this.comport_status}"
@@ -94,7 +96,9 @@ class Controller:
 
         elif this.comport_status=="WAIT_FOR_IDLE":
             if this.usb_serial.read_line=='IDLE':
-                this.comport_status="READY"
+                this.comport_status="IDLE"
+                this.view.button_select_adjust['state']= tkinter.NORMAL
+
 
         elif this.comport_status=="ADJUST":
             this.view.text_adjust["text"]="lghlug"

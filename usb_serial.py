@@ -73,7 +73,7 @@ class Usb_serial():
         while True:
             if self.serialInst.inWaiting:
                 self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
-                print(f'self.read_line {self.read_line}')
+                #print(f'self.read_line {self.read_line}')
                 self.view.text_com_read_update(self.read_line)
                 self.view.text_adjust_update(self.read_line)
                 if self.read_line == "IDLE":
