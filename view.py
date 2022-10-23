@@ -43,7 +43,7 @@ class View(tk.Tk):
         frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
 
         ###################################################################################
-        # frame_top: Add Measure + Adjust
+        # frame_top: Menu add Buttons Measure + Adjust
         button_select_restart = ttk.Button(frame_top, text="RESTART", command=controller.select_restart)
         button_select_restart.grid(row=0, column=0, padx=10, pady=2)
 
@@ -96,7 +96,9 @@ class View(tk.Tk):
                                    width=40)
         label_com_port.grid(row=0, column=0, padx=10)
 
-        ###################################################################################
+        # frame_left
+
+        # #################################################
         # frame_left/Parameter Frame
         # frame_left add frame_parameter
         frame_parameter = ttk.LabelFrame(frame_left, text="Parameter")
@@ -134,8 +136,9 @@ class View(tk.Tk):
         self.frame_adjust = ttk.LabelFrame(frame_middle, text="Adjust")
         #self.frame_adjust.pack(padx=10, pady=10)
 
-        self.text_adjust = ttk.Label(self.frame_adjust,text="VARTEXT einfügen")
-        #self.text_adjust.pack(padx=10, pady=10)
+        self.textvar_adjust = tk.StringVar()
+        self.text_adjust = ttk.Label(self.frame_adjust,textvariable=self.textvar_adjust,font=("Arial",50))
+
 
 
         #self.text_adjust.pack_forget()
@@ -147,6 +150,14 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
+    def main(self):
+        # self.after(5000,self.controller.handle_com_port)
+        self.trigger_comloop(1000)
+        self.mainloop()  # Tk mainloop
+
+    def trigger_comloop(self, intervall_ms):
+        self.after(intervall_ms, self.controller.handle_com_port)
+
     def frame_select_com_on(self):
         #self.frame_adjust_off()
         self.frame_select_com.grid(row=0, column=1, sticky='nesw')
@@ -156,7 +167,6 @@ class View(tk.Tk):
         self.listbox_comports.pack_forget()
         self.frame_select_com.grid_forget()
 
-
     def frame_adjust_on(self):
         #self.frame_select_com_off()
         self.frame_adjust.pack(padx=10, pady=10)
@@ -165,8 +175,6 @@ class View(tk.Tk):
     def frame_adjust_off(self):
         self.text_adjust.pack_forget()
         self.frame_adjust.pack_forget()
-
-
 
     def display_comports(self, ports):
         '''
@@ -184,7 +192,16 @@ class View(tk.Tk):
         self.text_com_read['state'] = NORMAL
         self.text_com_read.insert(END, string_to_add)
         self.text_com_read.insert(END, '\n')
+
+        #self.text_com_read.selection_clear(self.text_com_read.size()-2)
+        #self.text_com_read.sel
+        #self.text_com_read.yview(END)
+
+
         self.text_com_read['state'] = DISABLED
+
+    def text_adjust_update(self, value):
+        self.textvar_adjust.set(value)
 
     def text_com_delete(self):
         self.text_com_read['state'] = NORMAL
@@ -196,11 +213,3 @@ class View(tk.Tk):
         temp = line.split(" ")[0]
         self.com_selected = temp
         print(temp)
-
-    def trigger_comloop(self, intervall_ms):
-        self.after(intervall_ms, self.controller.handle_com_port)
-
-    def main(self):
-        # self.after(5000,self.controller.handle_com_port)
-        self.trigger_comloop(1000)
-        self.mainloop()  # Tk mainloop

@@ -26,7 +26,6 @@ class Controller:
         self.comport_status="INIT"
 
     def main(self):
-        # self.view.label_text_com_port.set(self.usb_serial.get_comport()) # read default COMPORT
         self.view.main()
 
     def select_measure(this):
