@@ -18,7 +18,7 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = Usb_serial(self, self.view)
         self.m_old_comport_status = ""
-        self.comport_status = "INIT"
+        self.comport_status = ""
         self.is_connected=False
         self.act_port=""
         self.port_is_availabe=False
@@ -39,7 +39,6 @@ class Controller:
         return
 
     def connect_com(this):
-
         if this.m_old_comport_status != this.comport_status:
             print(f"do_connection comport_status: {this.comport_status}")
         this.m_old_comport_status = this.comport_status
@@ -78,10 +77,12 @@ class Controller:
 
         this.view.frame_select_com_off()
 
-        this.comport_status = "WAIT_FOR_IDLE"
+        #this.comport_status = "WAIT_FOR_IDLE"
         this.view.text_com_read_update('RESET')
         this.usb_serial.write_comport(chr(3))
         this.usb_serial.start_comport_read_thread()
+        this.comport_status == "WAIT_FOR_IDLE"
+        this.view.trigger_state_machine(500)
 
     def state_machine(this):
 
@@ -90,15 +91,9 @@ class Controller:
             this.connect_com()
             return
 
-        # if this.comport_status == "INIT":
-        #     result = this.usb_serial.open_comport(this.act_port)
-        #     this.view.text_status.set(result)
-        #     # Cannot find COM PORT
-        #     return
-
-
+        #this.view.text_com_read_update(f'status: {this.comport_status}')
+        #this.view.text_com_read_update('WAIT_FOR_IDLE')
         if this.comport_status == "WAIT_FOR_IDLE":
-
             if this.usb_serial.read_line == 'IDLE':
                 this.comport_status = "IDLE"
                 this.view.button_select_adjust['state'] = tkinter.NORMAL

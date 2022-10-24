@@ -78,8 +78,7 @@ class Usb_serial():
                 #print(f'self.read_line {self.read_line}')
                 self.view.text_com_read_update(self.read_line)
                 self.view.text_adjust_update(self.read_line)
-                if self.read_line == "IDLE":
-                    pass
+
 
     def write_comport(self,cmd):
         print(f'write_comport {cmd}')
