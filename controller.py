@@ -21,22 +21,33 @@ class Controller:
         self.usb_serial = Usb_serial(self, self.view)
         self.m_old_comport_status = ""
         self.comport_status = "INIT"
+        self.is_connected=False
+        self.act_port=""
 
     def main(self):
 
         self.view.main()
 
-    def state_machine(this):
 
+    def do_connection(this):
         if this.m_old_comport_status != this.comport_status:
             print(f"comport_status: {this.comport_status}")
         this.m_old_comport_status = this.comport_status
 
-        act_port = this.usb_serial.get_comport_saved()
-        this.view.text_com_port.set(f'{act_port}: {this.comport_status}')
+        this.act_port = this.usb_serial.get_comport_saved()
+        this.view.text_com_port.set(f'{this.act_port}: {this.comport_status}')
+
+
+
+    def state_machine(this):
+
+        if this.is_connected==False:
+            this.do_connection()
+
+
 
         if this.comport_status == "INIT":
-            result = this.usb_serial.open_comport(act_port)
+            result = this.usb_serial.open_comport(this.act_port)
             this.view.text_status.set(result)
             # Cannot find COM PORT
 
@@ -56,7 +67,7 @@ class Controller:
                     #this.view.frame_select_com_off()
                     #this.view.listbox_comports.pack_forget()
 
-                this.view.trigger_comloop(10)
+                this.view.trigger_state_machine(10)
                 return
 
                 # this.comport_status="INIT"
@@ -77,7 +88,7 @@ class Controller:
         elif this.comport_status == "ADJUST":
             this.view.text_adjust["text"] = "lghlug"
 
-        this.view.trigger_comloop(200)
+        this.view.trigger_state_machine(200)
 
     def select_measure(this):
         showinfo(
