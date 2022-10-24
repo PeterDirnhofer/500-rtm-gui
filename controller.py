@@ -27,13 +27,15 @@ class Controller:
 
         self.view.main()
 
-    def trigger_com_input(this):
+    def com_select_dialog(this):
         this.is_connected = False
         this.view.frame_select_com_on()
         available_ports = this.usb_serial.get_ports()
         this.view.display_comports(available_ports)
+
         if this.view.com_selected != "":
             this.usb_serial.put_comport(this.view.com_selected)
+            this.view.text_com_read_update(f'{this.view.com_selected} selected')
         return
 
     def connect_com(this):
@@ -53,17 +55,18 @@ class Controller:
                 this.port_is_availabe=True
 
         if this.port_is_availabe==False:
-            this.trigger_com_input()
+            this.com_select_dialog()
             this.view.trigger_state_machine(500)
             return
 
         # try to open COM port on computer
         result = this.usb_serial.open_comport(this.act_port)
 
+
         if result != "OPEN":
             this.port_is_availabe=False
             this.usb_serial.put_comport('')
-            this.trigger_com_input()
+            this.com_select_dialog()
             this.view.trigger_state_machine(500)
             return
 
@@ -72,6 +75,7 @@ class Controller:
 
         # Wait fir 'IDLE' from ESP32
         this.is_connected=True
+
         this.view.frame_select_com_off()
 
         this.comport_status = "WAIT_FOR_IDLE"
@@ -80,45 +84,21 @@ class Controller:
         this.usb_serial.start_comport_read_thread()
 
     def state_machine(this):
-        print('tick')
+
+        print(f"Status: {this.comport_status}")
         if this.is_connected==False:
             this.connect_com()
             return
 
-        if this.comport_status == "INIT":
-            result = this.usb_serial.open_comport(this.act_port)
-            this.view.text_status.set(result)
-            # Cannot find COM PORT
-            return
-            if result != 'OPEN':
-                this.view.text_com_port.set(f'ERROR Cannot open {this.act_port}')
+        # if this.comport_status == "INIT":
+        #     result = this.usb_serial.open_comport(this.act_port)
+        #     this.view.text_status.set(result)
+        #     # Cannot find COM PORT
+        #     return
 
-                # Dialog "Select COm port"
-                print("frame_select_com_on")
-                this.view.frame_select_com_on()
 
-                # this.view.listbox_comports.pack(padx=10, pady=10)
-                available_ports = this.usb_serial.get_ports()
-                this.view.display_comports(available_ports)
+        if this.comport_status == "WAIT_FOR_IDLE":
 
-                if this.view.com_selected != "":
-                    this.usb_serial.put_comport(this.view.com_selected)
-                    #this.view.frame_select_com_off()
-                    #this.view.listbox_comports.pack_forget()
-
-                this.view.trigger_state_machine(10)
-                return
-
-                # this.comport_status="INIT"
-            else:
-                this.view.frame_select_com_off()
-
-                this.comport_status = "WAIT_FOR_IDLE"
-                this.view.text_com_read_update('RESET')
-                this.usb_serial.write_comport(chr(3))
-                this.usb_serial.start_comport_read_thread()
-
-        elif this.comport_status == "WAIT_FOR_IDLE":
             if this.usb_serial.read_line == 'IDLE':
                 this.comport_status = "IDLE"
                 this.view.button_select_adjust['state'] = tkinter.NORMAL
