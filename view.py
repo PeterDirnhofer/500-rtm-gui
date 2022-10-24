@@ -161,7 +161,7 @@ class View(tk.Tk):
         self.mainloop()  # Tk mainloop
 
     def trigger_comloop(self, intervall_ms):
-        self.after(intervall_ms, self.controller.handle_com_port)
+        self.after(intervall_ms, self.controller.state_machine)
 
     def frame_select_com_on(self):
         #self.frame_adjust_off()

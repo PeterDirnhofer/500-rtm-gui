@@ -20,7 +20,7 @@ class Usb_serial():
         self.text_comread = text_comread
         self.view = view
 
-    def get_comport(self):
+    def get_comport_saved(self):
         try:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
@@ -50,14 +50,16 @@ class Usb_serial():
                 print(f'Try to open {comport} ')
                 self.serialInst.baudrate=115200
                 self.serialInst.port=comport
-                try:
-                    self.serialInst.close()
-                except:
-                    pass
+                if self.serialInst.isOpen():
+                    try:
+                        print("isopen")
+                        self.serialInst.close()
+                    except:
+                        pass
                 self.serialInst.open()
                 self.status="OPEN"
             except Exception as e:
-                print(e)
+                self.view.text_status
                 self.status='ERROR'
         return self.status
 
