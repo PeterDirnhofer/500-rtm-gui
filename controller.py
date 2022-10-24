@@ -11,8 +11,6 @@ from view import View
 
 
 # Timer Class https://youtu.be/5NJ9cc0dnCM
-
-
 class Controller:
     def __init__(self):
         self.model = Model()
@@ -23,36 +21,77 @@ class Controller:
         self.comport_status = "INIT"
         self.is_connected=False
         self.act_port=""
+        self.port_is_availabe=False
 
     def main(self):
 
         self.view.main()
 
+    def trigger_com_input(this):
+        this.is_connected = False
+        this.view.frame_select_com_on()
+        available_ports = this.usb_serial.get_ports()
+        this.view.display_comports(available_ports)
+        if this.view.com_selected != "":
+            this.usb_serial.put_comport(this.view.com_selected)
+        return
 
-    def do_connection(this):
+    def connect_com(this):
+
         if this.m_old_comport_status != this.comport_status:
-            print(f"comport_status: {this.comport_status}")
+            print(f"do_connection comport_status: {this.comport_status}")
         this.m_old_comport_status = this.comport_status
-
-        this.act_port = this.usb_serial.get_comport_saved()
         this.view.text_com_port.set(f'{this.act_port}: {this.comport_status}')
 
+        # check if default-comport is available on computer
+        this.act_port = this.usb_serial.get_comport_saved()
+        available_ports = this.usb_serial.get_ports()
 
+        for port in available_ports:
+            r = this.act_port in port
+            if r==True:
+                this.port_is_availabe=True
+
+        if this.port_is_availabe==False:
+            this.trigger_com_input()
+            this.view.trigger_state_machine(500)
+            return
+
+        # try to open COM port on computer
+        result = this.usb_serial.open_comport(this.act_port)
+
+        if result != "OPEN":
+            this.port_is_availabe=False
+            this.usb_serial.put_comport('')
+            this.trigger_com_input()
+            this.view.trigger_state_machine(500)
+            return
+
+
+        print("wait for IDLE from ESP32")
+
+        # Wait fir 'IDLE' from ESP32
+        this.is_connected=True
+        this.view.frame_select_com_off()
+
+        this.comport_status = "WAIT_FOR_IDLE"
+        this.view.text_com_read_update('RESET')
+        this.usb_serial.write_comport(chr(3))
+        this.usb_serial.start_comport_read_thread()
 
     def state_machine(this):
-
+        print('tick')
         if this.is_connected==False:
-            this.do_connection()
-
-
+            this.connect_com()
+            return
 
         if this.comport_status == "INIT":
             result = this.usb_serial.open_comport(this.act_port)
             this.view.text_status.set(result)
             # Cannot find COM PORT
-
+            return
             if result != 'OPEN':
-                this.view.text_com_port.set(f'ERROR Cannot open {act_port}')
+                this.view.text_com_port.set(f'ERROR Cannot open {this.act_port}')
 
                 # Dialog "Select COm port"
                 print("frame_select_com_on")
@@ -88,7 +127,7 @@ class Controller:
         elif this.comport_status == "ADJUST":
             this.view.text_adjust["text"] = "lghlug"
 
-        this.view.trigger_state_machine(200)
+        this.view.trigger_state_machine(1000)
 
     def select_measure(this):
         showinfo(
