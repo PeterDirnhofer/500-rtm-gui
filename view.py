@@ -44,11 +44,15 @@ class View(tk.Tk):
 
         ###################################################################################
         # frame_top: Menu add Buttons Measure + Adjust
-        button_select_restart = ttk.Button(frame_top, text="RESET", command=controller.select_restart)
-        button_select_restart.grid(row=0, column=0, padx=10, pady=2)
+        self.button_select_reset = ttk.Button(frame_top, text="RESET",
+                                              command=controller.select_restart,
+                                              state=DISABLED)
+        self.button_select_reset.grid(row=0, column=0, padx=10, pady=2)
 
-        button_select_measure = ttk.Button(frame_top, text="Measure", command=controller.select_measure)
-        button_select_measure.grid(row=0, column=1, padx=10, pady=2)
+        self.button_select_measure = ttk.Button(frame_top, text="Measure",
+                                           command=controller.select_measure,
+                                           state=DISABLED)
+        self.button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
         self.button_select_adjust = ttk.Button(frame_top, text="Adjust",
                                           command=controller.select_adjust,

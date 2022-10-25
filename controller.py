@@ -52,7 +52,7 @@ class Controller:
         if port_exists==False:
             self.view.text_com_state.set(f'{self.act_port} is not available on Computer')
             self.com_select_dialog()
-            return
+            return 'NO_CONNECT'
 
         # try to open COM port on computer
         result = self.usb_serial.open_comport(self.act_port)
@@ -62,43 +62,39 @@ class Controller:
             self.port_is_availabe=False
             self.usb_serial.put_comport('')
             self.com_select_dialog()
-            return
+            return 'NO_CONNECT'
 
         # Now COM port is open. Check if port can be accessed
         if self.usb_serial.write_comport(chr(3)) == False:
             self.view.text_com_state.set(f'Cannot send on port {self.act_port}')
             self.com_select_dialog()
-            return
+            return 'NO_CONNECT'
 
         # Send COM was ok, Wait for IDLE
         self.view.frame_select_com_off()
-
-        self.view.text_com_read_update('RESET WAIT_FOR_IDLE')
+        #self.view.text_com_read_update('RESET WAIT_FOR_IDLE')
         self.usb_serial.start_comport_read_thread()
-        self.comport_status == "WAIT_FOR_IDLE"
+        #self.comport_status == "WAIT_FOR_IDLE"
         self.view.text_com_state.set(f'{self.act_port} connected')
         self.is_connected=True
+
+
+        return 'CONNECTED'
 
     def state_machine(self):
 
         print(f"Status: {self.comport_status}")
         if self.is_connected==False:
-            self.connect_com()
-            self.view.trigger_state_machine(50)
-            return
-
-        #self.view.text_com_read_update(f'status: {self.comport_status}')
-        #self.view.text_com_read_update('WAIT_FOR_IDLE')
-        if self.comport_status == "WAIT_FOR_IDLE":
-            if self.usb_serial.read_line == 'IDLE':
-                self.comport_status = "IDLE"
+            if self.connect_com()=='CONNECTED':
+                self.comport_status == "WAIT_FOR_IDLE"
                 self.view.button_select_adjust['state'] = tkinter.NORMAL
+                self.view.button_select_measure['state'] = tkinter.NORMAL
+                self.view.button_select_reset['state'] = tkinter.NORMAL
 
 
-        elif self.comport_status == "ADJUST":
-            self.view.text_adjust["text"] = "lghlug"
-
-        self.view.trigger_state_machine(1000)
+            else:
+                self.view.trigger_state_machine(50)
+            return
 
     def select_measure(self):
         showinfo(
@@ -109,6 +105,10 @@ class Controller:
     def select_restart(self):
         self.view.frame_select_com_off()
         self.view.frame_adjust_off()
+        self.view.button_select_adjust['state'] = tkinter.NORMAL
+        self.view.button_select_measure['state'] = tkinter.NORMAL
+        self.view.button_select_reset['state'] = tkinter.NORMAL
+
         # send restart to ESP32
 
         self.usb_serial.write_comport(chr(3))
@@ -116,17 +116,12 @@ class Controller:
         self.view.text_com_read_update('RESET')
         self.m_old_comport_status = ""
         self.comport_status = "WAIT_FOR_IDLE"
+        self.is_connected=False
 
         os.execv(__file__, sys.argv)
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
-        if (self.comport_status != "IDLE"):
-            showinfo(
-                title='Information',
-                message=f"STM not connected\nCOM port Status 'READY' needed\n Status is {self.comport_status}"
-            )
-            return
 
         self.usb_serial.write_comport('ADJUST')
         self.view.frame_adjust_on()
