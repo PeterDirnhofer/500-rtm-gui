@@ -52,38 +52,39 @@ class Controller:
         if port_exists==False:
             self.view.text_com_state.set(f'{self.act_port} is not available on Computer')
             self.com_select_dialog()
-            self.view.trigger_state_machine(500)
             return
 
         # try to open COM port on computer
         result = self.usb_serial.open_comport(self.act_port)
+
         if result != "OPEN":
             self.view.text_com_state.set(f"ERROR opening {self.act_port} ")
             self.port_is_availabe=False
             self.usb_serial.put_comport('')
             self.com_select_dialog()
-            self.view.trigger_state_machine(500)
             return
 
+        # Now COM port is open. Check if port can be accessed
+        if self.usb_serial.write_comport(chr(3)) == False:
+            self.view.text_com_state.set(f'Cannot send on port {self.act_port}')
+            self.com_select_dialog()
+            return
 
-        # Wait fir 'IDLE' from ESP32
-        self.view.text_com_state.set(f"Wait for IDLE on {self.act_port} ")
-        self.is_connected=True
-
-        # Close Dialog window select com
+        # Send COM was ok, Wait for IDLE
         self.view.frame_select_com_off()
 
         self.view.text_com_read_update('RESET WAIT_FOR_IDLE')
-        self.usb_serial.write_comport(chr(3))
         self.usb_serial.start_comport_read_thread()
         self.comport_status == "WAIT_FOR_IDLE"
-        self.view.trigger_state_machine(500)
+        self.view.text_com_state.set(f'{self.act_port} connected')
+        self.is_connected=True
 
     def state_machine(self):
 
         print(f"Status: {self.comport_status}")
         if self.is_connected==False:
             self.connect_com()
+            self.view.trigger_state_machine(50)
             return
 
         #self.view.text_com_read_update(f'status: {self.comport_status}')

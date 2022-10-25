@@ -82,8 +82,14 @@ class Usb_serial():
 
     def write_comport(self,cmd):
         print(f'write_comport {cmd}')
-        self.serialInst.write(f'{cmd}\n'.encode('utf'))
+        self.serialInst.write_timeout=1.0
 
+        try:
+            cts=self.serialInst.write(f'{cmd}\n'.encode('utf'))
+
+            return True
+        except:
+            return False
 
 
 
