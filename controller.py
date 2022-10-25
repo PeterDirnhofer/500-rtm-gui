@@ -14,17 +14,15 @@ from view import View
 class Controller:
     def __init__(self):
         self.model = Model()
-
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = Usb_serial(self, self.view)
-        self.m_old_comport_status = ""
+
         self.comport_status = ""
+        self.comport_state=""
         self.is_connected=False
         self.act_port=""
-        self.port_is_availabe=False
 
     def main(self):
-
         self.view.main()
 
     def com_select_dialog(self):
@@ -39,30 +37,28 @@ class Controller:
         return
 
     def connect_com(self):
-        if self.m_old_comport_status != self.comport_status:
-            print(f"do_connection comport_status: {self.comport_status}")
-        self.m_old_comport_status = self.comport_status
-        self.view.text_com_port.set(f'{self.act_port}: {self.comport_status}')
 
         # check if default-comport is available on computer
         self.act_port = self.usb_serial.get_comport_saved()
         available_ports = self.usb_serial.get_ports()
 
+        port_exists=False
         for port in available_ports:
             r = self.act_port in port
             if r==True:
-                self.port_is_availabe=True
+                port_exists=True
 
-        if self.port_is_availabe==False:
+
+        if port_exists==False:
+            self.view.text_com_state.set(f'{self.act_port} is not available on Computer')
             self.com_select_dialog()
             self.view.trigger_state_machine(500)
             return
 
         # try to open COM port on computer
         result = self.usb_serial.open_comport(self.act_port)
-
-
         if result != "OPEN":
+            self.view.text_com_state.set(f"ERROR opening {self.act_port} ")
             self.port_is_availabe=False
             self.usb_serial.put_comport('')
             self.com_select_dialog()
@@ -70,15 +66,14 @@ class Controller:
             return
 
 
-        print("wait for IDLE from ESP32")
-
         # Wait fir 'IDLE' from ESP32
+        self.view.text_com_state.set(f"Wait for IDLE on {self.act_port} ")
         self.is_connected=True
 
+        # Close Dialog window select com
         self.view.frame_select_com_off()
 
-        #self.comport_status = "WAIT_FOR_IDLE"
-        self.view.text_com_read_update('RESET')
+        self.view.text_com_read_update('RESET WAIT_FOR_IDLE')
         self.usb_serial.write_comport(chr(3))
         self.usb_serial.start_comport_read_thread()
         self.comport_status == "WAIT_FOR_IDLE"

@@ -65,7 +65,7 @@ class View(tk.Tk):
         frame_com.rowconfigure(1, weight=2)
         frame_com.rowconfigure(2, weight=2)
 
-        # COM read ###############################################
+        # frame_left/frame_com COM read ###############################################
         frame_com_read = ttk.LabelFrame(frame_com, text='COM read')
         frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
         # add a scrollbar https://youtu.be/BckVJoE94Lk
@@ -79,7 +79,7 @@ class View(tk.Tk):
 
         self.scrollbar.config(command=self.lb_com_read.yview)
 
-        # COM write
+        # frame_left/frame_com COM write ##############################################
         frame_com_write = ttk.LabelFrame(frame_com, text='COM write')
         frame_com_write.grid(row=1, column=0, padx=10, pady=5)
 
@@ -88,22 +88,19 @@ class View(tk.Tk):
                                     width=40)
         label_com_write.grid(row=0, column=0, padx=10)
 
-        # COM port
+        # frame_left/frame_com COM port status ##############################################
 
-        frame_com_port = ttk.LabelFrame(frame_com, text='COM Port')
-        frame_com_port.grid(row=2, column=0, padx=10)
+        frame_com_state = ttk.LabelFrame(frame_com, text='COM State')
+        frame_com_state.grid(row=2, column=0, padx=10)
 
-        self.text_com_port = tk.IntVar()
-        label_com_port = ttk.Label(frame_com_port,
-                                   textvariable=self.text_com_port,
-                                   width=40)
-        label_com_port.grid(row=0, column=0, padx=10)
+        self.text_com_state = tk.IntVar()
+        label_com_state = ttk.Label(frame_com_state,
+                                    textvariable=self.text_com_state,
+                                    width=40)
+        label_com_state.grid(row=0, column=0, padx=10)
 
-        # frame_left
-
-        # #################################################
-        # frame_left/Parameter Frame
-        # frame_left add frame_parameter
+        # ###################################################################
+        # frame_left/frame_parameter ########################################
         frame_parameter = ttk.LabelFrame(frame_left, text="Parameter")
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
 
