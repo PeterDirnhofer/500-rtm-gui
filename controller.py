@@ -91,7 +91,6 @@ class Controller:
             self.sm_state='INIT'
 
     def state_machine(self):
-
         if self.sm_state== 'INIT':
             self.sm_is_default_port_existing()
             self.view.trigger_state_machine_after(50)
