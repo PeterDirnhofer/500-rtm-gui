@@ -27,18 +27,8 @@ class Controller:
     def main(self):
         self.view.main()
 
-    def com_select_dialog(self):
-        self.is_connected = False
-        self.view.frame_select_com_on()
-        available_ports = self.usb_serial.get_ports()
-        self.view.display_comports(available_ports)
-
-        if self.view.com_selected != "":
-            self.usb_serial.put_comport(self.view.com_selected)
-            self.view.text_com_read_update(f'{self.view.com_selected} selected')
-        return
-
     def sm_is_default_port_existing(self):
+        # Check if default COM port is existing on Computer
         self.act_port = self.usb_serial.get_comport_saved()
         self.view.text_com_state.set(f'Connecting {self.act_port} ...')
         available_ports = self.usb_serial.get_ports()
@@ -66,6 +56,8 @@ class Controller:
         return
 
     def sm_send_reset(self):
+        # Check if it is possible to send CTRL-C to ESP32
+        # Start COM read in background thread
         if self.usb_serial.write_comport(chr(3))==True:
             self.usb_serial.start_comport_read_thread()  # enable receiver
             self.sm_state = 'WAIT_FOR_IDLE'
@@ -73,9 +65,11 @@ class Controller:
             self.sm_state = 'ERROR'
 
     def sm_wait_for_idle(self):
+        # Wait for 'IDLE' from ESP32
         if self.usb_serial.read_line=='IDLE':
             self.sm_state='COM_READY'
         else:
+            self.view.text_com_state.set(f"No 'IDLE' from ESP32 on {self.act_port}")
             self.sm_state = 'ERROR'
 
     def sm_com_ready(self):
@@ -86,8 +80,16 @@ class Controller:
 
 
     def sm_error(self):
-        self.com_select_dialog()
-        self.sm_state=""
+        self.view.frame_select_com_on()
+        available_ports = self.usb_serial.get_ports()
+        self.view.display_comports(available_ports)
+
+        if self.view.com_selected != "":
+            self.usb_serial.put_comport(self.view.com_selected)
+            #self.view.text_com_read_update(f'{self.view.com_selected} selected')
+            self.view.frame_select_com_off()
+            self.sm_state='INIT'
+
     def state_machine(self):
 
         if self.sm_state== 'INIT':
@@ -111,8 +113,11 @@ class Controller:
             # state machine no longer needed. No retrigger
 
         elif self.sm_state== "ERROR":
-            self.view.text_status.set("ERROR !!!!!!!!!!!!!!!!!")
-            pass
+            self.sm_error()
+
+            #self.select_restart()
+            self.view.trigger_state_machine_after(200)
+
         else:
             raise Exception(f'Invalid state in state_machine: {self.sm_state}')
 
