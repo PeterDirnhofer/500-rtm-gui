@@ -40,6 +40,7 @@ class Controller:
 
     def sm_is_default_port_existing(self):
         self.act_port = self.usb_serial.get_comport_saved()
+        self.view.text_com_state.set(f'Connecting {self.act_port} ...')
         available_ports = self.usb_serial.get_ports()
         port_exists = False
         for port in available_ports:
@@ -47,6 +48,7 @@ class Controller:
             if r == True:
                 port_exists = True
         if port_exists == False:
+            self.view.text_com_state.set(f'ERROR {self.act_port} not available on Computer')
             self.sm_state='ERROR'
             return
         else:
@@ -76,36 +78,44 @@ class Controller:
         else:
             self.sm_state = 'ERROR'
 
+    def sm_com_ready(self):
+        self.view.button_select_adjust['state'] = tkinter.NORMAL
+        self.view.button_select_measure['state'] = tkinter.NORMAL
+        self.view.button_select_reset['state'] = tkinter.NORMAL
+        self.view.text_com_state.set(f'Connected {self.act_port}')
 
 
+    def sm_error(self):
+        self.com_select_dialog()
+        self.sm_state=""
     def state_machine(self):
 
         if self.sm_state== 'INIT':
             self.sm_is_default_port_existing()
-            self.view.trigger_state_machine(50)
+            self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state== 'EXISTING':
             self.sm_open()
-            self.view.trigger_state_machine(50)
+            self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state== 'OPEN':
             self.sm_send_reset()
-            self.view.trigger_state_machine(1000)
+            self.view.trigger_state_machine_after(1000)
             return
         elif self.sm_state== 'WAIT_FOR_IDLE':
             self.sm_wait_for_idle()
-            self.view.trigger_state_machine(50)
+            self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state== 'COM_READY':
-            # state machin no longer needed. No retrigger
-            pass
+            self.sm_com_ready()
+            # state machine no longer needed. No retrigger
+
         elif self.sm_state== "ERROR":
             self.view.text_status.set("ERROR !!!!!!!!!!!!!!!!!")
             pass
         else:
-            raise Exception(f'Invalid state: {self.sm_state}')
+            raise Exception(f'Invalid state in state_machine: {self.sm_state}')
 
-        #self.view.trigger_state_machine(50)
 
     def connect_com(self):
 
@@ -164,7 +174,7 @@ class Controller:
 
 
             else:
-                self.view.trigger_state_machine(50)
+                self.view.trigger_state_machine_after(50)
             return
 
     def select_measure(self):

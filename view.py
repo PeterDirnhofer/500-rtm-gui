@@ -158,10 +158,10 @@ class View(tk.Tk):
         # self.after(5000,self.controller.handle_com_port)
 
 
-        self.trigger_state_machine(1000)
+        self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
 
-    def trigger_state_machine(self, intervall_ms):
+    def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.state_machine)
 
     def frame_select_com_on(self):
