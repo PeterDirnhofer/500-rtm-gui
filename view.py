@@ -50,15 +50,14 @@ class View(tk.Tk):
         self.button_select_reset.grid(row=0, column=0, padx=10, pady=2)
 
         self.button_select_measure = ttk.Button(frame_top, text="Measure",
-                                           command=controller.select_measure,
-                                           state=DISABLED)
+                                                command=controller.select_measure,
+                                                state=DISABLED)
         self.button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
         self.button_select_adjust = ttk.Button(frame_top, text="Adjust",
-                                          command=controller.select_adjust,
-                                          state=DISABLED)
+                                               command=controller.select_adjust,
+                                               state=DISABLED)
         self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
-
 
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
@@ -138,15 +137,13 @@ class View(tk.Tk):
         # frame_middle Option 2: add Adjust
 
         self.frame_adjust = ttk.LabelFrame(frame_middle, text="Adjust")
-        #self.frame_adjust.pack(padx=10, pady=10)
+        # self.frame_adjust.pack(padx=10, pady=10)
 
         self.textvar_adjust = tk.StringVar()
-        self.text_adjust = ttk.Label(self.frame_adjust,textvariable=self.textvar_adjust,font=("Arial",50))
+        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
 
-
-
-        #self.text_adjust.pack_forget()
-        #self.frame_adjust.pack_forget()
+        # self.text_adjust.pack_forget()
+        # self.frame_adjust.pack_forget()
 
         ################################################################
         # configure style
@@ -157,7 +154,6 @@ class View(tk.Tk):
     def main(self):
         # self.after(5000,self.controller.handle_com_port)
 
-
         self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
 
@@ -165,7 +161,7 @@ class View(tk.Tk):
         self.after(intervall_ms, self.controller.state_machine)
 
     def frame_select_com_on(self):
-        #self.frame_adjust_off()
+        # self.frame_adjust_off()
         self.frame_select_com.grid(row=0, column=1, sticky='nesw')
         self.listbox_comports.pack(padx=10, pady=10)
 
@@ -174,7 +170,7 @@ class View(tk.Tk):
         self.frame_select_com.grid_forget()
 
     def frame_adjust_on(self):
-        #self.frame_select_com_off()
+        # self.frame_select_com_off()
         self.frame_adjust.pack(padx=10, pady=10)
         self.text_adjust.pack(padx=10, pady=10)
 
@@ -183,10 +179,10 @@ class View(tk.Tk):
         self.frame_adjust.pack_forget()
 
     def display_comports(self, ports):
-        '''
+        """
         Gets list of actual available COM ports from laptop\
         Displays COM List in listbox_comports
-        '''
+        """
         # ports = self.sf.get_ports()
         self.listbox_comports.delete(0, 'end')
         ports_len = len(ports)
@@ -200,9 +196,9 @@ class View(tk.Tk):
 
         # Autoscroll to end of Listbox
         # https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
-        self.lb_com_read.select_clear(self.lb_com_read.size()-2) #Clear the current selected item
-        self.lb_com_read.select_set(END)                         #Select the new item
-        self.lb_com_read.yview(END)                              #Set the scrollbar to the end of the listbox
+        self.lb_com_read.select_clear(self.lb_com_read.size() - 2)  # Clear the current selected item
+        self.lb_com_read.select_set(END)  # Select the new item
+        self.lb_com_read.yview(END)  # Set the scrollbar to the end of the listbox
 
         self.lb_com_read['state'] = DISABLED
 
