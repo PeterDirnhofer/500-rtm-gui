@@ -2,7 +2,10 @@
 # Python Tutorial - How to Read Data from Arduino via Serial Port
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
+import os
 import pickle
+import sys
+from tkinter import messagebox
 
 import serial.tools.list_ports
 import serial
@@ -20,7 +23,8 @@ class UsbSerial:
         self.text_comread = text_comread
         self.view = view
 
-    def get_comport_saved(self):
+    @staticmethod
+    def get_comport_saved():
         try:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
@@ -28,7 +32,8 @@ class UsbSerial:
         except OSError:
             return ""
 
-    def put_comport(self, comport):
+    @staticmethod
+    def put_comport(comport):
         myvar = comport
         with open('data/comport.pkl', 'wb') as file:
             pickle.dump(myvar, file)
@@ -71,12 +76,23 @@ class UsbSerial:
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
         print('read_comport starting')
+
         while True:
             if self.serialInst.inWaiting:
-                self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
-                # print(f'self.read_line {self.read_line}')
-                self.view.text_com_read_update(self.read_line)
-                self.view.text_adjust_update(self.read_line)
+                try:
+                    self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
+                    # print(f'self.read_line {self.read_line}')
+                    self.view.text_com_read_update(self.read_line)
+                    self.view.text_adjust_update(self.read_line)
+                except Exception as e:
+                    messagebox.showerror('error', 'Connection lost\nClose the programm')
+                    self.view.close()
+
+
+
+
+
+
 
     def write_comport(self, cmd):
         print(f'write_comport {cmd}')

@@ -215,3 +215,7 @@ class View(tk.Tk):
         temp = line.split(" ")[0]
         self.com_selected = temp
         print(temp)
+
+    def close(self):
+        self.destroy()
+

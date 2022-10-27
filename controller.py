@@ -14,7 +14,7 @@ from view import View
 class Controller:
     def __init__(self):
         self.m_old_comport_status = ""
-        self.port_is_availabe = False
+        self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self, self.view)
@@ -68,9 +68,12 @@ class Controller:
         # Wait for 'IDLE' from ESP32
         if self.usb_serial.read_line == 'IDLE':
             self.sm_state = 'COM_READY'
-        else:
-            self.view.text_com_state.set(f"No 'IDLE' from ESP32 on {self.act_port}")
-            self.sm_state = 'ERROR'
+            return
+
+
+        hs = self.usb_serial.read_line[:20]
+        self.view.text_com_state.set(f"ERROR read IDLE: {hs}")
+        self.sm_state="ERROR"
 
     def sm_com_ready(self):
         self.view.button_select_adjust['state'] = tkinter.NORMAL
@@ -119,50 +122,8 @@ class Controller:
         else:
             raise Exception(f'Invalid state in state_machine: {self.sm_state}')
 
-    def connect_com(self):
-
-        # check if default-comport is available on computer
-        self.act_port = self.usb_serial.get_comport_saved()
-        available_ports = self.usb_serial.get_ports()
-
-        port_exists = False
-        for port in available_ports:
-            r = self.act_port in port
-            if r:
-                port_exists = True
-
-        if not port_exists:
-            self.view.text_com_state.set(f'{self.act_port} is not available on Computer')
-            self.com_select_dialog()
-            return 'NO_CONNECT'
-
-        # try to open COM port on computer
-        result = self.usb_serial.open_comport(self.act_port)
-
-        if result != "OPEN":
-            self.view.text_com_state.set(f"ERROR opening {self.act_port} ")
-            self.port_is_availabe = False
-            self.usb_serial.put_comport('')
-            self.com_select_dialog()
-            return 'NO_CONNECT'
-
-        # Now COM port is open. Check if port can be accessed
-        if not self.usb_serial.write_comport(chr(3)):
-            self.view.text_com_state.set(f'Cannot send on port {self.act_port}')
-            self.com_select_dialog()
-            return 'NO_CONNECT'
-
-        # Send COM was ok, Wait for IDLE
-        self.view.frame_select_com_off()
-        # self.view.text_com_read_update('RESET WAIT_FOR_IDLE')
-        self.usb_serial.start_comport_read_thread()
-        # self.comport_status == "WAIT_FOR_IDLE"
-        self.view.text_com_state.set(f'{self.act_port} connected')
-        self.is_connected = True
-
-        return 'CONNECTED'
-
-    def select_measure(self):
+    @staticmethod
+    def select_measure():
         showinfo(
             title='Information',
             message='Measure clicked!'
@@ -183,8 +144,10 @@ class Controller:
         self.m_old_comport_status = ""
         self.comport_status = "WAIT_FOR_IDLE"
         self.is_connected = False
-
+        print(f"__file__  {__file__}")
         os.execv(__file__, sys.argv)
+
+
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
