@@ -25,7 +25,7 @@ class UsbSerial:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
                 return myvar
-        except:
+        except OSError:
             return ""
 
     def put_comport(self, comport):
@@ -54,7 +54,7 @@ class UsbSerial:
                     try:
                         print("isopen")
                         self.serialInst.close()
-                    except:
+                    except Exception:
                         pass
                 self.serialInst.open()
                 self.status = "OPEN"
@@ -86,5 +86,5 @@ class UsbSerial:
             self.serialInst.write(f'{cmd}\n'.encode('utf'))
 
             return True
-        except:
+        except Exception:
             return False

@@ -13,6 +13,8 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
+        self.m_old_comport_status = ""
+        self.port_is_availabe = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self, self.view)
