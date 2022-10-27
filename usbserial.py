@@ -80,18 +80,15 @@ class UsbSerial:
         while True:
             if self.serialInst.inWaiting:
                 try:
-                    self.read_line = self.serialInst.readline().decode('utf').rstrip('\n')
-                    # print(f'self.read_line {self.read_line}')
-                    self.view.text_com_read_update(self.read_line)
-                    self.view.text_adjust_update(self.read_line)
+                    ln=self.serialInst.readline().decode('utf').rstrip('\n')
+                    print(f'len: {len(ln)}')
+                    if len(ln)>0:
+                        self.read_line = ln
+                        self.view.text_com_read_update(self.read_line)
+                        self.view.text_adjust_update(self.read_line)
                 except Exception as e:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
-
-
-
-
-
 
 
     def write_comport(self, cmd):
@@ -100,7 +97,6 @@ class UsbSerial:
 
         try:
             self.serialInst.write(f'{cmd}\n'.encode('utf'))
-
             return True
         except Exception:
             return False

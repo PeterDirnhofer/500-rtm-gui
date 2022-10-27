@@ -66,10 +66,13 @@ class Controller:
 
     def sm_wait_for_idle(self):
         # Wait for 'IDLE' from ESP32
+
         if self.usb_serial.read_line == 'IDLE':
             self.sm_state = 'COM_READY'
             return
 
+        if len(self.usb_serial.read_line) == 0:
+            return
 
         hs = self.usb_serial.read_line[:20]
         self.view.text_com_state.set(f"ERROR read IDLE: {hs}")
