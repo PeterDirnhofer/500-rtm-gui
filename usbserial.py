@@ -22,6 +22,7 @@ class UsbSerial:
         self.read_line = ""
         self.text_comread = text_comread
         self.view = view
+        self.com_port_read_is_started = False
 
     @staticmethod
     def get_comport_saved():
@@ -68,9 +69,14 @@ class UsbSerial:
         return self.status
 
     def start_comport_read_thread(self):
-        print('start com_tread')
-        com_thread = Thread(target=self.read_comport, daemon=True)
-        com_thread.start()
+        if self.com_port_read_is_started:
+            print('com_port read alredy started')
+            return
+        else:
+            self.com_port_read_is_started=True
+            print('start com_tread')
+            com_thread = Thread(target=self.read_comport, daemon=True)
+            com_thread.start()
 
     def read_comport(self):
         # https://youtu.be/AHr94RtMj1A
@@ -81,7 +87,6 @@ class UsbSerial:
             if self.serialInst.inWaiting:
                 try:
                     ln=self.serialInst.readline().decode('utf').rstrip('\n')
-                    print(f'len: {len(ln)}')
                     if len(ln)>0:
                         self.read_line = ln
                         self.view.text_com_read_update(self.read_line)
@@ -89,7 +94,6 @@ class UsbSerial:
                 except Exception as e:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
-
 
     def write_comport(self, cmd):
         print(f'write_comport {cmd}')

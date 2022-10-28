@@ -13,17 +13,13 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-        self.m_old_comport_status = ""
+
         self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self, self.view)
-
-        self.comport_status = ""
-        self.comport_state = ""
-
         self.act_port = ""
-        self.sm_state = 'INIT'
+        self.sm_state = 'INIT' # Status statemachine
 
     def main(self):
         self.view.main()
@@ -85,12 +81,14 @@ class Controller:
         available_ports = self.usb_serial.get_ports()
         self.view.display_comports(available_ports)
 
+        self.usb_serial.com_port_read_is_started = False
         if self.view.com_selected != "":
             self.usb_serial.put_comport(self.view.com_selected)
             # self.view.text_com_read_update(f'{self.view.com_selected} selected')
             self.view.frame_select_com_off()
             self.sm_state = 'INIT'
             self.view.com_selected=""
+            self.usb_serial.com_port_read_is_started=False
 
     def state_machine(self):
         self.view.text_status.set(self.sm_state)
@@ -143,12 +141,11 @@ class Controller:
         self.usb_serial.write_comport(chr(3))
         self.view.lb_com_read_delete()
         self.view.text_com_read_update('RESET')
-        self.m_old_comport_status = ""
-        self.comport_status = "INIT"
+
         self.sm_state="INIT"
-        #self.view.trigger_state_machine_after(2000)
-        #os.execv(__file__, sys.argv)
-        self.view.restart()
+        self.view.trigger_state_machine_after(100)
+        # os.execv(__file__, sys.argv)
+        #self.view.restart()
 
 
     def select_adjust(self):
@@ -157,7 +154,7 @@ class Controller:
 
         self.usb_serial.write_comport('ADJUST')
         self.view.frame_adjust_on()
-        self.comport_status = "ADJUST"
+
         self.view.text_status.set('ADJUST')
 
 
