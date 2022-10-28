@@ -13,7 +13,6 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-
         self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
@@ -160,6 +159,5 @@ class Controller:
 
 if __name__ == '__main__':
     print("+++ MAIN")
-    test = ""
-    rtm = Controller()
-    rtm.main()
+    controller = Controller()
+    controller.main()
