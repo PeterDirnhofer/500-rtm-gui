@@ -15,8 +15,71 @@ class View(tk.Tk):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
         self.com_selected = ""
-        self._make_main_frame()
 
+        self._make_main_frame()
+        self._make_frame_top()
+        self._make_frame_left()
+
+        ####################################################################################
+        # frame_bottom add frame_status
+
+        frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
+        frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
+        self.text_status = tk.StringVar()
+        self.label_status = ttk.Label(frame_status,
+                                      textvariable=self.text_status)
+        self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
+
+        ####################################################################################
+        # frame_middle Option1 : add frame_select_com add listbox_comports
+
+        self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
+        self.listbox_comports = tk.Listbox(self.frame_select_com,
+                                           width=70)
+        self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
+
+        ####################################################################################
+        # frame_middle Option 2: add Adjust
+
+        self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
+        # self.frame_adjust.pack(padx=10, pady=10)
+
+        self.textvar_adjust = tk.StringVar()
+        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
+
+        # self.text_adjust.pack_forget()
+        # self.frame_adjust.pack_forget()
+
+        ################################################################
+        # configure style
+        self.style = ttk.Style(self)
+        self.style.configure('TLabel', relief='sunken')
+        self.style.configure('TButton', relief='sunken')
+
+    def main(self):
+        # self.after(5000,self.controller.handle_com_port)
+
+        self.trigger_state_machine_after(1000)
+        self.mainloop()  # Tk mainloop
+
+    def _make_main_frame(self):
+        # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
+        ctypes.windll.shcore.SetProcessDpiAwareness(True)
+
+        self.title("500 EUR Raster Tunnel Mikroskop")
+
+        self.iconbitmap('data/LOGO-rsl.ico')
+
+        self.geometry("900x700")
+        self.resizable(False, False)
+
+        # define main frames
+        self.columnconfigure(0, weight=3)
+        self.columnconfigure(1, weight=7)
+
+        self.rowconfigure(0, weight=5)
+        self.rowconfigure(1, weight=100)
+        self.rowconfigure(2, weight=5)
         self.frame_top = ttk.Frame(self)  # e Menu
         self.frame_left = ttk.Frame(self)  # comport and parameter
         self.frame_middle = ttk.Frame(self)  # Measure
@@ -28,23 +91,24 @@ class View(tk.Tk):
         self.frame_middle.grid(row=1, column=1, sticky='nesw')
         self.frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
 
-        ###################################################################################
+    def _make_frame_top(self):
         # frame_top: Menu add Buttons Measure + Adjust
         self.button_select_reset = ttk.Button(self.frame_top, text="RESET",
-                                              command=controller.select_restart,
+                                              command=self.controller.select_restart,
                                               state=DISABLED)
         self.button_select_reset.grid(row=0, column=0, padx=10, pady=2)
 
         self.button_select_measure = ttk.Button(self.frame_top, text="Measure",
-                                                command=controller.select_measure,
+                                                command=self.controller.select_measure,
                                                 state=DISABLED)
         self.button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
         self.button_select_adjust = ttk.Button(self.frame_top, text="Adjust",
-                                               command=controller.select_adjust,
+                                               command=self.controller.select_adjust,
                                                state=DISABLED)
         self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
 
+    def _make_frame_left(self):
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
         frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
@@ -101,67 +165,6 @@ class View(tk.Tk):
                                     width=40)
         label_parameter.grid(row=0, column=0, padx=10, pady=10)
 
-        ####################################################################################
-        # frame_bottom add frame_status
-
-        frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
-        frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
-        self.text_status = tk.StringVar()
-        self.label_status = ttk.Label(frame_status,
-                                      textvariable=self.text_status)
-        self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
-
-        ####################################################################################
-        # frame_middle Option1 : add frame_select_com add listbox_comports
-
-        self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
-        self.listbox_comports = tk.Listbox(self.frame_select_com,
-                                           width=70)
-        self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
-
-        ####################################################################################
-        # frame_middle Option 2: add Adjust
-
-        self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
-        # self.frame_adjust.pack(padx=10, pady=10)
-
-        self.textvar_adjust = tk.StringVar()
-        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
-
-        # self.text_adjust.pack_forget()
-        # self.frame_adjust.pack_forget()
-
-        ################################################################
-        # configure style
-        self.style = ttk.Style(self)
-        self.style.configure('TLabel', relief='sunken')
-        self.style.configure('TButton', relief='sunken')
-
-    def main(self):
-        # self.after(5000,self.controller.handle_com_port)
-
-        self.trigger_state_machine_after(1000)
-        self.mainloop()  # Tk mainloop
-
-    def _make_main_frame(self):
-
-        # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
-        ctypes.windll.shcore.SetProcessDpiAwareness(True)
-
-        self.title("500 EUR Raster Tunnel Mikroskop")
-
-        self.iconbitmap('data/LOGO-rsl.ico')
-
-        self.geometry("900x700")
-        self.resizable(False, False)
-
-        # define main frames
-        self.columnconfigure(0, weight=3)
-        self.columnconfigure(1, weight=7)
-
-        self.rowconfigure(0, weight=5)
-        self.rowconfigure(1, weight=100)
-        self.rowconfigure(2, weight=5)
 
 
 
