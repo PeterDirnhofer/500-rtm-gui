@@ -15,55 +15,39 @@ class View(tk.Tk):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
         self.com_selected = ""
-        # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
-        ctypes.windll.shcore.SetProcessDpiAwareness(True)
+        self._make_main_frame()
 
-        self.title("500 EUR Raster Tunnel Mikroskop")
-
-        self.iconbitmap('data/LOGO-rsl.ico')
-
-        self.geometry("900x700")
-        self.resizable(False, False)
-
-        # define main frames
-        self.columnconfigure(0, weight=3)
-        self.columnconfigure(1, weight=7)
-
-        self.rowconfigure(0, weight=5)
-        self.rowconfigure(1, weight=100)
-        self.rowconfigure(2, weight=5)
-
-        frame_top = ttk.Frame(self)  # e Menu
-        frame_left = ttk.Frame(self)  # comport and parameter
-        frame_middle = ttk.Frame(self)  # Measure
-        frame_bottom = ttk.Frame(self)  # Status
+        self.frame_top = ttk.Frame(self)  # e Menu
+        self.frame_left = ttk.Frame(self)  # comport and parameter
+        self.frame_middle = ttk.Frame(self)  # Measure
+        self.frame_bottom = ttk.Frame(self)  # Status
 
         # grid placement main frames
-        frame_left.grid(row=1, column=0, rowspan=1, sticky='nesw')
-        frame_top.grid(row=0, column=0, columnspan=2, sticky='nesw')
-        frame_middle.grid(row=1, column=1, sticky='nesw')
-        frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
+        self.frame_left.grid(row=1, column=0, rowspan=1, sticky='nesw')
+        self.frame_top.grid(row=0, column=0, columnspan=2, sticky='nesw')
+        self.frame_middle.grid(row=1, column=1, sticky='nesw')
+        self.frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
 
         ###################################################################################
         # frame_top: Menu add Buttons Measure + Adjust
-        self.button_select_reset = ttk.Button(frame_top, text="RESET",
+        self.button_select_reset = ttk.Button(self.frame_top, text="RESET",
                                               command=controller.select_restart,
                                               state=DISABLED)
         self.button_select_reset.grid(row=0, column=0, padx=10, pady=2)
 
-        self.button_select_measure = ttk.Button(frame_top, text="Measure",
+        self.button_select_measure = ttk.Button(self.frame_top, text="Measure",
                                                 command=controller.select_measure,
                                                 state=DISABLED)
         self.button_select_measure.grid(row=0, column=1, padx=10, pady=2)
 
-        self.button_select_adjust = ttk.Button(frame_top, text="Adjust",
+        self.button_select_adjust = ttk.Button(self.frame_top, text="Adjust",
                                                command=controller.select_adjust,
                                                state=DISABLED)
         self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
 
         ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
-        frame_com = ttk.LabelFrame(frame_left, text="COM Port")
+        frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
         frame_com.grid(row=0, column=0, padx=10, pady=10)
 
         frame_com.rowconfigure(0, weight=14)
@@ -106,7 +90,7 @@ class View(tk.Tk):
 
         # ###################################################################
         # frame_left/frame_parameter ########################################
-        frame_parameter = ttk.LabelFrame(frame_left, text="Parameter")
+        frame_parameter = ttk.LabelFrame(self.frame_left, text="Parameter")
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
 
         self.text_parameter = tk.StringVar()
@@ -120,7 +104,7 @@ class View(tk.Tk):
         ####################################################################################
         # frame_bottom add frame_status
 
-        frame_status = ttk.LabelFrame(frame_bottom, text="Status")
+        frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
         frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
         self.text_status = tk.StringVar()
         self.label_status = ttk.Label(frame_status,
@@ -130,7 +114,7 @@ class View(tk.Tk):
         ####################################################################################
         # frame_middle Option1 : add frame_select_com add listbox_comports
 
-        self.frame_select_com = ttk.LabelFrame(frame_middle, text="Select COM")
+        self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
         self.listbox_comports = tk.Listbox(self.frame_select_com,
                                            width=70)
         self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
@@ -138,7 +122,7 @@ class View(tk.Tk):
         ####################################################################################
         # frame_middle Option 2: add Adjust
 
-        self.frame_adjust = ttk.LabelFrame(frame_middle, text="Adjust")
+        self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
         # self.frame_adjust.pack(padx=10, pady=10)
 
         self.textvar_adjust = tk.StringVar()
@@ -158,6 +142,28 @@ class View(tk.Tk):
 
         self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
+
+    def _make_main_frame(self):
+
+        # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
+        ctypes.windll.shcore.SetProcessDpiAwareness(True)
+
+        self.title("500 EUR Raster Tunnel Mikroskop")
+
+        self.iconbitmap('data/LOGO-rsl.ico')
+
+        self.geometry("900x700")
+        self.resizable(False, False)
+
+        # define main frames
+        self.columnconfigure(0, weight=3)
+        self.columnconfigure(1, weight=7)
+
+        self.rowconfigure(0, weight=5)
+        self.rowconfigure(1, weight=100)
+        self.rowconfigure(2, weight=5)
+
+
 
     def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.state_machine)
