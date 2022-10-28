@@ -12,7 +12,7 @@ dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
 
 class View(tk.Tk):
     def __init__(self, controller):
-        super().__init__()  # Initializes methods of Tk. Tk can be used in View
+        super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
         self.com_selected = ""
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render

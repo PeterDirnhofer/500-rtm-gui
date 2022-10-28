@@ -14,13 +14,12 @@ from threading import Thread
 
 class UsbSerial:
 
-    def __init__(self, text_comread, view):
+    def __init__(self, view):
         self.portList = []
         self.comport = ""
         self.serialInst = serial.Serial()
         self.status = ""
         self.read_line = ""
-        self.text_comread = text_comread
         self.view = view
         self.com_port_read_is_started = False
 
