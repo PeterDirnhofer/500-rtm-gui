@@ -21,7 +21,7 @@ class Controller:
 
         self.comport_status = ""
         self.comport_state = ""
-        self.is_connected = False
+
         self.act_port = ""
         self.sm_state = 'INIT'
 
@@ -71,12 +71,8 @@ class Controller:
             self.sm_state = 'COM_READY'
             return
 
-        if len(self.usb_serial.read_line) == 0:
-            return
-
-        hs = self.usb_serial.read_line[:20]
-        self.view.text_com_state.set(f"ERROR read IDLE: {hs}")
-        self.sm_state="ERROR"
+        self.sm_state = "ERROR"
+        return
 
     def sm_com_ready(self):
         self.view.button_select_adjust['state'] = tkinter.NORMAL
@@ -94,8 +90,10 @@ class Controller:
             # self.view.text_com_read_update(f'{self.view.com_selected} selected')
             self.view.frame_select_com_off()
             self.sm_state = 'INIT'
+            self.view.com_selected=""
 
     def state_machine(self):
+        self.view.text_status.set(self.sm_state)
         if self.sm_state == 'INIT':
             self.sm_is_default_port_existing()
             self.view.trigger_state_machine_after(50)
@@ -117,9 +115,10 @@ class Controller:
             # state machine no longer needed. No retrigger
 
         elif self.sm_state == "ERROR":
+
             self.sm_error()
 
-            # self.select_restart()
+            #self.select_restart()
             self.view.trigger_state_machine_after(200)
 
         else:
@@ -145,22 +144,25 @@ class Controller:
         self.view.lb_com_read_delete()
         self.view.text_com_read_update('RESET')
         self.m_old_comport_status = ""
-        self.comport_status = "WAIT_FOR_IDLE"
-        self.is_connected = False
-        print(f"__file__  {__file__}")
-        os.execv(__file__, sys.argv)
-
+        self.comport_status = "INIT"
+        self.sm_state="INIT"
+        #self.view.trigger_state_machine_after(2000)
+        #os.execv(__file__, sys.argv)
+        self.view.restart()
 
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
+        self.view.button_select_measure['state']=tkinter.DISABLED
 
         self.usb_serial.write_comport('ADJUST')
         self.view.frame_adjust_on()
         self.comport_status = "ADJUST"
+        self.view.text_status.set('ADJUST')
 
 
 if __name__ == '__main__':
+    print("+++ MAIN")
     test = ""
     rtm = Controller()
     rtm.main()
