@@ -19,33 +19,12 @@ class View(tk.Tk):
         self._make_main_frame()
         self._make_frame_top()
         self._make_frame_left()
+        self._make_frame_bottom()
+        self._make_frame_middle()
 
-        ####################################################################################
-        # frame_bottom add frame_status
 
-        frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
-        frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
-        self.text_status = tk.StringVar()
-        self.label_status = ttk.Label(frame_status,
-                                      textvariable=self.text_status)
-        self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
 
-        ####################################################################################
-        # frame_middle Option1 : add frame_select_com add listbox_comports
 
-        self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
-        self.listbox_comports = tk.Listbox(self.frame_select_com,
-                                           width=70)
-        self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
-
-        ####################################################################################
-        # frame_middle Option 2: add Adjust
-
-        self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
-        # self.frame_adjust.pack(padx=10, pady=10)
-
-        self.textvar_adjust = tk.StringVar()
-        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
 
         # self.text_adjust.pack_forget()
         # self.frame_adjust.pack_forget()
@@ -109,7 +88,6 @@ class View(tk.Tk):
         self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
 
     def _make_frame_left(self):
-        ###################################################################################
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
         frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
         frame_com.grid(row=0, column=0, padx=10, pady=10)
@@ -164,8 +142,32 @@ class View(tk.Tk):
                                     textvariable=self.text_parameter,
                                     width=40)
         label_parameter.grid(row=0, column=0, padx=10, pady=10)
+    def _make_frame_bottom(self):
+        # frame_bottom add frame_status
+        self.frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
+        self.frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
+        self.text_status = tk.StringVar()
+        self.label_status = ttk.Label(self.frame_status,
+                                      textvariable=self.text_status)
+        self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
 
+    def _make_frame_middle(self):
+        ####################################################################################
+        # frame_middle Option1 : add frame_select_com add listbox_comports
 
+        self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
+        self.listbox_comports = tk.Listbox(self.frame_select_com,
+                                           width=70)
+        self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
+
+        ####################################################################################
+        # frame_middle Option 2: add Adjust
+
+        self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
+        # self.frame_adjust.pack(padx=10, pady=10)
+
+        self.textvar_adjust = tk.StringVar()
+        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
 
 
     def trigger_state_machine_after(self, intervall_ms):
