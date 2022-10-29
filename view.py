@@ -7,7 +7,6 @@ dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrent
           "0\ndirection,0\n "
 dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
 
-
 class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
@@ -126,10 +125,17 @@ class View(tk.Tk):
                                     textvariable=self.text_parameter,
                                     width=40)
         # label_parameter.grid(row=0, column=0, padx=10, pady=10)
-        label_parameter.pack()
+        #label_parameter.pack()
+
+        tbox_parameter= tk.Listbox(frame_parameter,
+                                        width=70)
+        tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
+
+        tbox_parameter.pack()
         self.btn_get_parameter = ttk.Button(frame_parameter,
                                             text="Get",
                                             command=self.get_parameters_from_esp)
+
         self.btn_get_parameter.pack(side=LEFT)
 
     def _make_frame_bottom(self):
@@ -144,10 +150,11 @@ class View(tk.Tk):
     def _make_frame_middle(self):
         ####################################################################################
         # frame_middle Option1 : add frame_select_com add listbox_comports
-
         self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
+
         self.listbox_comports = tk.Listbox(self.frame_select_com,
                                            width=70)
+
         self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
 
         ####################################################################################
@@ -236,5 +243,7 @@ class View(tk.Tk):
         self.com_selected = temp
         print(temp)
 
+    def parameter_select(self,event):
+        pass
     def close(self):
         self.destroy()
