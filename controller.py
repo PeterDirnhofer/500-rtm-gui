@@ -1,7 +1,5 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
-import os
-import sys
 import tkinter
 from tkinter.messagebox import showinfo
 
@@ -16,9 +14,9 @@ class Controller:
         self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        self.usb_serial = UsbSerial(self.view) # instance of view is passed to UsbSerial
+        self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
         self.act_port = ""
-        self.sm_state = 'INIT' # Status statemachine
+        self.sm_state = 'INIT'  # Status statemachine
 
     def main(self):
         self.view.main()
@@ -34,8 +32,8 @@ class Controller:
             if r:
                 port_exists = True
         if not port_exists:
-            self.view.text_com_state.set(f'ERROR {self.act_port} not available on Computer')
-            self.sm_state = 'ERROR'
+            self.view.text_com_state.set(f'ERROR_COM {self.act_port} not available on Computer')
+            self.sm_state = 'ERROR_COM'
             return
         else:
             self.sm_state = 'EXISTING'
@@ -47,7 +45,7 @@ class Controller:
         if result == 'OPEN':
             self.sm_state = 'OPEN'
         else:
-            self.sm_state = 'ERROR'
+            self.sm_state = 'ERROR_COM'
         return
 
     def sm_send_reset(self):
@@ -57,7 +55,7 @@ class Controller:
             self.usb_serial.start_comport_read_thread()  # enable receiver
             self.sm_state = 'WAIT_FOR_IDLE'
         else:
-            self.sm_state = 'ERROR'
+            self.sm_state = 'ERROR_COM'
 
     def sm_wait_for_idle(self):
         # Wait for 'IDLE' from ESP32
@@ -66,7 +64,7 @@ class Controller:
             self.sm_state = 'COM_READY'
             return
 
-        self.sm_state = "ERROR"
+        self.sm_state = "ERROR_COM"
         return
 
     def sm_com_ready(self):
@@ -86,10 +84,14 @@ class Controller:
             # self.view.text_com_read_update(f'{self.view.com_selected} selected')
             self.view.frame_select_com_off()
             self.sm_state = 'INIT'
-            self.view.com_selected=""
-            self.usb_serial.com_port_read_is_started=False
+            self.view.com_selected = ""
+            self.usb_serial.com_port_read_is_started = False
 
-    def state_machine(self):
+    def state_machine_init_com(self):
+        """
+        Reads portnumber from flash. Open port, start receive loop. send CTRL-C and wait for ESP32 response 'IDLE'.
+        On Error, open dialog to select other portnumber
+        """
         self.view.text_status.set(self.sm_state)
         if self.sm_state == 'INIT':
             self.sm_is_default_port_existing()
@@ -109,13 +111,8 @@ class Controller:
             return
         elif self.sm_state == 'COM_READY':
             self.sm_com_ready()
-            # state machine no longer needed. No retrigger
-
-        elif self.sm_state == "ERROR":
-
+        elif self.sm_state == "ERROR_COM":
             self.sm_error()
-
-            #self.select_restart()
             self.view.trigger_state_machine_after(200)
 
         else:
@@ -141,15 +138,14 @@ class Controller:
         self.view.lb_com_read_delete()
         self.view.text_com_read_update('RESET')
 
-        self.sm_state="INIT"
+        self.sm_state = "INIT"
         self.view.trigger_state_machine_after(100)
         # os.execv(__file__, sys.argv)
-        #self.view.restart()
-
+        # self.view.restart()
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
-        self.view.button_select_measure['state']=tkinter.DISABLED
+        self.view.button_select_measure['state'] = tkinter.DISABLED
 
         self.usb_serial.write_comport('ADJUST')
         self.view.frame_adjust_on()

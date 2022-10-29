@@ -2,9 +2,7 @@
 # Python Tutorial - How to Read Data from Arduino via Serial Port
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
-import os
 import pickle
-import sys
 from tkinter import messagebox
 
 import serial.tools.list_ports
@@ -13,7 +11,6 @@ from threading import Thread
 
 
 class UsbSerial:
-
     def __init__(self, view):
         self.portList = []
         self.comport = ""
@@ -22,6 +19,9 @@ class UsbSerial:
         self.read_line = ""
         self.view = view
         self.com_port_read_is_started = False
+        self.line_to_consume = ""
+        self.parameters_needed = 0
+        self.parameter_list = []
 
     @staticmethod
     def get_comport_saved():
@@ -69,10 +69,9 @@ class UsbSerial:
 
     def start_comport_read_thread(self):
         if self.com_port_read_is_started:
-            print('com_port read alredy started')
             return
         else:
-            self.com_port_read_is_started=True
+            self.com_port_read_is_started = True
             print('start com_tread')
             com_thread = Thread(target=self.read_comport, daemon=True)
             com_thread.start()
@@ -85,12 +84,18 @@ class UsbSerial:
         while True:
             if self.serialInst.inWaiting:
                 try:
-                    ln=self.serialInst.readline().decode('utf').rstrip('\n')
-                    if len(ln)>0:
+                    ln = self.serialInst.readline().decode('utf').rstrip('\n')
+                    if len(ln) > 0:
                         self.read_line = ln
                         self.view.text_com_read_update(self.read_line)
                         self.view.text_adjust_update(self.read_line)
-                except Exception as e:
+                        if self.parameters_needed > 0:
+                            self.parameter_list.append(self.read_line)
+                            self.parameters_needed -= 1
+
+
+
+                except Exception:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
 

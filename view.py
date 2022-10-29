@@ -1,8 +1,6 @@
 import ctypes
-import os
-import sys
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from tkinter.constants import *
 
 dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
@@ -21,23 +19,9 @@ class View(tk.Tk):
         self._make_frame_left()
         self._make_frame_bottom()
         self._make_frame_middle()
-
-
-
-
-
-        # self.text_adjust.pack_forget()
-        # self.frame_adjust.pack_forget()
-
-        ################################################################
-        # configure style
-        self.style = ttk.Style(self)
-        self.style.configure('TLabel', relief='sunken')
-        self.style.configure('TButton', relief='sunken')
+        self._style()
 
     def main(self):
-        # self.after(5000,self.controller.handle_com_port)
-
         self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
 
@@ -141,7 +125,13 @@ class View(tk.Tk):
         label_parameter = ttk.Label(frame_parameter,
                                     textvariable=self.text_parameter,
                                     width=40)
-        label_parameter.grid(row=0, column=0, padx=10, pady=10)
+        # label_parameter.grid(row=0, column=0, padx=10, pady=10)
+        label_parameter.pack()
+        self.btn_get_parameter = ttk.Button(frame_parameter,
+                                            text="Get",
+                                            command=self.get_parameters_from_esp)
+        self.btn_get_parameter.pack(side=LEFT)
+
     def _make_frame_bottom(self):
         # frame_bottom add frame_status
         self.frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
@@ -169,9 +159,24 @@ class View(tk.Tk):
         self.textvar_adjust = tk.StringVar()
         self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
 
+    def _style(self):
+        self.style = ttk.Style(self)
+        self.style.configure('TLabel', relief='sunken')
+        self.style.configure('TButton', relief='sunken')
 
     def trigger_state_machine_after(self, intervall_ms):
-        self.after(intervall_ms, self.controller.state_machine)
+        self.after(intervall_ms, self.controller.state_machine_init_com)
+
+    def get_parameters1(self):
+        pass
+        # print(self.usbserial.parameter_list)
+
+    def get_parameters_from_esp(self):
+        pass
+        # self.usbserial.parameters_needed=10
+        # self.usbserial.parameter_list.clear()
+        # self.usbserial.write_comport('PARAMETER,?')
+        # self.after(500,self.get_parameters1)
 
     def frame_select_com_on(self):
         # self.frame_adjust_off()
@@ -223,7 +228,7 @@ class View(tk.Tk):
         self.lb_com_read.delete(0, END)
         self.lb_com_read['state'] = DISABLED
 
-    def listbox_select(self, event):
+    def listbox_select(self,event):
         line = self.listbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]
         self.com_selected = temp
@@ -231,5 +236,3 @@ class View(tk.Tk):
 
     def close(self):
         self.destroy()
-
-
