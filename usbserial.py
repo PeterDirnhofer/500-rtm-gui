@@ -3,6 +3,7 @@
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
 import pickle
+import tkinter
 from tkinter import messagebox
 
 import serial.tools.list_ports
@@ -22,9 +23,11 @@ class UsbSerial:
         self.line_to_consume = ""
         self.parameters_needed = 0
         self.parameter_list = []
+        self.sm_state="INIT"
+
 
     @staticmethod
-    def get_comport_saved():
+    def m_get_comport_saved():
         try:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
@@ -33,12 +36,12 @@ class UsbSerial:
             return ""
 
     @staticmethod
-    def put_comport(comport):
+    def m_put_comport(comport):
         myvar = comport
         with open('data/comport.pkl', 'wb') as file:
             pickle.dump(myvar, file)
 
-    def get_ports(self):
+    def m_get_ports(self):
         """
         get a list of serial ports available on laptop
         :return: portList
@@ -108,3 +111,102 @@ class UsbSerial:
             return True
         except Exception:
             return False
+
+    ##########################################################
+    # State machine
+    def sm_is_default_port_existing(self):
+        # Check if default COM port is existing on Computer
+        self.act_port = self.m_get_comport_saved()
+        self.view.text_com_state.set(f'Connecting {self.act_port} ...')
+        available_ports = self.m_get_ports()
+        port_exists = False
+        for port in available_ports:
+            r = self.act_port in port
+            if r:
+                port_exists = True
+        if not port_exists:
+            self.view.text_com_state.set(f'ERROR_COM {self.act_port} not available on Computer')
+            self.sm_state = 'ERROR_COM'
+            return
+        else:
+            self.sm_state = 'EXISTING'
+            return
+
+    def sm_open(self):
+        # try to open COM port on computer
+        result = self.open_comport(self.act_port)
+        if result == 'OPEN':
+            self.sm_state = 'OPEN'
+        else:
+            self.sm_state = 'ERROR_COM'
+        return
+
+    def sm_send_reset(self):
+        # Check if it is possible to send CTRL-C to ESP32
+        # Start COM read in background thread
+        if self.write_comport(chr(3)):
+            self.start_comport_read_thread()  # enable receiver
+            self.sm_state = 'WAIT_FOR_IDLE'
+        else:
+            self.sm_state = 'ERROR_COM'
+
+    def sm_wait_for_idle(self):
+        # Wait for 'IDLE' from ESP32
+
+        if self.read_line == 'IDLE':
+            self.sm_state = 'COM_READY'
+            return
+
+        self.sm_state = "ERROR_COM"
+        return
+
+    def sm_com_ready(self):
+        self.view.button_select_adjust['state'] = tkinter.NORMAL
+        self.view.button_select_measure['state'] = tkinter.NORMAL
+        self.view.button_select_reset['state'] = tkinter.NORMAL
+        self.view.text_com_state.set(f'Connected {self.act_port}')
+
+    def sm_error(self):
+        self.view.frame_select_com_on()
+        available_ports = self.m_get_ports()
+        self.view.display_comports(available_ports)
+
+        self.com_port_read_is_started = False
+        if self.view.com_selected != "":
+            self.m_put_comport(self.view.com_selected)
+            # self.view.text_com_read_update(f'{self.view.com_selected} selected')
+            self.view.frame_select_com_off()
+            self.sm_state = 'INIT'
+            self.view.com_selected = ""
+            self.com_port_read_is_started = False
+
+    def init_com(self):
+        """
+        Read default portnumber from flash. Open port, start receive loop. Send CTRL-C and wait for ESP32 response='IDLE'.
+        On Error, open dialog to select other portnumber
+        """
+        self.view.text_status.set(self.sm_state)
+        if self.sm_state == 'INIT':
+            self.sm_is_default_port_existing()
+            self.view.trigger_state_machine_after(50)
+            return
+        elif self.sm_state == 'EXISTING':
+            self.sm_open()
+            self.view.trigger_state_machine_after(50)
+            return
+        elif self.sm_state == 'OPEN':
+            self.sm_send_reset()
+            self.view.trigger_state_machine_after(1000)
+            return
+        elif self.sm_state == 'WAIT_FOR_IDLE':
+            self.sm_wait_for_idle()
+            self.view.trigger_state_machine_after(50)
+            return
+        elif self.sm_state == 'COM_READY':
+            self.sm_com_ready()
+        elif self.sm_state == "ERROR_COM":
+            self.sm_error()
+            self.view.trigger_state_machine_after(200)
+
+        else:
+            raise Exception(f'Invalid state in state_machine: {self.sm_state}')

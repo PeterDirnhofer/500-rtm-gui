@@ -165,7 +165,7 @@ class View(tk.Tk):
         self.style.configure('TButton', relief='sunken')
 
     def trigger_state_machine_after(self, intervall_ms):
-        self.after(intervall_ms, self.controller.state_machine_init_com)
+        self.after(intervall_ms, self.controller.init_com_handle)
 
     def get_parameters1(self):
         pass
