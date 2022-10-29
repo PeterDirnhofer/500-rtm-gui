@@ -1,7 +1,7 @@
 # 500 Euro RTM Monitor
 self Python script monitors the 500 EUR RTM (Raster Tunnel Mikroskop) = STM (Scanning Tunnel Microscope) 
 
-The Python script has a **MVC** structure: Model - View - Controller. See below
+The Python script has **MVC** structure: Model - View - Controller. See below
 
 ---
 

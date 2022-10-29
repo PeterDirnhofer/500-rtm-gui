@@ -228,7 +228,7 @@ class View(tk.Tk):
         self.lb_com_read.delete(0, END)
         self.lb_com_read['state'] = DISABLED
 
-    def listbox_select(self,event):
+    def listbox_select(self, event):
         line = self.listbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]
         self.com_selected = temp

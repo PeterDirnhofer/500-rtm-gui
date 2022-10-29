@@ -22,6 +22,7 @@ class UsbSerial:
         self.m_parameters_needed = 0
         self.m_parameter_list = []
         self.m_sm_state = "INIT"
+        self.m_actport= ""
 
     def init_com(self):
         """
@@ -85,11 +86,11 @@ class UsbSerial:
         get a list of serial ports available on laptop
         :return: portList
         """
-        self.portList = []
+        port_list = []
         ports = serial.tools.list_ports.comports(0)
         for onePort in ports:
-            self.portList.append(str(onePort))
-        return self.portList
+            port_list.append(str(onePort))
+        return port_list
 
     def m_open_comport(self, comport):
         if self.m_status != 'OPEN':
@@ -135,8 +136,6 @@ class UsbSerial:
                             self.m_parameter_list.append(self.m_read_line)
                             self.m_parameters_needed -= 1
 
-
-
                 except Exception:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
@@ -145,16 +144,16 @@ class UsbSerial:
     # State machine
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
-        self.act_port = self.m_get_comport_saved()
-        self.view.text_com_state.set(f'Connecting {self.act_port} ...')
+        self.m_actport = self.m_get_comport_saved()
+        self.view.text_com_state.set(f'Connecting {self.m_actport} ...')
         available_ports = self.m_get_ports()
         port_exists = False
         for port in available_ports:
-            r = self.act_port in port
+            r = self.m_actport in port
             if r:
                 port_exists = True
         if not port_exists:
-            self.view.text_com_state.set(f'ERROR_COM {self.act_port} not available on Computer')
+            self.view.text_com_state.set(f'ERROR_COM {self.m_actport} not available on Computer')
             self.m_sm_state = 'ERROR_COM'
             return
         else:
@@ -163,7 +162,7 @@ class UsbSerial:
 
     def m_open(self):
         # try to open COM port on computer
-        result = self.m_open_comport(self.act_port)
+        result = self.m_open_comport(self.m_actport)
         if result == 'OPEN':
             self.m_sm_state = 'OPEN'
         else:
@@ -193,7 +192,7 @@ class UsbSerial:
         self.view.button_select_adjust['state'] = tkinter.NORMAL
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
-        self.view.text_com_state.set(f'Connected {self.act_port}')
+        self.view.text_com_state.set(f'Connected {self.m_actport}')
 
     def m_error(self):
         self.view.frame_select_com_on()
