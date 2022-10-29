@@ -52,7 +52,7 @@ class UsbSerial:
             self.portList.append(str(onePort))
         return self.portList
 
-    def open_comport(self, comport):
+    def m_open_comport(self, comport):
         if self.status != 'OPEN':
             try:
                 print(f'Try to open {comport} ')
@@ -70,16 +70,16 @@ class UsbSerial:
                 self.status = 'ERROR'
         return self.status
 
-    def start_comport_read_thread(self):
+    def m_start_comport_read_thread(self):
         if self.com_port_read_is_started:
             return
         else:
             self.com_port_read_is_started = True
             print('start com_tread')
-            com_thread = Thread(target=self.read_comport, daemon=True)
+            com_thread = Thread(target=self.m_read_comport, daemon=True)
             com_thread.start()
 
-    def read_comport(self):
+    def m_read_comport(self):
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
         print('read_comport starting')
@@ -114,7 +114,7 @@ class UsbSerial:
 
     ##########################################################
     # State machine
-    def sm_is_default_port_existing(self):
+    def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
         self.act_port = self.m_get_comport_saved()
         self.view.text_com_state.set(f'Connecting {self.act_port} ...')
@@ -132,25 +132,25 @@ class UsbSerial:
             self.sm_state = 'EXISTING'
             return
 
-    def sm_open(self):
+    def m_open(self):
         # try to open COM port on computer
-        result = self.open_comport(self.act_port)
+        result = self.m_open_comport(self.act_port)
         if result == 'OPEN':
             self.sm_state = 'OPEN'
         else:
             self.sm_state = 'ERROR_COM'
         return
 
-    def sm_send_reset(self):
+    def m_send_reset(self):
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
         if self.write_comport(chr(3)):
-            self.start_comport_read_thread()  # enable receiver
+            self.m_start_comport_read_thread()  # enable receiver
             self.sm_state = 'WAIT_FOR_IDLE'
         else:
             self.sm_state = 'ERROR_COM'
 
-    def sm_wait_for_idle(self):
+    def m_wait_for_idle(self):
         # Wait for 'IDLE' from ESP32
 
         if self.read_line == 'IDLE':
@@ -160,13 +160,13 @@ class UsbSerial:
         self.sm_state = "ERROR_COM"
         return
 
-    def sm_com_ready(self):
+    def m_com_ready(self):
         self.view.button_select_adjust['state'] = tkinter.NORMAL
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
         self.view.text_com_state.set(f'Connected {self.act_port}')
 
-    def sm_error(self):
+    def m_error(self):
         self.view.frame_select_com_on()
         available_ports = self.m_get_ports()
         self.view.display_comports(available_ports)
@@ -187,25 +187,25 @@ class UsbSerial:
         """
         self.view.text_status.set(self.sm_state)
         if self.sm_state == 'INIT':
-            self.sm_is_default_port_existing()
+            self.m_is_default_port_existing()
             self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state == 'EXISTING':
-            self.sm_open()
+            self.m_open()
             self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state == 'OPEN':
-            self.sm_send_reset()
+            self.m_send_reset()
             self.view.trigger_state_machine_after(1000)
             return
         elif self.sm_state == 'WAIT_FOR_IDLE':
-            self.sm_wait_for_idle()
+            self.m_wait_for_idle()
             self.view.trigger_state_machine_after(50)
             return
         elif self.sm_state == 'COM_READY':
-            self.sm_com_ready()
+            self.m_com_ready()
         elif self.sm_state == "ERROR_COM":
-            self.sm_error()
+            self.m_error()
             self.view.trigger_state_machine_after(200)
 
         else:
