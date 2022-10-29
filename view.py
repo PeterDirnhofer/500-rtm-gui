@@ -88,11 +88,11 @@ class View(tk.Tk):
         self.scrollbar = ttk.Scrollbar(frame_com_read, orient='vertical')
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.lb_com_read = tk.Listbox(frame_com_read, width=30, height=10,
-                                      yscrollcommand=self.scrollbar.set, relief='sunken')
-        self.lb_com_read.pack(side=TOP, fill=X)
+        self.lbox_com_read = tk.Listbox(frame_com_read, width=30, height=10,
+                                        yscrollcommand=self.scrollbar.set, relief='sunken')
+        self.lbox_com_read.pack(side=TOP, fill=X)
 
-        self.scrollbar.config(command=self.lb_com_read.yview)
+        self.scrollbar.config(command=self.lbox_com_read.yview)
 
         # frame_left/frame_com COM write ##############################################
         frame_com_write = ttk.LabelFrame(frame_com, text='COM write')
@@ -156,27 +156,24 @@ class View(tk.Tk):
         self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
         # self.frame_adjust.pack(padx=10, pady=10)
 
-        self.textvar_adjust = tk.StringVar()
-        self.text_adjust = ttk.Label(self.frame_adjust, textvariable=self.textvar_adjust, font=("Arial", 50))
+        self.text_label_adjust = tk.StringVar()
+        self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
 
     def _style(self):
         self.style = ttk.Style(self)
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
+
     def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.init_com_handle)
 
-    def get_parameters1(self):
-        pass
-        # print(self.usbserial.parameter_list)
-
     def get_parameters_from_esp(self):
         pass
-        # self.usbserial.parameters_needed=10
-        # self.usbserial.parameter_list.clear()
-        # self.usbserial.write_comport('PARAMETER,?')
-        # self.after(500,self.get_parameters1)
+        #self.usbserial.parameters_needed=10
+        #self.usbserial.parameter_list.clear()
+        #self.usbserial.write_comport('PARAMETER,?')
+        #self.after(500,self.get_parameters1)
 
     def frame_select_com_on(self):
         # self.frame_adjust_off()
@@ -190,10 +187,10 @@ class View(tk.Tk):
     def frame_adjust_on(self):
         # self.frame_select_com_off()
         self.frame_adjust.pack(padx=10, pady=10)
-        self.text_adjust.pack(padx=10, pady=10)
+        self.label_adjust.pack(padx=10, pady=10)
 
     def frame_adjust_off(self):
-        self.text_adjust.pack_forget()
+        self.label_adjust.pack_forget()
         self.frame_adjust.pack_forget()
 
     def display_comports(self, ports):
@@ -208,25 +205,30 @@ class View(tk.Tk):
         for port in ports:
             self.listbox_comports.insert(END, str(port))
 
-    def text_com_read_update(self, string_to_add):
-        self.lb_com_read['state'] = NORMAL
-        self.lb_com_read.insert(END, string_to_add)
+    def lbox_com_read_update(self, string_to_add):
+        """
+        Enable Listbox write access. Add string to Listbox.
+        Set Cursor to end of Listbox, Disable write access,
+        :param string_to_add:
+        """
+        self.lbox_com_read['state'] = NORMAL
+        self.lbox_com_read.insert(END, string_to_add)
 
         # Autoscroll to end of Listbox
         # https://stackoverflow.com/questions/3699104/how-to-add-autoscroll-on-insert-in-tkinter-listbox
-        self.lb_com_read.select_clear(self.lb_com_read.size() - 2)  # Clear the current selected item
-        self.lb_com_read.select_set(END)  # Select the new item
-        self.lb_com_read.yview(END)  # Set the scrollbar to the end of the listbox
+        self.lbox_com_read.select_clear(self.lbox_com_read.size() - 2)  # Clear the current selected item
+        self.lbox_com_read.select_set(END)  # Select the new item
+        self.lbox_com_read.yview(END)  # Set the scrollbar to the end of the listbox
 
-        self.lb_com_read['state'] = DISABLED
+        self.lbox_com_read['state'] = DISABLED
 
-    def text_adjust_update(self, value):
-        self.textvar_adjust.set(value)
+    def label_adjust_update(self, value):
+        self.text_label_adjust.set(value)
 
     def lb_com_read_delete(self):
-        self.lb_com_read['state'] = NORMAL
-        self.lb_com_read.delete(0, END)
-        self.lb_com_read['state'] = DISABLED
+        self.lbox_com_read['state'] = NORMAL
+        self.lbox_com_read.delete(0, END)
+        self.lbox_com_read['state'] = DISABLED
 
     def listbox_select(self, event):
         line = self.listbox_comports.get(ANCHOR)

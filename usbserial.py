@@ -56,7 +56,7 @@ class UsbSerial:
         else:
             raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
 
-    def write_comport(self, cmd):
+    def write(self, cmd):
         print(f'write_comport {cmd}')
         self.serialInst.write_timeout = 1.0
 
@@ -67,7 +67,7 @@ class UsbSerial:
             return False
 
     @staticmethod
-    def m_get_comport_saved():
+    def m_get_default_comport():
         try:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
@@ -76,7 +76,7 @@ class UsbSerial:
             return ""
 
     @staticmethod
-    def m_put_comport(comport):
+    def m_put_default_comport(comport):
         myvar = comport
         with open('data/comport.pkl', 'wb') as file:
             pickle.dump(myvar, file)
@@ -116,10 +116,14 @@ class UsbSerial:
         else:
             self.m_com_port_read_is_started = True
             print('start com_tread')
-            com_thread = Thread(target=self.m_read_comport, daemon=True)
+            com_thread = Thread(target=self.read, daemon=True)
             com_thread.start()
 
-    def m_read_comport(self):
+    def read(self):
+        """
+        Loop that reads comport. Monitor reads in
+        :return:
+        """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
         print('read_comport starting')
@@ -130,8 +134,8 @@ class UsbSerial:
                     ln = self.serialInst.readline().decode('utf').rstrip('\n')
                     if len(ln) > 0:
                         self.m_read_line = ln
-                        self.view.text_com_read_update(self.m_read_line)
-                        self.view.text_adjust_update(self.m_read_line)
+                        self.view.lbox_com_read_update(self.m_read_line)
+                        self.view.label_adjust_update(self.m_read_line)
                         if self.m_parameters_needed > 0:
                             self.m_parameter_list.append(self.m_read_line)
                             self.m_parameters_needed -= 1
@@ -144,7 +148,7 @@ class UsbSerial:
     # State machine
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
-        self.m_actport = self.m_get_comport_saved()
+        self.m_actport = self.m_get_default_comport()
         self.view.text_com_state.set(f'Connecting {self.m_actport} ...')
         available_ports = self.m_get_ports()
         port_exists = False
@@ -172,7 +176,7 @@ class UsbSerial:
     def m_send_reset(self):
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
-        if self.write_comport(chr(3)):
+        if self.write(chr(3)):
             self.m_start_comport_read_thread()  # enable receiver
             self.m_sm_state = 'WAIT_FOR_IDLE'
         else:
@@ -201,7 +205,7 @@ class UsbSerial:
 
         self.m_com_port_read_is_started = False
         if self.view.com_selected != "":
-            self.m_put_comport(self.view.com_selected)
+            self.m_put_default_comport(self.view.com_selected)
             # self.view.text_com_read_update(f'{self.view.com_selected} selected')
             self.view.frame_select_com_off()
             self.m_sm_state = 'INIT'

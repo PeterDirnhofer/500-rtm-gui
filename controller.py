@@ -38,11 +38,12 @@ class Controller:
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
 
+
         # send restart to ESP32
 
-        self.usb_serial.write_comport(chr(3))
+        self.usb_serial.write(chr(3))
         self.view.lb_com_read_delete()
-        self.view.text_com_read_update('RESET')
+        self.view.lbox_com_read_update('RESET')
 
         self.sm_state = "INIT"
         self.view.trigger_state_machine_after(100)
@@ -53,13 +54,12 @@ class Controller:
         self.view.button_select_adjust['state'] = tkinter.DISABLED
         self.view.button_select_measure['state'] = tkinter.DISABLED
 
-        self.usb_serial.write_comport('ADJUST')
+        self.usb_serial.write('ADJUST')
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
 
 
 if __name__ == '__main__':
-    print("+++ MAIN")
-    controller = Controller()
-    controller.main()
+    app = Controller()
+    app.main()
