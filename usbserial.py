@@ -22,7 +22,7 @@ class UsbSerial:
         self.m_parameters_needed = 0
         self.m_parameter_list = []
         self.m_sm_state = "INIT"
-        self.m_actport= ""
+        self.m_actport = ""
 
     def init_com(self):
         """

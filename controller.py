@@ -38,7 +38,6 @@ class Controller:
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
 
-
         # send restart to ESP32
 
         self.usb_serial.write(chr(3))

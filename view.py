@@ -7,6 +7,7 @@ dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrent
           "0\ndirection,0\n "
 dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
 
+
 class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
@@ -15,7 +16,13 @@ class View(tk.Tk):
 
         self._make_main_frame()
         self._make_frame_top()
+
         self._make_frame_left()
+        self._make_freame_left_comread()
+        # self._make_subframe_comwrite()
+        self._make_frame_left_comstate()
+        self._make_frame_left_parameter()
+
         self._make_frame_bottom()
         self._make_frame_middle()
         self._style()
@@ -72,48 +79,53 @@ class View(tk.Tk):
 
     def _make_frame_left(self):
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
-        frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
-        frame_com.grid(row=0, column=0, padx=10, pady=10)
+        self.frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
+        self.frame_com.grid(row=0, column=0, padx=10, pady=10)
 
-        frame_com.rowconfigure(0, weight=14)
-        frame_com.rowconfigure(1, weight=2)
-        frame_com.rowconfigure(2, weight=2)
+        self.frame_com.rowconfigure(0, weight=14)
+        self.frame_com.rowconfigure(1, weight=2)
+        self.frame_com.rowconfigure(2, weight=2)
 
+    def _make_freame_left_comread(self):
         # frame_left/frame_com COM read ###############################################
-        frame_com_read = ttk.LabelFrame(frame_com, text='COM read')
-        frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
+        self.frame_com_read = ttk.LabelFrame(self.frame_com, text='COM read')
+        self.frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
         # add a scrollbar https://youtu.be/BckVJoE94Lk
 
-        self.scrollbar = ttk.Scrollbar(frame_com_read, orient='vertical')
+        self.scrollbar = ttk.Scrollbar(self.frame_com_read, orient='vertical')
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.lbox_com_read = tk.Listbox(frame_com_read, width=30, height=10,
+        self.lbox_com_read = tk.Listbox(self.frame_com_read, width=30, height=10,
                                         yscrollcommand=self.scrollbar.set, relief='sunken')
         self.lbox_com_read.pack(side=TOP, fill=X)
 
         self.scrollbar.config(command=self.lbox_com_read.yview)
 
-        # frame_left/frame_com COM write ##############################################
-        frame_com_write = ttk.LabelFrame(frame_com, text='COM write')
-        frame_com_write.grid(row=1, column=0, padx=10, pady=5)
-
-        label_com_write = ttk.Label(frame_com_write,
-                                    text="PARAMETER,?",
-                                    width=40)
-        label_com_write.grid(row=0, column=0, padx=10)
-
+    def _make_freame_left_comwrite(self):
         # frame_left/frame_com COM port status ##############################################
 
-        frame_com_state = ttk.LabelFrame(frame_com, text='COM State')
-        frame_com_state.grid(row=2, column=0, padx=10)
+        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM State')
+        self.frame_com_state.grid(row=2, column=0, padx=10)
 
         self.text_com_state = tk.IntVar()
-        label_com_state = ttk.Label(frame_com_state,
+        label_com_state = ttk.Label(self.frame_com_state,
                                     textvariable=self.text_com_state,
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
 
-        # ###################################################################
+    def _make_frame_left_comstate(self):
+        # frame_left/frame_com COM port status ##############################################
+
+        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM State')
+        self.frame_com_state.grid(row=2, column=0, padx=10)
+
+        self.text_com_state = tk.IntVar()
+        label_com_state = ttk.Label(self.frame_com_state,
+                                    textvariable=self.text_com_state,
+                                    width=40)
+        label_com_state.grid(row=0, column=0, padx=10)
+
+    def _make_frame_left_parameter(self):
         # frame_left/frame_parameter ########################################
         frame_parameter = ttk.LabelFrame(self.frame_left, text="Parameter")
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
@@ -125,10 +137,10 @@ class View(tk.Tk):
                                     textvariable=self.text_parameter,
                                     width=40)
         # label_parameter.grid(row=0, column=0, padx=10, pady=10)
-        #label_parameter.pack()
+        # label_parameter.pack()
 
-        tbox_parameter= tk.Listbox(frame_parameter,
-                                        width=70)
+        tbox_parameter = tk.Listbox(frame_parameter,
+                                    width=70)
         tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
 
         tbox_parameter.pack()
@@ -171,16 +183,15 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
-
     def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.init_com_handle)
 
     def get_parameters_from_esp(self):
         pass
-        #self.usbserial.parameters_needed=10
-        #self.usbserial.parameter_list.clear()
-        #self.usbserial.write_comport('PARAMETER,?')
-        #self.after(500,self.get_parameters1)
+        # self.usbserial.parameters_needed=10
+        # self.usbserial.parameter_list.clear()
+        # self.usbserial.write_comport('PARAMETER,?')
+        # self.after(500,self.get_parameters1)
 
     def frame_select_com_on(self):
         # self.frame_adjust_off()
@@ -243,7 +254,8 @@ class View(tk.Tk):
         self.com_selected = temp
         print(temp)
 
-    def parameter_select(self,event):
+    def parameter_select(self, event):
         pass
+
     def close(self):
         self.destroy()
