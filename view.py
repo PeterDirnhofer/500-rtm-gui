@@ -139,16 +139,19 @@ class View(tk.Tk):
         # label_parameter.grid(row=0, column=0, padx=10, pady=10)
         # label_parameter.pack()
 
-        tbox_parameter = tk.Listbox(frame_parameter,
+        self.tbox_parameter = tk.Listbox(frame_parameter,
                                     width=70)
-        tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
+        self.tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
 
-        tbox_parameter.pack()
+        self.tbox_parameter.pack()
+
+
         self.btn_get_parameter = ttk.Button(frame_parameter,
                                             text="Get",
-                                            command=self.get_parameters_from_esp)
+                                            command=self.controller.usb_serial_get_parameter_handle)
 
         self.btn_get_parameter.pack(side=LEFT)
+
 
     def _make_frame_bottom(self):
         # frame_bottom add frame_status
@@ -184,14 +187,8 @@ class View(tk.Tk):
         self.style.configure('TButton', relief='sunken')
 
     def trigger_state_machine_after(self, intervall_ms):
-        self.after(intervall_ms, self.controller.init_com_handle)
+        self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
 
-    def get_parameters_from_esp(self):
-        pass
-        # self.usbserial.parameters_needed=10
-        # self.usbserial.parameter_list.clear()
-        # self.usbserial.write_comport('PARAMETER,?')
-        # self.after(500,self.get_parameters1)
 
     def frame_select_com_on(self):
         # self.frame_adjust_off()

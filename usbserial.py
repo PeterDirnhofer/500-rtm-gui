@@ -3,14 +3,14 @@
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
 import pickle
-import tkinter
+import tkinter as tk
 from tkinter import messagebox
 
 import serial.tools.list_ports
 import serial
 from threading import Thread
 
-
+NUMBER_OF_PARAMETERS = 10
 class UsbSerial:
     def __init__(self, view):
         self.serialInst = serial.Serial()
@@ -19,13 +19,14 @@ class UsbSerial:
         self.view = view
         self.m_com_port_read_is_started = False
         self.m_line_to_consume = ""
-        self.m_parameters_needed = 0
+        self.parameters_needed = 0
         self.m_parameter_list = []
         self.m_sm_state = "INIT"
         self.m_actport = ""
 
     def init_com(self):
         """
+        Initialize PC COM Port to ESP32.
         Read default portnumber from flash. Open port, start receive loop.
         Send CTRL-C and wait for ESP32 response='IDLE'.
         On Error, open dialog to select other portnumber
@@ -65,6 +66,52 @@ class UsbSerial:
             return True
         except Exception:
             return False
+
+    def get_parameter(self):
+        """
+        Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
+        """
+        self.view.tbox_parameter.delete(0, tk.END)
+        self.m_parameter_list.clear()
+        self.parameters_needed = NUMBER_OF_PARAMETERS
+        self.write('PARAMETER,?')
+
+    def m_start_read_loop(self):
+        if self.m_com_port_read_is_started:
+            return
+        else:
+            self.m_com_port_read_is_started = True
+            print('start com_tread')
+            com_thread = Thread(target=self.m_read_loop, daemon=True)
+            com_thread.start()
+
+    def m_read_loop(self):
+        """
+        Loop that reads comport. Monitor reads in
+        :return:
+        """
+        # https://youtu.be/AHr94RtMj1A
+        # Python Tutorial - How to Read Data from Arduino via Serial Port
+        print('read_comport starting')
+
+        while True:
+            if self.serialInst.inWaiting:
+                try:
+                    ln = self.serialInst.readline().decode('utf').rstrip('\n')
+                    if len(ln) > 0:
+                        self.m_read_line = ln
+                        if self.parameters_needed > 0:
+                            self.m_parameter_list.append(self.m_read_line)
+                            self.view.tbox_parameter.insert(tk.END, self.m_read_line)
+                            self.parameters_needed -= 1
+                        else:
+                            self.view.lbox_com_read_update(self.m_read_line)
+                            self.view.label_adjust_update(self.m_read_line)
+
+
+                except Exception:
+                    messagebox.showerror('error', 'Connection lost\nClose the programm')
+                    self.view.close()
 
     @staticmethod
     def m_get_default_comport():
@@ -110,40 +157,6 @@ class UsbSerial:
                 self.m_status = 'ERROR'
         return self.m_status
 
-    def m_start_comport_read_thread(self):
-        if self.m_com_port_read_is_started:
-            return
-        else:
-            self.m_com_port_read_is_started = True
-            print('start com_tread')
-            com_thread = Thread(target=self.read, daemon=True)
-            com_thread.start()
-
-    def read(self):
-        """
-        Loop that reads comport. Monitor reads in
-        :return:
-        """
-        # https://youtu.be/AHr94RtMj1A
-        # Python Tutorial - How to Read Data from Arduino via Serial Port
-        print('read_comport starting')
-
-        while True:
-            if self.serialInst.inWaiting:
-                try:
-                    ln = self.serialInst.readline().decode('utf').rstrip('\n')
-                    if len(ln) > 0:
-                        self.m_read_line = ln
-                        self.view.lbox_com_read_update(self.m_read_line)
-                        self.view.label_adjust_update(self.m_read_line)
-                        if self.m_parameters_needed > 0:
-                            self.m_parameter_list.append(self.m_read_line)
-                            self.m_parameters_needed -= 1
-
-                except Exception:
-                    messagebox.showerror('error', 'Connection lost\nClose the programm')
-                    self.view.close()
-
     ##########################################################
     # State machine
     def m_is_default_port_existing(self):
@@ -177,7 +190,7 @@ class UsbSerial:
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
         if self.write(chr(3)):
-            self.m_start_comport_read_thread()  # enable receiver
+            self.m_start_read_loop()  # enable receiver
             self.m_sm_state = 'WAIT_FOR_IDLE'
         else:
             self.m_sm_state = 'ERROR_COM'
@@ -193,9 +206,9 @@ class UsbSerial:
         return
 
     def m_com_ready(self):
-        self.view.button_select_adjust['state'] = tkinter.NORMAL
-        self.view.button_select_measure['state'] = tkinter.NORMAL
-        self.view.button_select_reset['state'] = tkinter.NORMAL
+        self.view.button_select_adjust['state'] = tk.NORMAL
+        self.view.button_select_measure['state'] = tk.NORMAL
+        self.view.button_select_reset['state'] = tk.NORMAL
         self.view.text_com_state.set(f'Connected {self.m_actport}')
 
     def m_error(self):

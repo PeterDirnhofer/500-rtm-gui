@@ -21,8 +21,16 @@ class Controller:
     def main(self):
         self.view.main()
 
-    def init_com_handle(self):
+    def usb_serial_init_com_handle(self):
+        """
+        access to usb_serial only possible from controller.
+        Can be called from view. View cannot access usbserial directly
+        """
         self.usb_serial.init_com()
+
+    def usb_serial_get_parameter_handle(self):
+        self.usb_serial.get_parameter()
+
 
     @staticmethod
     def select_measure():
@@ -46,8 +54,7 @@ class Controller:
 
         self.sm_state = "INIT"
         self.view.trigger_state_machine_after(100)
-        # os.execv(__file__, sys.argv)
-        # self.view.restart()
+
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
