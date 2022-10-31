@@ -14,17 +14,9 @@ class View(tk.Tk):
 
         self._make_main_frame()
         self._make_frame_menu()
-
         self._make_frame_comread()
-
-        self._make_frame_left_frame_com()
-        self._make_frame_com_frame_com_read()
-        # self._make_subframe_comwrite()
-        self._make_frame_left_frame_com_frame_com_state()
-        self._make_frame_left_frame_parameter()
-
-
-        self._make_frame_left_frame_parameter_tbox_parameter()
+        self._make_frame_comstate()
+        self._make_frame_parameter()
 
         self._make_frame_bottom()
         self._make_frame_middle()
@@ -34,8 +26,6 @@ class View(tk.Tk):
         self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
 
-    def _make_frame_comread(self):
-        pass
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
@@ -58,53 +48,36 @@ class View(tk.Tk):
         self.rowconfigure(3, weight=60)
         self.rowconfigure(4, weight=5)
 
-        self.frame_menu = ttk.Frame(self)  # e Menu
-        self.frame_comread=ttk.Frame(self)
-        self.frame_comread.grid(row=1,column=0,sticky='nesw')
 
-
-
-        self.frame_left = ttk.Frame(self)  # comport and parameter
 
         self.frame_middle = ttk.Frame(self)  # Measure
         self.frame_bottom = ttk.Frame(self)  # Status
 
-        # grid placement main frames
-        self.frame_left.grid(row=1, column=0, rowspan=1, sticky='nesw')
-        self.frame_menu.grid(row=0, column=0, columnspan=2, sticky='nesw')
+
+
         self.frame_middle.grid(row=1, column=1, sticky='nesw')
         self.frame_bottom.grid(row=3, column=0, columnspan=2, sticky='nesw')
 
     def _make_frame_menu(self):
-        self.frame_menu1 = ttk.Frame(self)
-        self.frame_menu1.grid(row=0,column=0,sticky='nesw')
-        self.button_select_reset = ttk.Button(self.frame_menu1, text="RESET",
+        self.frame_menu = ttk.Frame(self)
+        self.frame_menu.grid(row=0,column=0,sticky='nesw')
+        self.button_select_reset = ttk.Button(self.frame_menu, text="RESET",
                                               command=self.controller.select_restart,
                                               state=DISABLED)
         self.button_select_reset.pack(side=LEFT, padx=10, pady=2)
 
-        self.button_select_measure = ttk.Button(self.frame_menu1, text="Measure",
+        self.button_select_measure = ttk.Button(self.frame_menu, text="Measure",
                                                 command=self.controller.select_measure,
                                                 state=DISABLED)
         self.button_select_measure.pack(side=LEFT, padx=10, pady=2)
 
-        self.button_select_adjust = ttk.Button(self.frame_menu1, text="Adjust",
+        self.button_select_adjust = ttk.Button(self.frame_menu, text="Adjust",
                                                command=self.controller.select_adjust,
                                                state=DISABLED)
         self.button_select_adjust.pack(side=LEFT, padx=10, pady=2)
 
-
-    def _make_frame_left_frame_com(self):
-        # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
-        self.frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
-        self.frame_com.grid(row=0, column=0, pady=5, sticky=N+S+W+E)
-
-        self.frame_com.rowconfigure(0, weight=14)
-        self.frame_com.rowconfigure(1, weight=2)
-        #self.frame_com.rowconfigure(2, weight=2)
-
-    def _make_frame_com_frame_com_read(self):
-        self.frame_com_read = ttk.LabelFrame(self.frame_com, text='COM read')
+    def _make_frame_comread(self):
+        self.frame_com_read = ttk.LabelFrame(self, text='COM read1')
         self.frame_com_read.grid(row=1, column=0, padx=10, pady=10,  sticky=N + S)
 
         # add a scrollbar https://youtu.be/BckVJoE94Lk
@@ -117,8 +90,8 @@ class View(tk.Tk):
 
         self.scrollbar.config(command=self.lbox_com_read.yview)
 
-    def _make_frame_left_frame_com_frame_com_state(self):
-        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM-State')
+    def _make_frame_comstate(self):
+        self.frame_com_state = ttk.LabelFrame(self, text='COM-State')
         self.frame_com_state.grid(row=2, column=0, padx=10)
 
         self.text_com_state = tk.IntVar()
@@ -127,12 +100,9 @@ class View(tk.Tk):
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
 
-    def _make_frame_left_frame_parameter(self):
-        self.frame_parameter = ttk.LabelFrame(self.frame_left, text="Parameter")
-        self.frame_parameter.grid(row=2, column=0, padx=10, pady=10)
-
-    def _make_frame_left_frame_parameter_tbox_parameter(self):
-
+    def _make_frame_parameter(self):
+        self.frame_parameter = ttk.LabelFrame(self, text="Parameter")
+        self.frame_parameter.grid(row=3, column=0, padx=10, pady=10)
         self.tbox_parameter = tk.Listbox(self.frame_parameter,
                                          width=70)
 
@@ -141,14 +111,13 @@ class View(tk.Tk):
         self.tbox_parameter.pack()
 
         # Define refresh Image using pillow  https://youtu.be/kjc53i4xUmw
-        self.pillow_image= Image.open(r"data/refresh_icon-icons.png")
-        self.pillow_image=self.pillow_image.resize((25,25), Image.ANTIALIAS)
+        self.pillow_image = Image.open(r"data/refresh_icon-icons.png")
+        self.pillow_image = self.pillow_image.resize((25, 25), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(self.pillow_image)
 
         self.btn_get_parameter = ttk.Button(self.frame_parameter,
                                             image=self.image,
                                             command=self.controller.usb_serial_get_parameter_handle)
-
 
         self.btn_get_parameter.pack(side=LEFT)
 
