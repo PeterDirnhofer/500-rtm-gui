@@ -45,6 +45,7 @@ class UsbSerial:
             self.view.trigger_state_machine_after(1000)
             return
         elif self.m_sm_state == 'WAIT_FOR_IDLE':
+            self.parameters_needed=0
             self.m_wait_for_idle()
             self.view.trigger_state_machine_after(50)
             return
@@ -78,6 +79,7 @@ class UsbSerial:
 
     def m_start_read_loop(self):
         if self.m_com_port_read_is_started:
+
             return
         else:
             self.m_com_port_read_is_started = True
