@@ -13,12 +13,13 @@ class View(tk.Tk):
         self.com_selected = ""
 
         self._make_main_frame()
+
         self._make_frame_menu()
         self._make_frame_comread()
         self._make_frame_comstate()
         self._make_frame_parameter()
+        self._make_frame_state()
 
-        self._make_frame_bottom()
         self._make_frame_middle()
         self._style()
 
@@ -121,13 +122,13 @@ class View(tk.Tk):
 
         self.btn_get_parameter.pack(side=LEFT)
 
-    def _make_frame_bottom(self):
-        self.frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
-        self.frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
+    def _make_frame_state(self):
+        self.frame_status = ttk.LabelFrame(self, text="State")
+        self.frame_status.grid(row=4, column=0, columnspan=2,padx=10, pady=10, sticky='nesw')
         self.text_status = tk.StringVar()
         self.label_status = ttk.Label(self.frame_status,
                                       textvariable=self.text_status)
-        self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
+        self.label_status.pack(side=LEFT)
 
     def _make_frame_middle(self):
         self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
