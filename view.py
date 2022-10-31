@@ -15,10 +15,10 @@ class View(tk.Tk):
         self._make_main_frame()
         self._make_frame_top()
 
-        self._make_frame_left()
-        self._make_freame_left_comread()
+        self._make_frame_left_frame_com()
+        self._make_frame_com_frame_com_read()
         # self._make_subframe_comwrite()
-        self._make_frame_left_comstate()
+        self._make_frame_left_frame_com_frame_com_state()
         self._make_frame_left_parameter()
 
         self._make_frame_bottom()
@@ -75,46 +75,31 @@ class View(tk.Tk):
                                                state=DISABLED)
         self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
 
-    def _make_frame_left(self):
+    def _make_frame_left_frame_com(self):
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
         self.frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
         self.frame_com.grid(row=0, column=0, padx=10, pady=10)
 
         self.frame_com.rowconfigure(0, weight=14)
         self.frame_com.rowconfigure(1, weight=2)
-        self.frame_com.rowconfigure(2, weight=2)
+        #self.frame_com.rowconfigure(2, weight=2)
 
-    def _make_freame_left_comread(self):
-        # frame_left/frame_com COM read ###############################################
+    def _make_frame_com_frame_com_read(self):
         self.frame_com_read = ttk.LabelFrame(self.frame_com, text='COM read')
-        self.frame_com_read.grid(row=0, column=0, padx=10, pady=10, sticky=E + W)
-        # add a scrollbar https://youtu.be/BckVJoE94Lk
+        self.frame_com_read.grid(row=1, column=0, padx=10, pady=10,  sticky=N + S)
 
+        # add a scrollbar https://youtu.be/BckVJoE94Lk
         self.scrollbar = ttk.Scrollbar(self.frame_com_read, orient='vertical')
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
         self.lbox_com_read = tk.Listbox(self.frame_com_read, width=30, height=10,
                                         yscrollcommand=self.scrollbar.set, relief='sunken')
-        self.lbox_com_read.pack(side=TOP, fill=X)
+        self.lbox_com_read.pack(side=LEFT, fill=X)
 
         self.scrollbar.config(command=self.lbox_com_read.yview)
 
-    def _make_freame_left_comwrite(self):
-        # frame_left/frame_com COM port status ##############################################
-
-        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM State')
-        self.frame_com_state.grid(row=2, column=0, padx=10)
-
-        self.text_com_state = tk.IntVar()
-        label_com_state = ttk.Label(self.frame_com_state,
-                                    textvariable=self.text_com_state,
-                                    width=40)
-        label_com_state.grid(row=0, column=0, padx=10)
-
-    def _make_frame_left_comstate(self):
-        # frame_left/frame_com COM port status ##############################################
-
-        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM State')
+    def _make_frame_left_frame_com_frame_com_state(self):
+        self.frame_com_state = ttk.LabelFrame(self.frame_com, text='COM-State')
         self.frame_com_state.grid(row=2, column=0, padx=10)
 
         self.text_com_state = tk.IntVar()
@@ -143,10 +128,7 @@ class View(tk.Tk):
 
         self.tbox_parameter.pack()
 
-        #im=Image.open(r'data/refresh_icon-icons.png')
-        #pk = ImageTk.PhotoImage(file = r'data/refresh_icon-icons.png')
-
-        # Define Image using pillow  https://youtu.be/kjc53i4xUmw
+        # Define refresh Image using pillow  https://youtu.be/kjc53i4xUmw
         self.pillow_image= Image.open(r"data/refresh_icon-icons.png")
         self.pillow_image=self.pillow_image.resize((25,25), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(self.pillow_image)
