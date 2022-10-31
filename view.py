@@ -13,13 +13,18 @@ class View(tk.Tk):
         self.com_selected = ""
 
         self._make_main_frame()
-        self._make_frame_top()
+        self._make_frame_menu()
+
+        self._make_frame_comread()
 
         self._make_frame_left_frame_com()
         self._make_frame_com_frame_com_read()
         # self._make_subframe_comwrite()
         self._make_frame_left_frame_com_frame_com_state()
-        self._make_frame_left_parameter()
+        self._make_frame_left_frame_parameter()
+
+
+        self._make_frame_left_frame_parameter_tbox_parameter()
 
         self._make_frame_bottom()
         self._make_frame_middle()
@@ -28,6 +33,9 @@ class View(tk.Tk):
     def main(self):
         self.trigger_state_machine_after(1000)
         self.mainloop()  # Tk mainloop
+
+    def _make_frame_comread(self):
+        pass
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
@@ -45,40 +53,51 @@ class View(tk.Tk):
         self.columnconfigure(1, weight=7)
 
         self.rowconfigure(0, weight=5)
-        self.rowconfigure(1, weight=100)
-        self.rowconfigure(2, weight=5)
-        self.frame_top = ttk.Frame(self)  # e Menu
+        self.rowconfigure(1, weight=40)
+        self.rowconfigure(2, weight=10)
+        self.rowconfigure(3, weight=60)
+        self.rowconfigure(4, weight=5)
+
+        self.frame_menu = ttk.Frame(self)  # e Menu
+        self.frame_comread=ttk.Frame(self)
+        self.frame_comread.grid(row=1,column=0,sticky='nesw')
+
+
+
         self.frame_left = ttk.Frame(self)  # comport and parameter
+
         self.frame_middle = ttk.Frame(self)  # Measure
         self.frame_bottom = ttk.Frame(self)  # Status
 
         # grid placement main frames
         self.frame_left.grid(row=1, column=0, rowspan=1, sticky='nesw')
-        self.frame_top.grid(row=0, column=0, columnspan=2, sticky='nesw')
+        self.frame_menu.grid(row=0, column=0, columnspan=2, sticky='nesw')
         self.frame_middle.grid(row=1, column=1, sticky='nesw')
-        self.frame_bottom.grid(row=2, column=0, columnspan=2, sticky='nesw')
+        self.frame_bottom.grid(row=3, column=0, columnspan=2, sticky='nesw')
 
-    def _make_frame_top(self):
-        # frame_top: Menu add Buttons Measure + Adjust
-        self.button_select_reset = ttk.Button(self.frame_top, text="RESET",
+    def _make_frame_menu(self):
+        self.frame_menu1 = ttk.Frame(self)
+        self.frame_menu1.grid(row=0,column=0,sticky='nesw')
+        self.button_select_reset = ttk.Button(self.frame_menu1, text="RESET",
                                               command=self.controller.select_restart,
                                               state=DISABLED)
-        self.button_select_reset.grid(row=0, column=0, padx=10, pady=2)
+        self.button_select_reset.pack(side=LEFT, padx=10, pady=2)
 
-        self.button_select_measure = ttk.Button(self.frame_top, text="Measure",
+        self.button_select_measure = ttk.Button(self.frame_menu1, text="Measure",
                                                 command=self.controller.select_measure,
                                                 state=DISABLED)
-        self.button_select_measure.grid(row=0, column=1, padx=10, pady=2)
+        self.button_select_measure.pack(side=LEFT, padx=10, pady=2)
 
-        self.button_select_adjust = ttk.Button(self.frame_top, text="Adjust",
+        self.button_select_adjust = ttk.Button(self.frame_menu1, text="Adjust",
                                                command=self.controller.select_adjust,
                                                state=DISABLED)
-        self.button_select_adjust.grid(row=0, column=2, padx=10, pady=2)
+        self.button_select_adjust.pack(side=LEFT, padx=10, pady=2)
+
 
     def _make_frame_left_frame_com(self):
         # frame_left  Add frame_com COM READ   COM WRITE  COM SELECT
         self.frame_com = ttk.LabelFrame(self.frame_left, text="COM Port")
-        self.frame_com.grid(row=0, column=0, padx=10, pady=10)
+        self.frame_com.grid(row=0, column=0, pady=5, sticky=N+S+W+E)
 
         self.frame_com.rowconfigure(0, weight=14)
         self.frame_com.rowconfigure(1, weight=2)
@@ -108,20 +127,13 @@ class View(tk.Tk):
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
 
-    def _make_frame_left_parameter(self):
-        # frame_left/frame_parameter ########################################
-        frame_parameter = ttk.LabelFrame(self.frame_left, text="Parameter")
-        frame_parameter.grid(row=1, column=0, padx=10, pady=10)
+    def _make_frame_left_frame_parameter(self):
+        self.frame_parameter = ttk.LabelFrame(self.frame_left, text="Parameter")
+        self.frame_parameter.grid(row=2, column=0, padx=10, pady=10)
 
-        self.text_parameter = tk.StringVar()
+    def _make_frame_left_frame_parameter_tbox_parameter(self):
 
-        label_parameter = ttk.Label(frame_parameter,
-                                    textvariable=self.text_parameter,
-                                    width=40)
-        # label_parameter.grid(row=0, column=0, padx=10, pady=10)
-        # label_parameter.pack()
-
-        self.tbox_parameter = tk.Listbox(frame_parameter,
+        self.tbox_parameter = tk.Listbox(self.frame_parameter,
                                          width=70)
 
         self.tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
@@ -133,7 +145,7 @@ class View(tk.Tk):
         self.pillow_image=self.pillow_image.resize((25,25), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(self.pillow_image)
 
-        self.btn_get_parameter = ttk.Button(frame_parameter,
+        self.btn_get_parameter = ttk.Button(self.frame_parameter,
                                             image=self.image,
                                             command=self.controller.usb_serial_get_parameter_handle)
 
