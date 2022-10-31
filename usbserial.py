@@ -211,6 +211,9 @@ class UsbSerial:
         self.view.button_select_reset['state'] = tk.NORMAL
         self.view.text_com_state.set(f'Connected {self.m_actport}')
 
+        # Get parameter and display in parameter_frame
+        self.view.controller.usb_serial_get_parameter_handle()
+
     def m_error(self):
         self.view.frame_select_com_on()
         available_ports = self.m_get_ports()

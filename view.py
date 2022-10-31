@@ -3,10 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
 
-dumyMsg = "kI,10\nkP,1000\ndestinationTunnelCurrent,10,0\nremainingTunnelCurrentDifferencenA,0.01\nstarX,0\nstartY," \
-          "0\ndirection,0\n "
-dumyMsg += "maxX,0\nmaxY,0\nmultiplicator,10"
-
+import PIL
+from PIL import Image, ImageTk
 
 class View(tk.Tk):
     def __init__(self, controller):
@@ -131,7 +129,6 @@ class View(tk.Tk):
         frame_parameter.grid(row=1, column=0, padx=10, pady=10)
 
         self.text_parameter = tk.StringVar()
-        self.text_parameter.set(dumyMsg)
 
         label_parameter = ttk.Label(frame_parameter,
                                     textvariable=self.text_parameter,
@@ -140,21 +137,28 @@ class View(tk.Tk):
         # label_parameter.pack()
 
         self.tbox_parameter = tk.Listbox(frame_parameter,
-                                    width=70)
+                                         width=70)
+
         self.tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
 
         self.tbox_parameter.pack()
 
+        #im=Image.open(r'data/refresh_icon-icons.png')
+        #pk = ImageTk.PhotoImage(file = r'data/refresh_icon-icons.png')
+
+        # Define Image using pillow  https://youtu.be/kjc53i4xUmw
+        self.pillow_image= Image.open(r"data/refresh_icon-icons.png")
+        self.pillow_image=self.pillow_image.resize((25,25), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(self.pillow_image)
 
         self.btn_get_parameter = ttk.Button(frame_parameter,
-                                            text="Get",
+                                            image=self.image,
                                             command=self.controller.usb_serial_get_parameter_handle)
+
 
         self.btn_get_parameter.pack(side=LEFT)
 
-
     def _make_frame_bottom(self):
-        # frame_bottom add frame_status
         self.frame_status = ttk.LabelFrame(self.frame_bottom, text="Status")
         self.frame_status.grid(row=0, column=0, padx=10, pady=10, sticky='nesw')
         self.text_status = tk.StringVar()
@@ -163,20 +167,13 @@ class View(tk.Tk):
         self.label_status.grid(row=0, column=0, padx=10, pady=10, sticky='nswe')
 
     def _make_frame_middle(self):
-        ####################################################################################
-        # frame_middle Option1 : add frame_select_com add listbox_comports
         self.frame_select_com = ttk.LabelFrame(self.frame_middle, text="Select COM")
 
         self.listbox_comports = tk.Listbox(self.frame_select_com,
                                            width=70)
 
         self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
-
-        ####################################################################################
-        # frame_middle Option 2: add Adjust
-
         self.frame_adjust = ttk.LabelFrame(self.frame_middle, text="Adjust")
-        # self.frame_adjust.pack(padx=10, pady=10)
 
         self.text_label_adjust = tk.StringVar()
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
@@ -188,7 +185,6 @@ class View(tk.Tk):
 
     def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
-
 
     def frame_select_com_on(self):
         # self.frame_adjust_off()
