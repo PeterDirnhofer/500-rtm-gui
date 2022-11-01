@@ -1,6 +1,8 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
+import time
 import tkinter
+from tkinter import messagebox
 from tkinter.messagebox import showinfo
 
 from model import Model
@@ -29,6 +31,8 @@ class Controller:
         self.usb_serial.init_com()
 
     def usb_serial_get_parameter_handle(self):
+        time.sleep(1)
+        #messagebox.showinfo("usb_serial_get_parameter")
         self.usb_serial.get_parameter()
 
 
@@ -52,7 +56,7 @@ class Controller:
 
 
         self.sm_state = "INIT"
-        self.view.trigger_state_machine_after(100)
+        self.view.trigger_state_machine_after(400)
 
 
     def select_adjust(self):

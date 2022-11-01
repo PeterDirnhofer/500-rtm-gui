@@ -57,9 +57,7 @@ class UsbSerial:
 
         else:
             raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
-
     def write(self, cmd):
-        print(f'write_comport {cmd}')
         self.serialInst.write_timeout = 1.0
 
         try:
@@ -79,11 +77,10 @@ class UsbSerial:
 
     def m_start_read_loop(self):
         if self.m_com_port_read_is_started:
-
+            print("m_read_loop already started")
             return
         else:
             self.m_com_port_read_is_started = True
-            print('start com_tread')
             com_thread = Thread(target=self.m_read_loop, daemon=True)
             com_thread.start()
 
@@ -94,7 +91,7 @@ class UsbSerial:
         """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
-        print('read_comport starting')
+
 
         while True:
             if self.serialInst.inWaiting:
@@ -144,7 +141,6 @@ class UsbSerial:
     def m_open_comport(self, comport):
         if self.m_status != 'OPEN':
             try:
-                print(f'Try to open {comport} ')
                 self.serialInst.baudrate = 115200
                 self.serialInst.port = comport
                 if self.serialInst.isOpen():
