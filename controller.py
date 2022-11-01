@@ -42,6 +42,9 @@ class Controller:
             message='Measure clicked!'
         )
 
+    def usb_serial_trigger_new_statemachine_handle(self):
+        self.usb_serial.start_init_com_statemachine()
+
     def select_restart(self):
         self.view.frame_select_com_off()
         self.view.frame_adjust_off()

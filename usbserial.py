@@ -3,6 +3,7 @@
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
 import pickle
+import time
 import tkinter as tk
 from tkinter import messagebox
 
@@ -20,11 +21,51 @@ class UsbSerial:
         self.m_read_line = ""
         self.view = view
         self.m_com_port_read_is_started = False
+        self.m_init_com_statemachine_is_started = False
         self.m_line_to_consume = ""
         self.parameters_needed = 0
         self.m_parameter_list = []
         self.m_sm_state = "INIT"
         self.m_actport = ""
+        self.m_new="INIT"
+
+
+    def start_init_com_statemachine(self):
+        self.m_init_com_statemachine_is_started = True
+        init_com_thread = Thread(target=self.init_com_statemachine_loop, daemon=True)
+        init_com_thread.start()
+
+    def init_com_statemachine_loop(self):
+        while self.m_sm_state != 'COM READY':
+            if self.m_sm_state=='INIT':
+                self.m_is_default_port_existing()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'EXISTING':
+                self.m_open()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'OPEN':
+                self.m_send_reset()
+                time.sleep(1)
+                continue
+            elif self.m_sm_state == 'WAIT_FOR_IDLE':
+                self.parameters_needed = 0
+                self.m_wait_for_idle()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'COM_READY':
+                self.m_com_ready()
+            elif self.m_sm_state == "ERROR_COM":
+                self.m_error()
+                time.sleep(0.200)
+
+            else:
+                raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
+
+
+
+
 
     def init_com_statemachine(self):
 

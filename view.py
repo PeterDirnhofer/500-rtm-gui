@@ -26,7 +26,8 @@ class View(tk.Tk):
         self._style()
 
     def main(self):
-        self.trigger_state_machine_after(1)
+        #self.trigger_state_machine_after(1)
+        self.controller.usb_serial_trigger_new_statemachine_handle()
         #self.after(2000, self.controller.usb_serial_get_parameter_handle)
         self.mainloop()  # Tk mainloop
 
@@ -165,6 +166,9 @@ class View(tk.Tk):
 
     def trigger_state_machine_after(self, intervall_ms):
         self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
+
+    def trigger_new_statemachine(self):
+        self.usbserial.start_init_com_statemachine()
 
     def display_comports(self, ports):
         """
