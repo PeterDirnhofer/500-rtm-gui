@@ -27,6 +27,7 @@ class UsbSerial:
         self.m_actport = ""
 
     def init_com_statemachine(self):
+
         """
         Initialize PC COM Port to ESP32.
         Read default portnumber from flash. Open port, start receive loop.
