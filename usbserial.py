@@ -16,12 +16,11 @@ NUMBER_OF_PARAMETERS = 10
 
 class UsbSerial:
     def __init__(self, view):
-        self.serialInst = serial.Serial()
+        self.m_serialInst = serial.Serial()
         self.m_status = ""
         self.m_read_line = ""
         self.view = view
         self.m_com_port_read_is_started = False
-        self.m_init_com_statemachine_is_started = False
         self.m_line_to_consume = ""
         self.parameters_needed = 0
         self.m_parameter_list = []
@@ -29,14 +28,11 @@ class UsbSerial:
         self.m_sm_last_state = 'LAST'
         self.m_actport = ""
 
-
-
-
     def write(self, cmd):
-        self.serialInst.write_timeout = 1.0
+        self.m_serialInst.write_timeout = 1.0
 
         try:
-            self.serialInst.write(f'{cmd}\n'.encode('utf'))
+            self.m_serialInst.write(f'{cmd}\n'.encode('utf'))
             return True
         except Exception:
             return False
@@ -70,9 +66,9 @@ class UsbSerial:
         # Python Tutorial - How to Read Data from Arduino via Serial Port
 
         while True:
-            if self.serialInst.inWaiting:
+            if self.m_serialInst.inWaiting:
                 try:
-                    ln = self.serialInst.readline().decode('utf').rstrip('\n')
+                    ln = self.m_serialInst.readline().decode('utf').rstrip('\n')
                     if len(ln) > 0:
                         self.m_read_line = ln
                         if self.parameters_needed > 0:
@@ -87,7 +83,6 @@ class UsbSerial:
                 except Exception:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
-
 
     ####################################################################################
     @staticmethod
@@ -124,15 +119,15 @@ class UsbSerial:
     def m_open_comport(self, comport):
         if self.m_status != 'OPEN':
             try:
-                self.serialInst.baudrate = 115200
-                self.serialInst.port = comport
-                if self.serialInst.isOpen():
+                self.m_serialInst.baudrate = 115200
+                self.m_serialInst.port = comport
+                if self.m_serialInst.isOpen():
                     try:
                         print("isopen")
-                        self.serialInst.close()
+                        self.m_serialInst.close()
                     except Exception:
                         pass
-                self.serialInst.open()
+                self.m_serialInst.open()
                 self.m_status = "OPEN"
             except Exception:
                 self.m_status = 'ERROR'
@@ -140,25 +135,24 @@ class UsbSerial:
 
     ##########################################################
     def start_init_com_statemachine(self):
-        self.m_init_com_statemachine_is_started = True
+
         init_com_thread = Thread(target=self.init_com_statemachine_loop, daemon=True)
 
         init_com_thread.start()
 
     def init_com_statemachine_loop(self):
         '''
-        Satemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
+        Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         '''
-        m_oldState=''
+
         while True:
 
-            if self.m_sm_state!=self.m_sm_last_state:
-                self.m_sm_last_state= self.m_sm_state
+            if self.m_sm_state != self.m_sm_last_state:
+                self.m_sm_last_state = self.m_sm_state
                 self.view.text_status.set(self.m_sm_state)
 
-
-            if self.m_sm_state=='INIT':
+            if self.m_sm_state == 'INIT':
                 self.m_is_default_port_existing()
                 time.sleep(0.050)
                 continue
@@ -186,7 +180,6 @@ class UsbSerial:
 
             else:
                 raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
-
 
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
@@ -242,7 +235,7 @@ class UsbSerial:
 
         # Get parameter and display in parameter_frame
         self.view.controller.usb_serial_get_parameter_handle()
-        self.m_sm_state='PASSIVE'
+        self.m_sm_state = 'PASSIVE'
 
     def m_error(self):
         self.view.frame_select_com_on()

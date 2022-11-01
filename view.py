@@ -26,7 +26,6 @@ class View(tk.Tk):
         self._style()
 
     def main(self):
-
         self.controller.usb_serial_trigger_new_statemachine_handle()
         self.mainloop()  # Tk mainloop
 
@@ -38,21 +37,21 @@ class View(tk.Tk):
 
         self.iconbitmap('data/LOGO-rsl.ico')
 
-        self.geometry("900x700")
+        self.geometry("1000x700")
         self.resizable(False, False)
 
         self.frame_main = ttk.Frame(self)
-        self.frame_main.grid(row=0, column=0, sticky='nsew')
+        self.frame_main.grid(row=0, column=0, sticky=NSEW)
 
         # define main frames
-        self.frame_main.columnconfigure(0, weight=2)
-        self.frame_main.columnconfigure(1, weight=8)
+        self.frame_main.grid_columnconfigure(0, weight=8)
+        self.frame_main.grid_columnconfigure(1, weight=8)
 
-        self.frame_main.rowconfigure(0, weight=5)
-        self.frame_main.rowconfigure(1, weight=10)
-        self.frame_main.rowconfigure(2, weight=10)
-        self.frame_main.rowconfigure(3, weight=60)
-        self.frame_main.rowconfigure(4, weight=5)
+        self.frame_main.grid_rowconfigure(0, weight=5)
+        self.frame_main.grid_rowconfigure(1, weight=10)
+        self.frame_main.grid_rowconfigure(2, weight=10)
+        self.frame_main.grid_rowconfigure(3, weight=60)
+        self.frame_main.grid_rowconfigure(4, weight=5)
 
     def _make_frame_menu(self):
         self.frame_menu = ttk.Frame(self.frame_main)
@@ -137,14 +136,18 @@ class View(tk.Tk):
         self.lbox_comports.bind('<<ListboxSelect>>', self.lbox_comports_select)
 
     def _make_frame_adjust(self):
-        self.frame_adjust = ttk.LabelFrame(self, text="Adjust")
-        self.frame_adjust.grid(row=1, column=1)
+        self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Adjust")
+        self.frame_adjust.grid(row=2, column=1)
+        self.frame_adjust.grid_forget()
 
         self.text_label_adjust = tk.StringVar()
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
 
+        self.label_adjust.grid(row=0,column=0,sticky=E+W)
+
+
     def frame_select_com_on(self):
-        self.frame_select_com.grid(row=0, column=1, sticky='nesw')
+        self.frame_select_com.grid(row=1, column=1)
         self.lbox_comports.pack(padx=10, pady=10)
 
     def frame_select_com_off(self):
@@ -152,8 +155,8 @@ class View(tk.Tk):
         self.frame_select_com.grid_forget()
 
     def frame_adjust_on(self):
-        self.frame_adjust.grid(row=1, column=1)
-        self.label_adjust.grid(row=2, column=1)
+        self.frame_adjust.grid(row=1, column=1, sticky=E+W)
+        self.label_adjust.grid(row=0, column=0, sticky=E+W)
 
     def frame_adjust_off(self):
         self.label_adjust.grid_forget()
@@ -163,7 +166,6 @@ class View(tk.Tk):
         self.style = ttk.Style(self)
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
-
 
     def display_comports(self, ports):
         """
@@ -203,7 +205,8 @@ class View(tk.Tk):
         self.lbox_com_read['state'] = DISABLED
 
     def lbox_parameter_delete(self):
-        self.lbox_parameter.delete(0,END)
+        self.lbox_parameter.delete(0, END)
+
     def lbox_comports_select(self, event):
         line = self.lbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]

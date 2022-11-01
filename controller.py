@@ -18,7 +18,7 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
         self.act_port = ""
-        self.usb_serial.m_sm_state='INIT'
+        self.usb_serial.m_sm_state = 'INIT'
 
     def main(self):
         self.view.main()
@@ -48,8 +48,7 @@ class Controller:
         self.view.lbox_com_read_update('RESET')
         self.view.lbox_parameter_delete()
 
-
-        self.usb_serial.m_sm_state='INIT'
+        self.usb_serial.m_sm_state = 'INIT'
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
