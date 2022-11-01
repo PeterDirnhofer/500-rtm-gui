@@ -18,21 +18,12 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
         self.act_port = ""
-        self.sm_state = 'INIT'  # Status statemachine
+        self.usb_serial.m_sm_state='INIT'
 
     def main(self):
         self.view.main()
 
-    def usb_serial_init_com_handle(self):
-        """
-        access to usb_serial only possible from controller.
-        Can be called from view. View cannot access usbserial directly
-        """
-        self.usb_serial.init_com_statemachine()
-
     def usb_serial_get_parameter_handle(self):
-        time.sleep(1)
-        # messagebox.showinfo("usb_serial_get_parameter")
         self.usb_serial.get_parameter()
 
     @staticmethod
@@ -55,9 +46,10 @@ class Controller:
         self.usb_serial.write(chr(3))
         self.view.lb_com_read_delete()
         self.view.lbox_com_read_update('RESET')
+        self.view.lbox_parameter_delete()
 
-        self.sm_state = "INIT"
-        self.view.trigger_state_machine_after(400)
+
+        self.usb_serial.m_sm_state='INIT'
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED

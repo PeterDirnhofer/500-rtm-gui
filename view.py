@@ -26,9 +26,8 @@ class View(tk.Tk):
         self._style()
 
     def main(self):
-        #self.trigger_state_machine_after(1)
+
         self.controller.usb_serial_trigger_new_statemachine_handle()
-        #self.after(2000, self.controller.usb_serial_get_parameter_handle)
         self.mainloop()  # Tk mainloop
 
     def _make_main_frame(self):
@@ -102,10 +101,10 @@ class View(tk.Tk):
         self.frame_parameter = ttk.LabelFrame(self.frame_main, text="Parameter")
         self.frame_parameter.grid(row=3, column=0, padx=10, pady=10, sticky=E + W + S + N)
 
-        self.tbox_parameter = tk.Listbox(self.frame_parameter, width=60)
+        self.lbox_parameter = tk.Listbox(self.frame_parameter, width=60)
 
-        self.tbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
-        self.tbox_parameter.grid(row=0, column=0, padx=10, pady=5, sticky=E + W + S + N)
+        self.lbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
+        self.lbox_parameter.grid(row=0, column=0, padx=10, pady=5, sticky=E + W + S + N)
 
         # Define refresh Image using pillow  https://youtu.be/kjc53i4xUmw
         self.pillow_image = Image.open(r"data/refresh_icon-icons.png")
@@ -123,6 +122,7 @@ class View(tk.Tk):
         self.frame_status = ttk.LabelFrame(self.frame_main, text="State")
         self.frame_status.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky='nesw')
         self.text_status = tk.StringVar()
+
         self.label_status = tk.Label(self.frame_status, padx=10, pady=5,
                                      textvariable=self.text_status)
         self.label_status.pack(side=LEFT)
@@ -164,11 +164,6 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
-    def trigger_state_machine_after(self, intervall_ms):
-        self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
-
-    def trigger_new_statemachine(self):
-        self.usbserial.start_init_com_statemachine()
 
     def display_comports(self, ports):
         """
@@ -207,6 +202,8 @@ class View(tk.Tk):
         self.lbox_com_read.delete(0, END)
         self.lbox_com_read['state'] = DISABLED
 
+    def lbox_parameter_delete(self):
+        self.lbox_parameter.delete(0,END)
     def lbox_comports_select(self, event):
         line = self.lbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]

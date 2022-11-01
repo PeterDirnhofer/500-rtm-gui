@@ -26,81 +26,11 @@ class UsbSerial:
         self.parameters_needed = 0
         self.m_parameter_list = []
         self.m_sm_state = "INIT"
+        self.m_sm_last_state = 'LAST'
         self.m_actport = ""
-        self.m_new="INIT"
-
-
-    def start_init_com_statemachine(self):
-        self.m_init_com_statemachine_is_started = True
-        init_com_thread = Thread(target=self.init_com_statemachine_loop, daemon=True)
-        init_com_thread.start()
-
-    def init_com_statemachine_loop(self):
-        while self.m_sm_state != 'COM READY':
-            if self.m_sm_state=='INIT':
-                self.m_is_default_port_existing()
-                time.sleep(0.050)
-                continue
-            elif self.m_sm_state == 'EXISTING':
-                self.m_open()
-                time.sleep(0.050)
-                continue
-            elif self.m_sm_state == 'OPEN':
-                self.m_send_reset()
-                time.sleep(1)
-                continue
-            elif self.m_sm_state == 'WAIT_FOR_IDLE':
-                self.parameters_needed = 0
-                self.m_wait_for_idle()
-                time.sleep(0.050)
-                continue
-            elif self.m_sm_state == 'COM_READY':
-                self.m_com_ready()
-            elif self.m_sm_state == "ERROR_COM":
-                self.m_error()
-                time.sleep(0.200)
-
-            else:
-                raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
 
 
 
-
-
-    def init_com_statemachine(self):
-
-        """
-        Initialize PC COM Port to ESP32.
-        Read default portnumber from flash. Open port, start receive loop.
-        Send CTRL-C and wait for ESP32 response='IDLE'.
-        On Error, open dialog to select other portnumber
-        """
-        self.view.text_status.set(self.m_sm_state)
-        if self.m_sm_state == 'INIT':
-            self.m_is_default_port_existing()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'EXISTING':
-            self.m_open()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'OPEN':
-            self.m_send_reset()
-            self.view.trigger_state_machine_after(1000)
-            return
-        elif self.m_sm_state == 'WAIT_FOR_IDLE':
-            self.parameters_needed = 0
-            self.m_wait_for_idle()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'COM_READY':
-            self.m_com_ready()
-        elif self.m_sm_state == "ERROR_COM":
-            self.m_error()
-            self.view.trigger_state_machine_after(200)
-
-        else:
-            raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
 
     def write(self, cmd):
         self.serialInst.write_timeout = 1.0
@@ -115,11 +45,13 @@ class UsbSerial:
         """
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
-        self.view.tbox_parameter.delete(0, tk.END)
+        self.view.lbox_parameter.delete(0, tk.END)
         self.m_parameter_list.clear()
         self.parameters_needed = NUMBER_OF_PARAMETERS
         self.write('PARAMETER,?')
 
+    ####################################################################
+    # COM READ THREAD
     def m_start_read_loop(self):
         if self.m_com_port_read_is_started:
             print("m_read_loop already started")
@@ -145,7 +77,7 @@ class UsbSerial:
                         self.m_read_line = ln
                         if self.parameters_needed > 0:
                             self.m_parameter_list.append(self.m_read_line)
-                            self.view.tbox_parameter.insert(tk.END, self.m_read_line)
+                            self.view.lbox_parameter.insert(tk.END, self.m_read_line)
                             self.parameters_needed -= 1
                         else:
                             self.view.lbox_com_read_update(self.m_read_line)
@@ -156,8 +88,14 @@ class UsbSerial:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     self.view.close()
 
+
+    ####################################################################################
     @staticmethod
     def m_get_default_comport():
+        '''
+        Read default COM Port from File compport.pkl
+        :return: Default COM Port
+        '''
         try:
             with open('data/comport.pkl', 'rb') as file:
                 myvar = pickle.load(file)
@@ -167,13 +105,14 @@ class UsbSerial:
 
     @staticmethod
     def m_put_default_comport(comport):
+        '''Write default COM Port to file comport.pkl'''
         myvar = comport
         with open('data/comport.pkl', 'wb') as file:
             pickle.dump(myvar, file)
 
     def m_get_ports(self):
         """
-        get a list of serial ports available on laptop
+        get a list of serial ports available on computer
         :return: portList
         """
         port_list = []
@@ -200,7 +139,55 @@ class UsbSerial:
         return self.m_status
 
     ##########################################################
-    # State machine
+    def start_init_com_statemachine(self):
+        self.m_init_com_statemachine_is_started = True
+        init_com_thread = Thread(target=self.init_com_statemachine_loop, daemon=True)
+
+        init_com_thread.start()
+
+    def init_com_statemachine_loop(self):
+        '''
+        Satemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
+        - Request parameters from ESP32 and render in Frame parameters
+        '''
+        m_oldState=''
+        while True:
+
+            if self.m_sm_state!=self.m_sm_last_state:
+                self.m_sm_last_state= self.m_sm_state
+                self.view.text_status.set(self.m_sm_state)
+
+
+            if self.m_sm_state=='INIT':
+                self.m_is_default_port_existing()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'EXISTING':
+                self.m_open()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'OPEN':
+                self.m_send_reset()
+                time.sleep(1)
+                continue
+            elif self.m_sm_state == 'WAIT_FOR_IDLE':
+                self.parameters_needed = 0
+                self.m_wait_for_idle()
+                time.sleep(0.050)
+                continue
+            elif self.m_sm_state == 'COM_READY':
+                self.m_com_ready()
+            elif self.m_sm_state == 'PASSIVE':
+                time.sleep(1)
+                continue
+            elif self.m_sm_state == "ERROR_COM":
+                self.m_error()
+                time.sleep(0.200)
+
+            else:
+                raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
+
+
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
         self.m_actport = self.m_get_default_comport()
@@ -255,6 +242,7 @@ class UsbSerial:
 
         # Get parameter and display in parameter_frame
         self.view.controller.usb_serial_get_parameter_handle()
+        self.m_sm_state='PASSIVE'
 
     def m_error(self):
         self.view.frame_select_com_on()
