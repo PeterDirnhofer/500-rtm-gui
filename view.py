@@ -29,7 +29,6 @@ class View(tk.Tk):
         self.after(2000,self.controller.usb_serial_get_parameter_handle)
         self.mainloop()  # Tk mainloop
 
-
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
         ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -131,10 +130,10 @@ class View(tk.Tk):
         self.frame_select_com = ttk.LabelFrame(self.frame_main, text="Select COM")
         self.frame_select_com.grid(row=1,column=1,padx=10,pady=5)
 
-        self.listbox_comports = tk.Listbox(self.frame_select_com,
-                                           width=70)
+        self.lbox_comports = tk.Listbox(self.frame_select_com,
+                                        width=70)
 
-        self.listbox_comports.bind('<<ListboxSelect>>', self.listbox_select)
+        self.lbox_comports.bind('<<ListboxSelect>>', self.lbox_comports_select)
 
     def _make_frame_adjust(self):
         self.frame_adjust = ttk.LabelFrame(self, text="Adjust")
@@ -143,22 +142,12 @@ class View(tk.Tk):
         self.text_label_adjust = tk.StringVar()
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
 
-
-    def _style(self):
-        self.style = ttk.Style(self)
-        self.style.configure('TLabel', relief='sunken')
-        self.style.configure('TButton', relief='sunken')
-
-
-    def trigger_state_machine_after(self, intervall_ms):
-        self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
-
     def frame_select_com_on(self):
         self.frame_select_com.grid(row=0, column=1, sticky='nesw')
-        self.listbox_comports.pack(padx=10, pady=10)
+        self.lbox_comports.pack(padx=10, pady=10)
 
     def frame_select_com_off(self):
-        self.listbox_comports.grid_forget()
+        self.lbox_comports.grid_forget()
         self.frame_select_com.grid_forget()
 
     def frame_adjust_on(self):
@@ -169,17 +158,26 @@ class View(tk.Tk):
         self.label_adjust.grid_forget()
         self.frame_adjust.grid_forget()
 
+    def _style(self):
+        self.style = ttk.Style(self)
+        self.style.configure('TLabel', relief='sunken')
+        self.style.configure('TButton', relief='sunken')
+
+
+    def trigger_state_machine_after(self, intervall_ms):
+        self.after(intervall_ms, self.controller.usb_serial_init_com_handle)
+
     def display_comports(self, ports):
         """
         Gets list of actual available COM ports from laptop\
         Displays COM List in listbox_comports
         """
         # ports = self.sf.get_ports()
-        self.listbox_comports.delete(0, 'end')
+        self.lbox_comports.delete(0, 'end')
         ports_len = len(ports)
-        self.listbox_comports.config(height=ports_len)
+        self.lbox_comports.config(height=ports_len)
         for port in ports:
-            self.listbox_comports.insert(END, str(port))
+            self.lbox_comports.insert(END, str(port))
 
     def lbox_com_read_update(self, string_to_add):
         """
@@ -206,8 +204,8 @@ class View(tk.Tk):
         self.lbox_com_read.delete(0, END)
         self.lbox_com_read['state'] = DISABLED
 
-    def listbox_select(self, event):
-        line = self.listbox_comports.get(ANCHOR)
+    def lbox_comports_select(self, event):
+        line = self.lbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]
         self.com_selected = temp
         print(temp)
