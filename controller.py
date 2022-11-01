@@ -2,7 +2,7 @@
 # https://youtu.be/ek47NMFW_mk
 import time
 import tkinter
-from tkinter import messagebox
+
 from tkinter.messagebox import showinfo
 
 from model import Model
@@ -28,13 +28,12 @@ class Controller:
         access to usb_serial only possible from controller.
         Can be called from view. View cannot access usbserial directly
         """
-        self.usb_serial.init_com()
+        self.usb_serial.init_com_statemachine()
 
     def usb_serial_get_parameter_handle(self):
         time.sleep(1)
-        #messagebox.showinfo("usb_serial_get_parameter")
+        # messagebox.showinfo("usb_serial_get_parameter")
         self.usb_serial.get_parameter()
-
 
     @staticmethod
     def select_measure():
@@ -54,10 +53,8 @@ class Controller:
         self.view.lb_com_read_delete()
         self.view.lbox_com_read_update('RESET')
 
-
         self.sm_state = "INIT"
         self.view.trigger_state_machine_after(400)
-
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED

@@ -11,6 +11,8 @@ import serial
 from threading import Thread
 
 NUMBER_OF_PARAMETERS = 10
+
+
 class UsbSerial:
     def __init__(self, view):
         self.serialInst = serial.Serial()
@@ -24,7 +26,7 @@ class UsbSerial:
         self.m_sm_state = "INIT"
         self.m_actport = ""
 
-    def init_com(self):
+    def init_com_statemachine(self):
         """
         Initialize PC COM Port to ESP32.
         Read default portnumber from flash. Open port, start receive loop.
@@ -45,7 +47,7 @@ class UsbSerial:
             self.view.trigger_state_machine_after(1000)
             return
         elif self.m_sm_state == 'WAIT_FOR_IDLE':
-            self.parameters_needed=0
+            self.parameters_needed = 0
             self.m_wait_for_idle()
             self.view.trigger_state_machine_after(50)
             return
@@ -57,6 +59,7 @@ class UsbSerial:
 
         else:
             raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
+
     def write(self, cmd):
         self.serialInst.write_timeout = 1.0
 
@@ -91,7 +94,6 @@ class UsbSerial:
         """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
-
 
         while True:
             if self.serialInst.inWaiting:
