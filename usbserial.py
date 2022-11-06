@@ -22,6 +22,7 @@ class UsbSerial:
     serialInst = serial.Serial()
     statemachine_state = "INIT"
     parameters_needed = 0
+    m_parameter_list = []
     def __init__(self, view):
         UsbSerial.view_static = view
 
@@ -30,7 +31,7 @@ class UsbSerial:
         self.m_com_port_read_is_started = False
         self.m_line_to_consume = ""
 
-        self.m_parameter_list = []
+
         self.m_sm_state = "INIT"
         self.m_sm_last_state = 'LAST'
         self.m_actport = ""
@@ -45,12 +46,13 @@ class UsbSerial:
             return False
 
 
-    def get_parameter_from_esp(self):
+    @classmethod
+    def get_parameter_from_esp(cls):
         """
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
         UsbSerial.view_static.lbox_parameter.delete(0, tk.END)
-        self.m_parameter_list.clear()
+        UsbSerial.m_parameter_list.clear()
         UsbSerial.parameters_needed = NUMBER_OF_PARAMETERS
         UsbSerial.write('PARAMETER,?')
 
@@ -85,7 +87,7 @@ class UsbSerial:
 
 
                         if UsbSerial.parameters_needed > 0:
-                            self.m_parameter_list.append(self.m_read_line)
+                            UsbSerial.m_parameter_list.append(self.m_read_line)
                             UsbSerial.view_static.lbox_parameter.insert(tk.END, self.m_read_line)
                             UsbSerial.parameters_needed -= 1
                         else:
