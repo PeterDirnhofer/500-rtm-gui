@@ -11,12 +11,17 @@ import serial.tools.list_ports
 import serial
 from threading import Thread
 
+from view import View
+
 NUMBER_OF_PARAMETERS = 10
 
 
 class UsbSerial:
+
+    serialInst = serial.Serial()
+
     def __init__(self, view):
-        self.m_serialInst = serial.Serial()
+        #m_serialInst = serial.Serial()
         self.m_status = ""
         self.m_read_line = ""
         self.view = view
@@ -28,11 +33,11 @@ class UsbSerial:
         self.m_sm_last_state = 'LAST'
         self.m_actport = ""
 
-    def write(self, cmd):
-        self.m_serialInst.write_timeout = 1.0
+    def write(cmd):
+        UsbSerial.serialInst.write_timeout = 1.0
 
         try:
-            self.m_serialInst.write(f'{cmd}\n'.encode('utf'))
+            UsbSerial.serialInst.write(f'{cmd}\n'.encode('utf'))
             return True
         except Exception:
             return False
@@ -44,7 +49,7 @@ class UsbSerial:
         self.view.lbox_parameter.delete(0, tk.END)
         self.m_parameter_list.clear()
         self.parameters_needed = NUMBER_OF_PARAMETERS
-        self.write('PARAMETER,?')
+        UsbSerial.write('PARAMETER,?')
 
     ####################################################################
     # COM READ THREAD
@@ -66,18 +71,23 @@ class UsbSerial:
         # Python Tutorial - How to Read Data from Arduino via Serial Port
 
         while True:
-            if self.m_serialInst.inWaiting:
+            if UsbSerial.serialInst.inWaiting:
                 try:
-                    ln = self.m_serialInst.readline().decode('utf').rstrip('\n')
+                    ln = UsbSerial.serialInst.readline().decode('utf').rstrip('\n')
                     if len(ln) > 0:
                         self.m_read_line = ln
+                        if View.view_mode=='ADJUST':
+                            self.view.label_adjust_update(self.m_read_line)
+                            continue
+
+
                         if self.parameters_needed > 0:
                             self.m_parameter_list.append(self.m_read_line)
                             self.view.lbox_parameter.insert(tk.END, self.m_read_line)
                             self.parameters_needed -= 1
                         else:
                             self.view.lbox_com_read_update(self.m_read_line)
-                            self.view.label_adjust_update(self.m_read_line)
+                            #self.view.label_adjust_update(self.m_read_line)
 
 
                 except Exception:
@@ -119,15 +129,15 @@ class UsbSerial:
     def m_open_comport(self, comport):
         if self.m_status != 'OPEN':
             try:
-                self.m_serialInst.baudrate = 115200
-                self.m_serialInst.port = comport
-                if self.m_serialInst.isOpen():
+                UsbSerial.serialInst.baudrate = 115200
+                UsbSerial.serialInst.port = comport
+                if UsbSerial.serialInst.isOpen():
                     try:
                         print("isopen")
-                        self.m_serialInst.close()
+                        UsbSerial.serialInst.close()
                     except Exception:
                         pass
-                self.m_serialInst.open()
+                UsbSerial.serialInst.open()
                 self.m_status = "OPEN"
             except Exception:
                 self.m_status = 'ERROR'
@@ -211,7 +221,7 @@ class UsbSerial:
     def m_send_reset(self):
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
-        if self.write(chr(3)):
+        if UsbSerial.write(chr(3)):
             self.m_start_read_loop()  # enable receiver
             self.m_sm_state = 'WAIT_FOR_IDLE'
         else:

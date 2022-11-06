@@ -54,7 +54,7 @@ class Controller:
         self.view.button_select_adjust['state'] = tkinter.DISABLED
         self.view.button_select_measure['state'] = tkinter.DISABLED
 
-        self.usb_serial.write('ADJUST')
+        UsbSerial.write('ADJUST')
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
