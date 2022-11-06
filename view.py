@@ -2,12 +2,15 @@ import ctypes
 import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
-
-import PIL
 from PIL import Image, ImageTk
 
 
 class View(tk.Tk):
+
+    # Class variable
+    view_mode=""
+
+
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
@@ -144,7 +147,6 @@ class View(tk.Tk):
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
 
         self.label_adjust.grid(row=0,column=0,sticky=E+W)
-
 
     def frame_select_com_on(self):
         self.frame_select_com.grid(row=1, column=1)

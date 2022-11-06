@@ -1,8 +1,7 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
-import time
-import tkinter
 
+import tkinter
 from tkinter.messagebox import showinfo
 
 from model import Model
@@ -49,6 +48,7 @@ class Controller:
         self.view.lbox_parameter_delete()
 
         self.usb_serial.m_sm_state = 'INIT'
+        View.view_mode = 'INIT'
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
@@ -58,6 +58,7 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
+        View.view_mode='ADJUST'
 
 
 if __name__ == '__main__':
