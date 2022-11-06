@@ -19,9 +19,9 @@ NUMBER_OF_PARAMETERS = 10
 class UsbSerial:
 
     serialInst = serial.Serial()
+    sm_state_static = "INIT"
 
     def __init__(self, view):
-        #m_serialInst = serial.Serial()
         self.m_status = ""
         self.m_read_line = ""
         self.view = view
@@ -42,7 +42,8 @@ class UsbSerial:
         except Exception:
             return False
 
-    def get_parameter(self):
+
+    def get_parameter_from_esp(self):
         """
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
@@ -158,38 +159,38 @@ class UsbSerial:
 
         while True:
 
-            if self.m_sm_state != self.m_sm_last_state:
-                self.m_sm_last_state = self.m_sm_state
-                self.view.text_status.set(self.m_sm_state)
+            if UsbSerial.sm_state_static != self.m_sm_last_state:
+                self.m_sm_last_state = UsbSerial.sm_state_static
+                self.view.text_status.set(UsbSerial.sm_state_static)
 
-            if self.m_sm_state == 'INIT':
+            if UsbSerial.sm_state_static == 'INIT':
                 self.m_is_default_port_existing()
                 time.sleep(0.050)
                 continue
-            elif self.m_sm_state == 'EXISTING':
+            elif UsbSerial.sm_state_static == 'EXISTING':
                 self.m_open()
                 time.sleep(0.050)
                 continue
-            elif self.m_sm_state == 'OPEN':
+            elif UsbSerial.sm_state_static == 'OPEN':
                 self.m_send_reset()
                 time.sleep(1)
                 continue
-            elif self.m_sm_state == 'WAIT_FOR_IDLE':
+            elif UsbSerial.sm_state_static == 'WAIT_FOR_IDLE':
                 self.parameters_needed = 0
                 self.m_wait_for_idle()
                 time.sleep(0.050)
                 continue
-            elif self.m_sm_state == 'COM_READY':
+            elif UsbSerial.sm_state_static == 'COM_READY':
                 self.m_com_ready()
-            elif self.m_sm_state == 'PASSIVE':
+            elif UsbSerial.sm_state_static == 'PASSIVE':
                 time.sleep(1)
                 continue
-            elif self.m_sm_state == "ERROR_COM":
+            elif UsbSerial.sm_state_static == "ERROR_COM":
                 self.m_error()
                 time.sleep(0.200)
 
             else:
-                raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
+                raise Exception(f'Invalid state in state_machine: {UsbSerial.sm_state_static}')
 
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
@@ -203,19 +204,19 @@ class UsbSerial:
                 port_exists = True
         if not port_exists:
             self.view.text_com_state.set(f'ERROR_COM {self.m_actport} not available on Computer')
-            self.m_sm_state = 'ERROR_COM'
+            UsbSerial.sm_state_static = 'ERROR_COM'
             return
         else:
-            self.m_sm_state = 'EXISTING'
+            UsbSerial.sm_state_static = 'EXISTING'
             return
 
     def m_open(self):
         # try to open COM port on computer
         result = self.m_open_comport(self.m_actport)
         if result == 'OPEN':
-            self.m_sm_state = 'OPEN'
+            UsbSerial.sm_state_static = 'OPEN'
         else:
-            self.m_sm_state = 'ERROR_COM'
+            UsbSerial.sm_state_static = 'ERROR_COM'
         return
 
     def m_send_reset(self):
@@ -223,18 +224,18 @@ class UsbSerial:
         # Start COM read in background thread
         if UsbSerial.write(chr(3)):
             self.m_start_read_loop()  # enable receiver
-            self.m_sm_state = 'WAIT_FOR_IDLE'
+            UsbSerial.sm_state_static = 'WAIT_FOR_IDLE'
         else:
-            self.m_sm_state = 'ERROR_COM'
+            UsbSerial.sm_state_static = 'ERROR_COM'
 
     def m_wait_for_idle(self):
         # Wait for 'IDLE' from ESP32
 
         if self.m_read_line == 'IDLE':
-            self.m_sm_state = 'COM_READY'
+            UsbSerial.sm_state_static = 'COM_READY'
             return
 
-        self.m_sm_state = "ERROR_COM"
+        UsbSerial.sm_state_static = "ERROR_COM"
         return
 
     def m_com_ready(self):
@@ -245,7 +246,7 @@ class UsbSerial:
 
         # Get parameter and display in parameter_frame
         self.view.controller.usb_serial_get_parameter_handle()
-        self.m_sm_state = 'PASSIVE'
+        UsbSerial.sm_state_static = 'PASSIVE'
 
     def m_error(self):
         self.view.frame_select_com_on()
@@ -257,6 +258,6 @@ class UsbSerial:
             self.m_put_default_comport(self.view.com_selected)
             # self.view.text_com_read_update(f'{self.view.com_selected} selected')
             self.view.frame_select_com_off()
-            self.m_sm_state = 'INIT'
+            UsbSerial.sm_state_static = 'INIT'
             self.view.com_selected = ""
             self.m_com_port_read_is_started = False

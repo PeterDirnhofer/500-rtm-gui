@@ -17,13 +17,13 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
         self.act_port = ""
-        self.usb_serial.m_sm_state = 'INIT'
+        UsbSerial.sm_state_static = 'INIT'
 
     def main(self):
         self.view.main()
 
     def usb_serial_get_parameter_handle(self):
-        self.usb_serial.get_parameter()
+        self.usb_serial.get_parameter_from_esp()
 
     @staticmethod
     def select_measure():
@@ -42,12 +42,12 @@ class Controller:
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
 
-        self.usb_serial.write(chr(3))
+        UsbSerial.write(chr(3))
         self.view.lb_com_read_delete()
         self.view.lbox_com_read_update('RESET')
         self.view.lbox_parameter_delete()
 
-        self.usb_serial.m_sm_state = 'INIT'
+        UsbSerial.sm_state_static = 'INIT'
         View.view_mode = 'INIT'
 
     def select_adjust(self):
