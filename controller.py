@@ -17,7 +17,7 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
         self.act_port = ""
-        UsbSerial.sm_state_static = 'INIT'
+        UsbSerial.statemachine_state = 'INIT'
 
     def main(self):
         self.view.main()
@@ -47,7 +47,7 @@ class Controller:
         self.view.lbox_com_read_update('RESET')
         self.view.lbox_parameter_delete()
 
-        UsbSerial.sm_state_static = 'INIT'
+        UsbSerial.statemachine_state = 'INIT'
         View.view_mode = 'INIT'
 
     def select_adjust(self):
