@@ -20,15 +20,18 @@ class UsbSerial:
 
     # Class variables
     view_static = None
-    statemachine_state = "INIT"
+    _statemachine_state = "INIT"
     _serialInst = serial.Serial()
     _parameters_needed = 0
     _parameter_list = []
     _status= ""
     _read_line= ""
     _com_port_read_is_started = False
-    _act_port=None
+    _actport=None
 
+    @classmethod
+    def reset_com_statemachine(cls):
+        UsbSerial._statemachine_state= 'INIT'
     @classmethod
     def start_init_com_statemachine(cls):
         if UsbSerial.view_static==None:
@@ -165,66 +168,66 @@ class UsbSerial:
         last_state='LAST'
         while True:
 
-            if UsbSerial.statemachine_state != last_state:
-                last_state = UsbSerial.statemachine_state
-                UsbSerial.view_static.text_status.set(UsbSerial.statemachine_state)
+            if UsbSerial._statemachine_state != last_state:
+                last_state = UsbSerial._statemachine_state
+                UsbSerial.view_static.text_status.set(UsbSerial._statemachine_state)
 
-            if UsbSerial.statemachine_state == 'INIT':
+            if UsbSerial._statemachine_state == 'INIT':
                 UsbSerial._is_default_port_existing()
                 time.sleep(0.050)
                 continue
-            elif UsbSerial.statemachine_state == 'EXISTING':
+            elif UsbSerial._statemachine_state == 'EXISTING':
                 UsbSerial._open()
                 time.sleep(0.050)
                 continue
-            elif UsbSerial.statemachine_state == 'OPEN':
+            elif UsbSerial._statemachine_state == 'OPEN':
                 UsbSerial._send_reset()
                 time.sleep(1)
                 continue
-            elif UsbSerial.statemachine_state == 'WAIT_FOR_IDLE':
+            elif UsbSerial._statemachine_state == 'WAIT_FOR_IDLE':
                 UsbSerial._parameters_needed = 0
                 UsbSerial._wait_for_idle()
                 time.sleep(0.050)
                 continue
-            elif UsbSerial.statemachine_state == 'COM_READY':
+            elif UsbSerial._statemachine_state == 'COM_READY':
                 UsbSerial._com_ready()
-            elif UsbSerial.statemachine_state == 'PASSIVE':
+            elif UsbSerial._statemachine_state == 'PASSIVE':
                 time.sleep(1)
                 continue
-            elif UsbSerial.statemachine_state == "ERROR_COM":
+            elif UsbSerial._statemachine_state == "ERROR_COM":
                 UsbSerial._error()
                 time.sleep(0.200)
 
             else:
-                raise Exception(f'Invalid state in state_machine: {UsbSerial.statemachine_state}')
+                raise Exception(f'Invalid state in state_machine: {UsbSerial._statemachine_state}')
 
     @classmethod
     def _is_default_port_existing(cls):
         # Check if default COM port is existing on Computer
-        UsbSerial.m_actport = UsbSerial._get_default_comport()
-        UsbSerial.view_static.text_com_state.set(f'Connecting {UsbSerial.m_actport} ...')
+        UsbSerial._actport = UsbSerial._get_default_comport()
+        UsbSerial.view_static.text_com_state.set(f'Connecting {UsbSerial._actport} ...')
         UsbSerial.available_ports = UsbSerial._get_ports()
         port_exists = False
         for port in UsbSerial.available_ports:
-            r = UsbSerial.m_actport in port
+            r = UsbSerial._actport in port
             if r:
                 port_exists = True
         if not port_exists:
-            UsbSerial.view_static.text_com_state.set(f'ERROR_COM {UsbSerial.m_actport} not available on Computer')
-            UsbSerial.statemachine_state = 'ERROR_COM'
+            UsbSerial.view_static.text_com_state.set(f'ERROR_COM {UsbSerial._actport} not available on Computer')
+            UsbSerial._statemachine_state = 'ERROR_COM'
             return
         else:
-            UsbSerial.statemachine_state = 'EXISTING'
+            UsbSerial._statemachine_state = 'EXISTING'
             return
 
     @classmethod
     def _open(cls):
         # try to open COM port on computer
-        result = UsbSerial._open_comport(UsbSerial.m_actport)
+        result = UsbSerial._open_comport(UsbSerial._actport)
         if result == 'OPEN':
-            UsbSerial.statemachine_state = 'OPEN'
+            UsbSerial._statemachine_state = 'OPEN'
         else:
-            UsbSerial.statemachine_state = 'ERROR_COM'
+            UsbSerial._statemachine_state = 'ERROR_COM'
         return
 
     @classmethod
@@ -233,10 +236,10 @@ class UsbSerial:
         # Start COM read in background thread
         if UsbSerial.write(chr(3)):
             UsbSerial._start_read_loop()  # enable receiver
-            UsbSerial.statemachine_state = 'WAIT_FOR_IDLE'
+            UsbSerial._statemachine_state = 'WAIT_FOR_IDLE'
             return True
         else:
-            UsbSerial.statemachine_state = 'ERROR_COM'
+            UsbSerial._statemachine_state = 'ERROR_COM'
             return False
 
     @classmethod
@@ -244,21 +247,21 @@ class UsbSerial:
         # Wait for 'IDLE' from ESP32
 
         if UsbSerial._read_line == 'IDLE':
-            UsbSerial.statemachine_state = 'COM_READY'
+            UsbSerial._statemachine_state = 'COM_READY'
             return
 
-        UsbSerial.statemachine_state = "ERROR_COM"
+        UsbSerial._statemachine_state = "ERROR_COM"
         return
     @classmethod
     def _com_ready(cls):
         UsbSerial.view_static.button_select_adjust['state'] = tk.NORMAL
         UsbSerial.view_static.button_select_measure['state'] = tk.NORMAL
         UsbSerial.view_static.button_select_reset['state'] = tk.NORMAL
-        UsbSerial.view_static.text_com_state.set(f'Connected {UsbSerial.m_actport}')
+        UsbSerial.view_static.text_com_state.set(f'Connected {UsbSerial._actport}')
 
         # Get parameter and display in parameter_frame
         UsbSerial.view_static.controller.usb_serial_get_parameter_handle()
-        UsbSerial.statemachine_state = 'PASSIVE'
+        UsbSerial._statemachine_state = 'PASSIVE'
 
     @classmethod
     def _error(cls):
@@ -271,6 +274,6 @@ class UsbSerial:
             UsbSerial._put_default_comport(UsbSerial.view_static.com_selected)
             # UsbSerial.view_static.text_com_read_update(f'{UsbSerial.view_static.com_selected} selected')
             UsbSerial.view_static.frame_select_com_off()
-            UsbSerial.statemachine_state = 'INIT'
+            UsbSerial._statemachine_state = 'INIT'
             UsbSerial.view_static.com_selected = ""
             UsbSerial._com_port_read_is_started = False

@@ -15,17 +15,15 @@ class Controller:
         self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        UsbSerial.view_static=self.view
+        UsbSerial.view_static = self.view
 
-
-
-        self.act_port = ""
-        UsbSerial.statemachine_state = 'INIT'
+        UsbSerial.reset_com_statemachine()
 
     def main(self):
         self.view.main()
 
-    def usb_serial_get_parameter_handle(self):
+    @staticmethod
+    def usb_serial_get_parameter_handle():
         UsbSerial.request_parameter_from_esp()
 
     @staticmethod
@@ -35,7 +33,8 @@ class Controller:
             message='Measure clicked!'
         )
 
-    def usb_serial_trigger_new_statemachine_handle(self):
+    @staticmethod
+    def usb_serial_trigger_new_statemachine_handle():
         UsbSerial.start_init_com_statemachine()
 
     def select_restart(self):
@@ -46,11 +45,14 @@ class Controller:
         self.view.button_select_reset['state'] = tkinter.NORMAL
 
         UsbSerial.write(chr(3))
+
         self.view.lb_com_read_delete()
         self.view.lbox_com_read_update('RESET')
+
         self.view.lbox_parameter_delete()
 
-        UsbSerial.statemachine_state = 'INIT'
+        UsbSerial.reset_com_statemachine()
+
         View.view_mode = 'INIT'
 
     def select_adjust(self):
@@ -61,10 +63,9 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
-        View.view_mode='ADJUST'
+        View.view_mode = 'ADJUST'
 
 
 if __name__ == '__main__':
     app = Controller()
     app.main()
-

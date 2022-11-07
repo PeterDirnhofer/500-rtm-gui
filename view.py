@@ -4,8 +4,6 @@ from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
 
-
-
 class View(tk.Tk):
 
     # Class variable
