@@ -23,7 +23,7 @@ class Controller:
         self.view.main()
 
     def usb_serial_get_parameter_handle(self):
-        self.usb_serial.get_parameter_from_esp()
+        UsbSerial.request_parameter_from_esp()
 
     @staticmethod
     def select_measure():

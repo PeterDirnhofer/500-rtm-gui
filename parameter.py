@@ -1,7 +1,9 @@
+from usbserial import UsbSerial
 class Parameter:
 
     def __init__(self, view):
         self.view = view
+
 
     def request_parameter(self):
 

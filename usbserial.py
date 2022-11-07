@@ -45,9 +45,8 @@ class UsbSerial:
         except Exception:
             return False
 
-
     @classmethod
-    def get_parameter_from_esp(cls):
+    def request_parameter_from_esp(cls):
         """
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
