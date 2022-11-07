@@ -19,19 +19,21 @@ NUMBER_OF_PARAMETERS = 10
 
 class UsbSerial:
 
-
+    # Class variables
+    view_static = None
     serialInst = serial.Serial()
     statemachine_state = "INIT"
     parameters_needed = 0
     m_parameter_list = []
+
+
     def __init__(self, view):
-        UsbSerial.view_static = view
+        if UsbSerial.view_static == None:
+            UsbSerial.view_static = view
         self.m_status = ""
         self.m_read_line = ""
         self.m_com_port_read_is_started = False
         self.m_line_to_consume = ""
-
-
         self.m_sm_state = "INIT"
         self.m_sm_last_state = 'LAST'
         self.m_actport = ""

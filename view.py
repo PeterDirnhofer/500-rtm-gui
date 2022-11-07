@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
+from parameter import Parameter
 
 
 class View(tk.Tk):
@@ -13,6 +14,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
+        self.parameter=Parameter
         self.com_selected = ""
 
         self._make_main_frame()
@@ -215,7 +217,15 @@ class View(tk.Tk):
         print(temp)
 
     def parameter_select(self, event):
-        pass
+        selected_indices = self.lbox_parameter.curselection()
+
+        print(f'selected: {selected_indices}')
+        for i in selected_indices:
+            self.parameter.edit_parameter(self,i)
+
+            print(i)
+
+
 
     def close(self):
         self.destroy()
