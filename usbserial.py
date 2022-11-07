@@ -28,12 +28,13 @@ class UsbSerial:
     m_status=""
     m_read_line=""
     m_com_port_read_is_started = False
+    act_port=None
+
+
     def __init__(self, view):
         if UsbSerial.view_static == None:
             UsbSerial.view_static = view
-        self.m_sm_state = "INIT"
-        self.m_sm_last_state = 'LAST'
-        self.m_actport = ""
+
 
     @classmethod
     def write(cls,cmd):
@@ -159,11 +160,11 @@ class UsbSerial:
         Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         '''
-
+        last_state='LAST'
         while True:
 
-            if UsbSerial.statemachine_state != self.m_sm_last_state:
-                self.m_sm_last_state = UsbSerial.statemachine_state
+            if UsbSerial.statemachine_state != last_state:
+                last_state = UsbSerial.statemachine_state
                 UsbSerial.view_static.text_status.set(UsbSerial.statemachine_state)
 
             if UsbSerial.statemachine_state == 'INIT':
@@ -197,16 +198,16 @@ class UsbSerial:
 
     def m_is_default_port_existing(self):
         # Check if default COM port is existing on Computer
-        self.m_actport = self.m_get_default_comport()
-        UsbSerial.view_static.text_com_state.set(f'Connecting {self.m_actport} ...')
+        UsbSerial.m_actport = self.m_get_default_comport()
+        UsbSerial.view_static.text_com_state.set(f'Connecting {UsbSerial.m_actport} ...')
         available_ports = self.m_get_ports()
         port_exists = False
         for port in available_ports:
-            r = self.m_actport in port
+            r = UsbSerial.m_actport in port
             if r:
                 port_exists = True
         if not port_exists:
-            UsbSerial.view_static.text_com_state.set(f'ERROR_COM {self.m_actport} not available on Computer')
+            UsbSerial.view_static.text_com_state.set(f'ERROR_COM {UsbSerial.m_actport} not available on Computer')
             UsbSerial.statemachine_state = 'ERROR_COM'
             return
         else:
@@ -215,7 +216,7 @@ class UsbSerial:
 
     def m_open(self):
         # try to open COM port on computer
-        result = self.m_open_comport(self.m_actport)
+        result = self.m_open_comport(UsbSerial.m_actport)
         if result == 'OPEN':
             UsbSerial.statemachine_state = 'OPEN'
         else:
@@ -245,7 +246,7 @@ class UsbSerial:
         UsbSerial.view_static.button_select_adjust['state'] = tk.NORMAL
         UsbSerial.view_static.button_select_measure['state'] = tk.NORMAL
         UsbSerial.view_static.button_select_reset['state'] = tk.NORMAL
-        UsbSerial.view_static.text_com_state.set(f'Connected {self.m_actport}')
+        UsbSerial.view_static.text_com_state.set(f'Connected {UsbSerial.m_actport}')
 
         # Get parameter and display in parameter_frame
         UsbSerial.view_static.controller.usb_serial_get_parameter_handle()
