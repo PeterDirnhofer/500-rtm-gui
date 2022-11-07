@@ -19,13 +19,13 @@ NUMBER_OF_PARAMETERS = 10
 
 class UsbSerial:
 
+
     serialInst = serial.Serial()
     statemachine_state = "INIT"
     parameters_needed = 0
     m_parameter_list = []
     def __init__(self, view):
         UsbSerial.view_static = view
-
         self.m_status = ""
         self.m_read_line = ""
         self.m_com_port_read_is_started = False
@@ -36,7 +36,8 @@ class UsbSerial:
         self.m_sm_last_state = 'LAST'
         self.m_actport = ""
 
-    def write(cmd):
+    @classmethod
+    def write(cls,cmd):
         UsbSerial.serialInst.write_timeout = 1.0
 
         try:

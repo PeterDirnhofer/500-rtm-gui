@@ -10,7 +10,6 @@ class View(tk.Tk):
     # Class variable
     view_mode=""
 
-
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
