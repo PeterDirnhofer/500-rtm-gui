@@ -32,8 +32,9 @@ class UsbSerial:
 
 
     def __init__(self, view):
-        if UsbSerial.view_static == None:
-            UsbSerial.view_static = view
+        pass
+        #if UsbSerial.view_static == None:
+        #    UsbSerial.view_static = view
 
 
     @classmethod
