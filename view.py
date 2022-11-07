@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
-from parameter import Parameter
+
 
 
 class View(tk.Tk):
@@ -14,7 +14,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
-        self.parameter=Parameter
+
         self.com_selected = ""
 
         self._make_main_frame()
