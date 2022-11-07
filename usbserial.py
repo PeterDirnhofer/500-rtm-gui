@@ -92,15 +92,16 @@ class UsbSerial():
                     if len(ln) > 0:
                         UsbSerial._read_line = ln
                         UsbSerial.queue.put(ln)
+                        continue
 
                         if View.view_mode=='ADJUST':
-                            UsbSerial.view_static.label_adjust_update(UsbSerial._read_line)
+                            #UsbSerial.view_static.label_adjust_update(UsbSerial._read_line)
                             continue
 
-                        if UsbSerial._parameters_needed > 0:
-                            UsbSerial._parameter_list.append(UsbSerial._read_line)
-                            UsbSerial.view_static.lbox_parameter.insert(tk.END, UsbSerial._read_line)
-                            UsbSerial._parameters_needed -= 1
+                        # if UsbSerial._parameters_needed > 0:
+                        #     UsbSerial._parameter_list.append(UsbSerial._read_line)
+                        #     UsbSerial.view_static.lbox_parameter.insert(tk.END, UsbSerial._read_line)
+                        #     UsbSerial._parameters_needed -= 1
                         else:
                             UsbSerial.view_static.lbox_com_read_update(UsbSerial._read_line)
                             #UsbSerial.view_static.label_adjust_update(UsbSerial.m_read_line)

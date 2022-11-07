@@ -32,8 +32,16 @@ class View(tk.Tk):
     def track_queue(self):
 
         while not usbserial.UsbSerial.queue.empty():
-            self.res = usbserial.UsbSerial.queue.get()
-            print(self.res)
+            res = usbserial.UsbSerial.queue.get()
+            x = res.split(",")
+            if x[0] == 'ADJUST':
+                self.label_adjust_update(x[1])
+                print(x[1])
+            elif x[0] == 'PARAMETER':
+                self.lbox_parameter.insert(tk.END, res)
+                #print(f'PRAMETER detected: {res}')
+            else:
+                self.lbox_com_read_update(res)
 
         self.after(100, self.track_queue)
 
