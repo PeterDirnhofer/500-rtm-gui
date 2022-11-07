@@ -15,7 +15,7 @@ class Controller:
         self.port_is_available = False
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        self.usb_serial = UsbSerial(self.view)  # instance of view is passed to UsbSerial
+        self.usb_serial = UsbSerial()  # instance of view is passed to UsbSerial
         UsbSerial.view_static=self.view
         self.act_port = ""
         UsbSerial.statemachine_state = 'INIT'

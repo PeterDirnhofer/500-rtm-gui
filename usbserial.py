@@ -31,7 +31,7 @@ class UsbSerial:
     act_port=None
 
 
-    def __init__(self, view):
+    def __init__(self):
         pass
         #if UsbSerial.view_static == None:
         #    UsbSerial.view_static = view
@@ -85,7 +85,6 @@ class UsbSerial:
                         if View.view_mode=='ADJUST':
                             UsbSerial.view_static.label_adjust_update(UsbSerial.m_read_line)
                             continue
-
 
                         if UsbSerial.parameters_needed > 0:
                             UsbSerial.m_parameter_list.append(UsbSerial.m_read_line)
