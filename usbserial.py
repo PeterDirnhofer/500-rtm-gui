@@ -12,11 +12,12 @@ import serial
 from threading import Thread
 
 from view import View
+from queue import Queue
 
 NUMBER_OF_PARAMETERS = 10
 
 
-class UsbSerial:
+class UsbSerial():
 
     # Class variables
     view_static = None
@@ -28,12 +29,13 @@ class UsbSerial:
     _read_line= ""
     _com_port_read_is_started = False
     _actport=None
+    queue=Queue()
 
     @classmethod
-    def reset_com_statemachine(cls):
+    def reset_com_esp32(cls):
         UsbSerial._statemachine_state= 'INIT'
     @classmethod
-    def start_init_com_statemachine(cls):
+    def start_init_com_esp32(cls):
         if UsbSerial.view_static==None:
             print("ERRROR run UsbSerial.view_static=view")
             return False
@@ -74,6 +76,7 @@ class UsbSerial:
             com_thread.start()
 
     @classmethod
+
     def _read_loop(cls):
         """
         Loop that reads comport. Monitor reads in
@@ -88,6 +91,8 @@ class UsbSerial:
                     ln = UsbSerial._serialInst.readline().decode('utf').rstrip('\n')
                     if len(ln) > 0:
                         UsbSerial._read_line = ln
+                        UsbSerial.queue.put(ln)
+
                         if View.view_mode=='ADJUST':
                             UsbSerial.view_static.label_adjust_update(UsbSerial._read_line)
                             continue
@@ -105,7 +110,6 @@ class UsbSerial:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')
                     UsbSerial.view_static.close()
 
-    ####################################################################################
     @staticmethod
     def _get_default_comport():
         '''
@@ -156,8 +160,6 @@ class UsbSerial:
                 UsbSerial._status = 'ERROR'
         return UsbSerial._status
 
-
-    ##########################################################
 
     @classmethod
     def _init_com_statemachine_loop(cls):

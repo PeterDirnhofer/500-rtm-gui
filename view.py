@@ -1,5 +1,6 @@
 import ctypes
 import tkinter as tk
+import usbserial
 from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
@@ -27,9 +28,26 @@ class View(tk.Tk):
 
         self._style()
 
+
+    def track_queue(self):
+
+        while not usbserial.UsbSerial.queue.empty():
+            self.res = usbserial.UsbSerial.queue.get()
+            print(self.res)
+
+        self.after(100, self.track_queue)
+
+
+
+
+
     def main(self):
+        self.after(2000,self.track_queue)
         self.controller.usb_serial_trigger_new_statemachine_handle()
         self.mainloop()  # Tk mainloop
+
+    def get_viewmode(self):
+        return View.view_mode
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
@@ -97,6 +115,7 @@ class View(tk.Tk):
                                     textvariable=self.text_com_state,
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
+
 
     def _make_frame_parameter(self):
         self.frame_parameter = ttk.LabelFrame(self.frame_main, text="Parameter")

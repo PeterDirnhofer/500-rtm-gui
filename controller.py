@@ -17,7 +17,7 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         UsbSerial.view_static = self.view
 
-        UsbSerial.reset_com_statemachine()
+        UsbSerial.reset_com_esp32()
 
     def main(self):
         self.view.main()
@@ -35,7 +35,7 @@ class Controller:
 
     @staticmethod
     def usb_serial_trigger_new_statemachine_handle():
-        UsbSerial.start_init_com_statemachine()
+        UsbSerial.start_init_com_esp32()
 
     def select_restart(self):
         self.view.frame_select_com_off()
@@ -51,7 +51,7 @@ class Controller:
 
         self.view.lbox_parameter_delete()
 
-        UsbSerial.reset_com_statemachine()
+        UsbSerial.reset_com_esp32()
 
         View.view_mode = 'INIT'
 
