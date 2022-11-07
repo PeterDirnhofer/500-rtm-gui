@@ -11,11 +11,9 @@ import serial.tools.list_ports
 import serial
 from threading import Thread
 
-from view import View
 from queue import Queue
 
 NUMBER_OF_PARAMETERS = 10
-
 
 class UsbSerial():
 
@@ -68,7 +66,6 @@ class UsbSerial():
     @classmethod
     def _start_read_loop(cls):
         if UsbSerial._com_port_read_is_started:
-            print("m_read_loop already started")
             return
         else:
             UsbSerial._com_port_read_is_started = True
@@ -92,20 +89,6 @@ class UsbSerial():
                     if len(ln) > 0:
                         UsbSerial._read_line = ln
                         UsbSerial.queue.put(ln)
-                        continue
-
-                        if View.view_mode=='ADJUST':
-                            #UsbSerial.view_static.label_adjust_update(UsbSerial._read_line)
-                            continue
-
-                        # if UsbSerial._parameters_needed > 0:
-                        #     UsbSerial._parameter_list.append(UsbSerial._read_line)
-                        #     UsbSerial.view_static.lbox_parameter.insert(tk.END, UsbSerial._read_line)
-                        #     UsbSerial._parameters_needed -= 1
-                        else:
-                            UsbSerial.view_static.lbox_com_read_update(UsbSerial._read_line)
-                            #UsbSerial.view_static.label_adjust_update(UsbSerial.m_read_line)
-
 
                 except Exception:
                     messagebox.showerror('error', 'Connection lost\nClose the programm')

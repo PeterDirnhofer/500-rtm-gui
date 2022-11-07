@@ -53,7 +53,7 @@ class Controller:
 
         UsbSerial.reset_com_esp32()
 
-        View.view_mode = 'INIT'
+
 
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
@@ -63,7 +63,7 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
-        View.view_mode = 'ADJUST'
+
 
 
 if __name__ == '__main__':

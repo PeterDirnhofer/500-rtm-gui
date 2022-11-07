@@ -7,8 +7,6 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
-    # Class variable
-    view_mode=""
 
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
@@ -38,24 +36,17 @@ class View(tk.Tk):
                 self.label_adjust_update(x[1])
                 print(x[1])
             elif x[0] == 'PARAMETER':
-                self.lbox_parameter.insert(tk.END, res)
-                #print(f'PRAMETER detected: {res}')
+                self.lbox_parameter.insert(tk.END, f'{x[1]} , {x[2]}')
             else:
                 self.lbox_com_read_update(res)
 
         self.after(100, self.track_queue)
 
 
-
-
-
     def main(self):
         self.after(2000,self.track_queue)
         self.controller.usb_serial_trigger_new_statemachine_handle()
         self.mainloop()  # Tk mainloop
-
-    def get_viewmode(self):
-        return View.view_mode
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
@@ -249,8 +240,6 @@ class View(tk.Tk):
             self.parameter.edit_parameter(self,i)
 
             print(i)
-
-
 
     def close(self):
         self.destroy()
