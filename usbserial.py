@@ -21,28 +21,21 @@ class UsbSerial:
 
     # Class variables
     view_static = None
-    serialInst = serial.Serial()
+    _serialInst = serial.Serial()
     statemachine_state = "INIT"
-    parameters_needed = 0
-    m_parameter_list = []
-    m_status=""
-    m_read_line=""
-    m_com_port_read_is_started = False
-    act_port=None
-
-
-    def __init__(self):
-        pass
-        #if UsbSerial.view_static == None:
-        #    UsbSerial.view_static = view
-
+    _parameters_needed = 0
+    _parameter_list = []
+    _status= ""
+    _read_line= ""
+    _com_port_read_is_started = False
+    _act_port=None
 
     @classmethod
     def write(cls,cmd):
-        UsbSerial.serialInst.write_timeout = 1.0
+        UsbSerial._serialInst.write_timeout = 1.0
 
         try:
-            UsbSerial.serialInst.write(f'{cmd}\n'.encode('utf'))
+            UsbSerial._serialInst.write(f'{cmd}\n'.encode('utf'))
             return True
         except Exception:
             return False
@@ -53,19 +46,19 @@ class UsbSerial:
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
         UsbSerial.view_static.lbox_parameter.delete(0, tk.END)
-        UsbSerial.m_parameter_list.clear()
-        UsbSerial.parameters_needed = NUMBER_OF_PARAMETERS
+        UsbSerial._parameter_list.clear()
+        UsbSerial._parameters_needed = NUMBER_OF_PARAMETERS
         UsbSerial.write('PARAMETER,?')
 
     ####################################################################
     # COM READ THREAD
     @classmethod
     def m_start_read_loop(cls):
-        if UsbSerial.m_com_port_read_is_started:
+        if UsbSerial._com_port_read_is_started:
             print("m_read_loop already started")
             return
         else:
-            UsbSerial.m_com_port_read_is_started = True
+            UsbSerial._com_port_read_is_started = True
             com_thread = Thread(target=UsbSerial.m_read_loop, daemon=True)
             com_thread.start()
 
@@ -79,21 +72,21 @@ class UsbSerial:
         # Python Tutorial - How to Read Data from Arduino via Serial Port
 
         while True:
-            if UsbSerial.serialInst.inWaiting:
+            if UsbSerial._serialInst.inWaiting:
                 try:
-                    ln = UsbSerial.serialInst.readline().decode('utf').rstrip('\n')
+                    ln = UsbSerial._serialInst.readline().decode('utf').rstrip('\n')
                     if len(ln) > 0:
-                        UsbSerial.m_read_line = ln
+                        UsbSerial._read_line = ln
                         if View.view_mode=='ADJUST':
-                            UsbSerial.view_static.label_adjust_update(UsbSerial.m_read_line)
+                            UsbSerial.view_static.label_adjust_update(UsbSerial._read_line)
                             continue
 
-                        if UsbSerial.parameters_needed > 0:
-                            UsbSerial.m_parameter_list.append(UsbSerial.m_read_line)
-                            UsbSerial.view_static.lbox_parameter.insert(tk.END, UsbSerial.m_read_line)
-                            UsbSerial.parameters_needed -= 1
+                        if UsbSerial._parameters_needed > 0:
+                            UsbSerial._parameter_list.append(UsbSerial._read_line)
+                            UsbSerial.view_static.lbox_parameter.insert(tk.END, UsbSerial._read_line)
+                            UsbSerial._parameters_needed -= 1
                         else:
-                            UsbSerial.view_static.lbox_com_read_update(UsbSerial.m_read_line)
+                            UsbSerial.view_static.lbox_com_read_update(UsbSerial._read_line)
                             #UsbSerial.view_static.label_adjust_update(UsbSerial.m_read_line)
 
 
@@ -136,21 +129,21 @@ class UsbSerial:
 
     @classmethod
     def m_open_comport(cls, comport):
-        if UsbSerial.m_status != 'OPEN':
+        if UsbSerial._status != 'OPEN':
             try:
-                UsbSerial.serialInst.baudrate = 115200
-                UsbSerial.serialInst.port = comport
-                if UsbSerial.serialInst.isOpen():
+                UsbSerial._serialInst.baudrate = 115200
+                UsbSerial._serialInst.port = comport
+                if UsbSerial._serialInst.isOpen():
                     try:
                         print("isopen")
-                        UsbSerial.serialInst.close()
+                        UsbSerial._serialInst.close()
                     except Exception:
                         pass
-                UsbSerial.serialInst.open()
-                UsbSerial.m_status = "OPEN"
+                UsbSerial._serialInst.open()
+                UsbSerial._status = "OPEN"
             except Exception:
-                UsbSerial.m_status = 'ERROR'
-        return UsbSerial.m_status
+                UsbSerial._status = 'ERROR'
+        return UsbSerial._status
 
 
     ##########################################################
@@ -187,7 +180,7 @@ class UsbSerial:
                 time.sleep(1)
                 continue
             elif UsbSerial.statemachine_state == 'WAIT_FOR_IDLE':
-                UsbSerial.parameters_needed = 0
+                UsbSerial._parameters_needed = 0
                 UsbSerial.m_wait_for_idle()
                 time.sleep(0.050)
                 continue
@@ -248,7 +241,7 @@ class UsbSerial:
     def m_wait_for_idle(cls):
         # Wait for 'IDLE' from ESP32
 
-        if UsbSerial.m_read_line == 'IDLE':
+        if UsbSerial._read_line == 'IDLE':
             UsbSerial.statemachine_state = 'COM_READY'
             return
 
@@ -271,11 +264,11 @@ class UsbSerial:
         available_ports = UsbSerial.m_get_ports()
         UsbSerial.view_static.display_comports(available_ports)
 
-        UsbSerial.m_com_port_read_is_started = False
+        UsbSerial._com_port_read_is_started = False
         if UsbSerial.view_static.com_selected != "":
             UsbSerial.m_put_default_comport(UsbSerial.view_static.com_selected)
             # UsbSerial.view_static.text_com_read_update(f'{UsbSerial.view_static.com_selected} selected')
             UsbSerial.view_static.frame_select_com_off()
             UsbSerial.statemachine_state = 'INIT'
             UsbSerial.view_static.com_selected = ""
-            UsbSerial.m_com_port_read_is_started = False
+            UsbSerial._com_port_read_is_started = False
