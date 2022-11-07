@@ -17,6 +17,9 @@ class Controller:
         self.view = View(self)  # self (instance of controller) is passed to View
         self.usb_serial = UsbSerial()  # instance of view is passed to UsbSerial
         UsbSerial.view_static=self.view
+
+
+
         self.act_port = ""
         UsbSerial.statemachine_state = 'INIT'
 
@@ -34,7 +37,7 @@ class Controller:
         )
 
     def usb_serial_trigger_new_statemachine_handle(self):
-        self.usb_serial.start_init_com_statemachine()
+        UsbSerial.start_init_com_statemachine()
 
     def select_restart(self):
         self.view.frame_select_com_off()
