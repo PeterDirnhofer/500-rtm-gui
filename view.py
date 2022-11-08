@@ -7,7 +7,6 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
-
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
@@ -25,7 +24,6 @@ class View(tk.Tk):
         self._make_frame_adjust()
 
         self._style()
-
 
     def track_queue(self):
 
@@ -45,7 +43,6 @@ class View(tk.Tk):
 
     def main(self):
         self.after(2000,self.track_queue)
-        self.controller.usb_serial_trigger_new_statemachine_handle()
         self.mainloop()  # Tk mainloop
 
     def _make_main_frame(self):

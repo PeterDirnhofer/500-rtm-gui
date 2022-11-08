@@ -20,11 +20,15 @@ class Controller:
         UsbSerial.reset_com_esp32()
 
     def main(self):
+        UsbSerial.start_init_com_esp32()
         self.view.main()
 
     @staticmethod
     def usb_serial_get_parameter_handle():
+
         UsbSerial.request_parameter_from_esp()
+
+
 
     @staticmethod
     def select_measure():
@@ -33,9 +37,7 @@ class Controller:
             message='Measure clicked!'
         )
 
-    @staticmethod
-    def usb_serial_trigger_new_statemachine_handle():
-        UsbSerial.start_init_com_esp32()
+
 
     def select_restart(self):
         self.view.frame_select_com_off()

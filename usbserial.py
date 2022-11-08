@@ -246,7 +246,7 @@ class UsbSerial():
         UsbSerial.view_static.text_com_state.set(f'Connected {UsbSerial._actport}')
 
         # Get parameter and display in parameter_frame
-        UsbSerial.view_static.controller.usb_serial_get_parameter_handle()
+        UsbSerial.request_parameter_from_esp()
         UsbSerial._statemachine_state = 'PASSIVE'
 
     @classmethod
