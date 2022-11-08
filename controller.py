@@ -12,7 +12,7 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-        self.port_is_available = False
+
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
         UsbSerial.view_static = self.view

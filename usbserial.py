@@ -13,7 +13,7 @@ from threading import Thread
 
 from queue import Queue
 
-NUMBER_OF_PARAMETERS = 10
+
 
 class UsbSerial():
 
@@ -21,25 +21,73 @@ class UsbSerial():
     view_static = None
     _statemachine_state = "INIT"
     _serialInst = serial.Serial()
-    _parameters_needed = 0
-    _parameter_list = []
     _comport_is_open= ""
     _read_line= ""
     _com_port_read_is_started = False
     _actport=None
     queue=Queue()
 
+    #############################################
+    # Statemachine connect to ESP32
     @classmethod
     def reset_com_esp32(cls):
         UsbSerial._statemachine_state= 'INIT'
     @classmethod
     def start_init_com_esp32(cls):
+        """
+        Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
+        :return:
+        """
         if UsbSerial.view_static==None:
             print("ERRROR run UsbSerial.view_static=view")
             return False
         init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
         init_com_thread.start()
         return True
+
+
+    @classmethod
+    def _init_com_statemachine_loop(cls):
+        '''
+        Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
+        - Request parameters from ESP32 and render in Frame parameters
+        '''
+        last_state='LAST'
+        while True:
+
+            if UsbSerial._statemachine_state != last_state:
+                last_state = UsbSerial._statemachine_state
+                UsbSerial.view_static.text_status.set(UsbSerial._statemachine_state)
+
+            if UsbSerial._statemachine_state == 'INIT':
+                UsbSerial._is_default_port_existing()
+                time.sleep(0.050)
+                continue
+            elif UsbSerial._statemachine_state == 'EXISTING':
+                UsbSerial._open()
+                time.sleep(0.050)
+                continue
+            elif UsbSerial._statemachine_state == 'OPEN':
+                UsbSerial._send_reset()
+                time.sleep(1)
+                continue
+            elif UsbSerial._statemachine_state == 'WAIT_FOR_IDLE':
+
+                UsbSerial._wait_for_idle()
+                time.sleep(0.050)
+                continue
+            elif UsbSerial._statemachine_state == 'COM_READY':
+                UsbSerial._com_ready()
+            elif UsbSerial._statemachine_state == 'PASSIVE':
+                time.sleep(1)
+                continue
+            elif UsbSerial._statemachine_state == "ERROR_COM":
+                UsbSerial._error()
+                time.sleep(0.200)
+
+            else:
+                raise Exception(f'Invalid state in state_machine: {UsbSerial._statemachine_state}')
+
 
     @classmethod
     def write(cls,cmd):
@@ -57,8 +105,7 @@ class UsbSerial():
         Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
         """
         UsbSerial.view_static.lbox_parameter.delete(0, tk.END)
-        UsbSerial._parameter_list.clear()
-        UsbSerial._parameters_needed = NUMBER_OF_PARAMETERS
+
         UsbSerial.write('PARAMETER,?')
 
     ####################################################################
@@ -144,48 +191,6 @@ class UsbSerial():
                 UsbSerial._comport_is_open = 'ERROR'
         return UsbSerial._comport_is_open
 
-
-    @classmethod
-    def _init_com_statemachine_loop(cls):
-        '''
-        Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
-        - Request parameters from ESP32 and render in Frame parameters
-        '''
-        last_state='LAST'
-        while True:
-
-            if UsbSerial._statemachine_state != last_state:
-                last_state = UsbSerial._statemachine_state
-                UsbSerial.view_static.text_status.set(UsbSerial._statemachine_state)
-
-            if UsbSerial._statemachine_state == 'INIT':
-                UsbSerial._is_default_port_existing()
-                time.sleep(0.050)
-                continue
-            elif UsbSerial._statemachine_state == 'EXISTING':
-                UsbSerial._open()
-                time.sleep(0.050)
-                continue
-            elif UsbSerial._statemachine_state == 'OPEN':
-                UsbSerial._send_reset()
-                time.sleep(1)
-                continue
-            elif UsbSerial._statemachine_state == 'WAIT_FOR_IDLE':
-                UsbSerial._parameters_needed = 0
-                UsbSerial._wait_for_idle()
-                time.sleep(0.050)
-                continue
-            elif UsbSerial._statemachine_state == 'COM_READY':
-                UsbSerial._com_ready()
-            elif UsbSerial._statemachine_state == 'PASSIVE':
-                time.sleep(1)
-                continue
-            elif UsbSerial._statemachine_state == "ERROR_COM":
-                UsbSerial._error()
-                time.sleep(0.200)
-
-            else:
-                raise Exception(f'Invalid state in state_machine: {UsbSerial._statemachine_state}')
 
     @classmethod
     def _is_default_port_existing(cls):
