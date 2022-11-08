@@ -23,10 +23,6 @@ class Controller:
         UsbSerial.start_init_com_esp32()
         self.view.main()
 
-    @staticmethod
-    def usb_serial_get_parameter_handle():
-
-        UsbSerial.request_parameter_from_esp()
 
     @staticmethod
     def select_measure():

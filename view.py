@@ -1,9 +1,11 @@
 import ctypes
 import tkinter as tk
 import usbserial
+from usbserial import UsbSerial
 from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
+
 
 class View(tk.Tk):
 
@@ -129,7 +131,7 @@ class View(tk.Tk):
 
         self.btn_get_parameter = ttk.Button(self.frame_parameter,
                                             image=self.image,
-                                            command=self.controller.usb_serial_get_parameter_handle)
+                                            command = UsbSerial.request_parameter_from_esp)
 
         # self.btn_get_parameter.pack(side = LEFT)
         self.btn_get_parameter.grid(row=1, column=0, sticky=W, padx=10, pady=5)
