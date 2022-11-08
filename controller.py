@@ -28,8 +28,6 @@ class Controller:
 
         UsbSerial.request_parameter_from_esp()
 
-
-
     @staticmethod
     def select_measure():
         showinfo(

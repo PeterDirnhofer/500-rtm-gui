@@ -23,7 +23,7 @@ class UsbSerial():
     _serialInst = serial.Serial()
     _parameters_needed = 0
     _parameter_list = []
-    _status= ""
+    _comport_is_open= ""
     _read_line= ""
     _com_port_read_is_started = False
     _actport=None
@@ -128,7 +128,7 @@ class UsbSerial():
 
     @classmethod
     def _open_comport(cls, comport):
-        if UsbSerial._status != 'OPEN':
+        if UsbSerial._comport_is_open != 'OPEN':
             try:
                 UsbSerial._serialInst.baudrate = 115200
                 UsbSerial._serialInst.port = comport
@@ -139,10 +139,10 @@ class UsbSerial():
                     except Exception:
                         pass
                 UsbSerial._serialInst.open()
-                UsbSerial._status = "OPEN"
+                UsbSerial._comport_is_open = "OPEN"
             except Exception:
-                UsbSerial._status = 'ERROR'
-        return UsbSerial._status
+                UsbSerial._comport_is_open = 'ERROR'
+        return UsbSerial._comport_is_open
 
 
     @classmethod
