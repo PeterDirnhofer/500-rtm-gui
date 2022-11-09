@@ -32,7 +32,6 @@ class Controller:
         )
 
 
-
     def select_restart(self):
         self.view.frame_select_com_off()
         self.view.frame_adjust_off()
@@ -48,7 +47,6 @@ class Controller:
         self.view.lbox_parameter_delete()
 
         UsbSerial.reset_com_esp32()
-
 
 
     def select_adjust(self):

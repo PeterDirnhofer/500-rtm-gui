@@ -241,14 +241,9 @@ class UsbSerial():
 
     @classmethod
     def _com_ready(cls):
-        UsbSerial.view_static.button_select_adjust['state'] = tk.NORMAL
-        UsbSerial.view_static.button_select_measure['state'] = tk.NORMAL
-        UsbSerial.view_static.button_select_reset['state'] = tk.NORMAL
-        UsbSerial.view_static.text_com_state.set(f'Connected {UsbSerial._actport}')
-
         # Get parameter and display in parameter_frame
-        UsbSerial.request_parameter_from_esp()
-        UsbSerial._statemachine_state = 'PASSIVE'
+        cls.request_parameter_from_esp()
+        cls._statemachine_state = 'PASSIVE'
 
     @classmethod
     def _error(cls):

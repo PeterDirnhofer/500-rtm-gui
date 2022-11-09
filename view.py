@@ -12,10 +12,7 @@ class View(tk.Tk):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
 
-        #self.com_selected = ""
-
         self._make_main_frame()
-
         self._make_frame_menu()
         self._make_frame_comread()
         self._make_frame_comstate()
@@ -27,8 +24,13 @@ class View(tk.Tk):
         self._style()
 
     def track_queue(self):
-
+        _first=False
         while not UsbSerial.queue.empty():
+
+            if not _first:
+                _first=True
+                self._enable_buttons()
+
             res = UsbSerial.queue.get()
             x = res.split(",")
             if x[0] == 'ADJUST':
@@ -41,9 +43,14 @@ class View(tk.Tk):
 
         self.after(100, self.track_queue)
 
+    def _enable_buttons(self):
+        self.button_select_adjust['state'] = tk.NORMAL
+        self.button_select_measure['state'] = tk.NORMAL
+        self.button_select_reset['state'] = tk.NORMAL
+        self.text_com_state.set(f'Connected ')
 
     def main(self):
-        self.after(2000,self.track_queue)
+        self.after(2000, self.track_queue)
         self.mainloop()  # Tk mainloop
 
     def _make_main_frame(self):
@@ -113,7 +120,6 @@ class View(tk.Tk):
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
 
-
     def _make_frame_parameter(self):
         self.frame_parameter = ttk.LabelFrame(self.frame_main, text="Parameter")
         self.frame_parameter.grid(row=3, column=0, padx=10, pady=10, sticky=E + W + S + N)
@@ -130,7 +136,7 @@ class View(tk.Tk):
 
         self.btn_get_parameter = ttk.Button(self.frame_parameter,
                                             image=self.image,
-                                            command = UsbSerial.request_parameter_from_esp)
+                                            command=UsbSerial.request_parameter_from_esp)
 
         # self.btn_get_parameter.pack(side = LEFT)
         self.btn_get_parameter.grid(row=1, column=0, sticky=W, padx=10, pady=5)
@@ -161,7 +167,7 @@ class View(tk.Tk):
         self.text_label_adjust = tk.StringVar()
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
 
-        self.label_adjust.grid(row=0,column=0,sticky=E+W)
+        self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
     def frame_select_com_on(self):
         self.frame_select_com.grid(row=1, column=1)
@@ -172,8 +178,8 @@ class View(tk.Tk):
         self.frame_select_com.grid_forget()
 
     def frame_adjust_on(self):
-        self.frame_adjust.grid(row=1, column=1, sticky=E+W)
-        self.label_adjust.grid(row=0, column=0, sticky=E+W)
+        self.frame_adjust.grid(row=1, column=1, sticky=E + W)
+        self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
     def frame_adjust_off(self):
         self.label_adjust.grid_forget()
@@ -235,7 +241,7 @@ class View(tk.Tk):
 
         print(f'selected: {selected_indices}')
         for i in selected_indices:
-            self.parameter.edit_parameter(self,i)
+            self.parameter.edit_parameter(self, i)
 
             print(i)
 
