@@ -15,7 +15,7 @@ class Controller:
 
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        UsbSerial.view_static = self.view
+        UsbSerial.view_static = self.view # pass view to UsbSerial
 
         UsbSerial.reset_com_esp32()
 

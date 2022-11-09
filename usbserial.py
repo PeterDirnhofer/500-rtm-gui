@@ -14,37 +14,35 @@ from threading import Thread
 from queue import Queue
 
 
-
 class UsbSerial():
-
     # Class variables
     view_static = None
     _statemachine_state = "INIT"
     _serialInst = serial.Serial()
-    _comport_is_open= ""
-    _read_line= ""
+    _comport_is_open = ""
+    _read_line = ""
     _com_port_read_is_started = False
-    _actport=None
-    queue=Queue()
+    _actport = None
+    queue = Queue()
 
     #############################################
     # Statemachine connect to ESP32
     @classmethod
     def reset_com_esp32(cls):
-        UsbSerial._statemachine_state= 'INIT'
+        UsbSerial._statemachine_state = 'INIT'
+
     @classmethod
     def start_init_com_esp32(cls):
         """
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
-        if UsbSerial.view_static==None:
+        if UsbSerial.view_static == None:
             print("ERRROR run UsbSerial.view_static=view")
             return False
         init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
         init_com_thread.start()
         return True
-
 
     @classmethod
     def _init_com_statemachine_loop(cls):
@@ -52,7 +50,7 @@ class UsbSerial():
         Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         '''
-        last_state='LAST'
+        last_state = 'LAST'
         while True:
 
             if UsbSerial._statemachine_state != last_state:
@@ -88,9 +86,39 @@ class UsbSerial():
             else:
                 raise Exception(f'Invalid state in state_machine: {UsbSerial._statemachine_state}')
 
+    ####################################################################
+    # COM READ THREAD
+    @classmethod
+    def _start_read_loop(cls):
+        if UsbSerial._com_port_read_is_started:
+            return
+        else:
+            UsbSerial._com_port_read_is_started = True
+            com_thread = Thread(target=UsbSerial._read_loop, daemon=True)
+            com_thread.start()
 
     @classmethod
-    def write(cls,cmd):
+    def _read_loop(cls):
+        """Read ESP32 com port and put to queue
+        Read ESP32 com port in a thread loop. Output: Put read lines to queue. And put last input to _read_line.
+        """
+        # https://youtu.be/AHr94RtMj1A
+        # Python Tutorial - How to Read Data from Arduino via Serial Port
+
+        while True:
+            if UsbSerial._serialInst.inWaiting:
+                try:
+                    ln = UsbSerial._serialInst.readline().decode('utf').rstrip('\n')
+                    if len(ln) > 0:
+                        UsbSerial._read_line = ln
+                        UsbSerial.queue.put(ln)
+
+                except Exception:
+                    messagebox.showerror('error', 'Connection lost\nClose the programm')
+                    UsbSerial.view_static.close()
+
+    @classmethod
+    def write(cls, cmd):
         UsbSerial._serialInst.write_timeout = 1.0
 
         try:
@@ -107,39 +135,6 @@ class UsbSerial():
         UsbSerial.view_static.lbox_parameter.delete(0, tk.END)
 
         UsbSerial.write('PARAMETER,?')
-
-    ####################################################################
-    # COM READ THREAD
-    @classmethod
-    def _start_read_loop(cls):
-        if UsbSerial._com_port_read_is_started:
-            return
-        else:
-            UsbSerial._com_port_read_is_started = True
-            com_thread = Thread(target=UsbSerial._read_loop, daemon=True)
-            com_thread.start()
-
-    @classmethod
-
-    def _read_loop(cls):
-        """
-        Loop that reads comport. Monitor reads in
-        :return:
-        """
-        # https://youtu.be/AHr94RtMj1A
-        # Python Tutorial - How to Read Data from Arduino via Serial Port
-
-        while True:
-            if UsbSerial._serialInst.inWaiting:
-                try:
-                    ln = UsbSerial._serialInst.readline().decode('utf').rstrip('\n')
-                    if len(ln) > 0:
-                        UsbSerial._read_line = ln
-                        UsbSerial.queue.put(ln)
-
-                except Exception:
-                    messagebox.showerror('error', 'Connection lost\nClose the programm')
-                    UsbSerial.view_static.close()
 
     @staticmethod
     def _get_default_comport():
@@ -190,7 +185,6 @@ class UsbSerial():
             except Exception:
                 UsbSerial._comport_is_open = 'ERROR'
         return UsbSerial._comport_is_open
-
 
     @classmethod
     def _is_default_port_existing(cls):
@@ -243,6 +237,7 @@ class UsbSerial():
 
         UsbSerial._statemachine_state = "ERROR_COM"
         return
+
     @classmethod
     def _com_ready(cls):
         UsbSerial.view_static.button_select_adjust['state'] = tk.NORMAL

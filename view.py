@@ -1,6 +1,5 @@
 import ctypes
 import tkinter as tk
-import usbserial
 from usbserial import UsbSerial
 from tkinter import ttk
 from tkinter.constants import *
@@ -29,8 +28,8 @@ class View(tk.Tk):
 
     def track_queue(self):
 
-        while not usbserial.UsbSerial.queue.empty():
-            res = usbserial.UsbSerial.queue.get()
+        while not UsbSerial.queue.empty():
+            res = UsbSerial.queue.get()
             x = res.split(",")
             if x[0] == 'ADJUST':
                 self.label_adjust_update(x[1])
