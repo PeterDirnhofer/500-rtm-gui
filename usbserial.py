@@ -24,6 +24,7 @@ class UsbSerial():
     _com_port_read_is_started = False
     _actport = None
     queue = Queue()
+    _com_selected = ""
 
     #############################################
     # Statemachine connect to ESP32
@@ -256,10 +257,9 @@ class UsbSerial():
         UsbSerial.view_static.display_comports(available_ports)
 
         UsbSerial._com_port_read_is_started = False
-        if UsbSerial.view_static.com_selected != "":
-            UsbSerial._put_default_comport(UsbSerial.view_static.com_selected)
-            # UsbSerial.view_static.text_com_read_update(f'{UsbSerial.view_static.com_selected} selected')
+        if cls._com_selected != "":
+            cls._put_default_comport(cls._com_selected)
             UsbSerial.view_static.frame_select_com_off()
             UsbSerial._statemachine_state = 'INIT'
-            UsbSerial.view_static.com_selected = ""
+            cls._com_selected = ""
             UsbSerial._com_port_read_is_started = False

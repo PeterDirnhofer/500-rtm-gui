@@ -12,7 +12,7 @@ class View(tk.Tk):
         super().__init__()  # call __init__ Tk
         self.controller = controller  # controller can be used as attribute in class View
 
-        self.com_selected = ""
+        #self.com_selected = ""
 
         self._make_main_frame()
 
