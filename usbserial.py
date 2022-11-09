@@ -199,28 +199,33 @@ class UsbSerial():
 
     @classmethod
     def _open(cls):
-        # try to open COM port on computer
-        #result = cls._open_comport(cls._actport)
-        if cls._comport_is_open != 'OPEN':
-            try:
-                cls._serialInst.baudrate = 115200
-                cls._serialInst.port = cls._actport
-                if cls._serialInst.isOpen():
-                    try:
-                        print("isopen")
-                        cls._serialInst.close()
-                    except Exception:
-                        pass
-                cls._serialInst.open()
-                cls._comport_is_open = "OPEN"
-            except Exception:
-                cls._comport_is_open = 'ERROR'
+        """ Try to open COM  _actport.
 
-        if cls._comport_is_open == 'OPEN':
+        :return: Set _statemachine_state = 'OPEN' or 'ERROR_COM'
+        """
+        # if comport already open (after RESET)  skip open and set _statemachine_state = 'OPEN'
+        if cls._comport_is_open:
             cls._statemachine_state = 'OPEN'
-        else:
-            cls._statemachine_state = 'ERROR_COM'
-        return
+            return
+
+        # If not open, try to open _actport
+        try:
+            cls._serialInst.baudrate = 115200
+            cls._serialInst.port = cls._actport
+            if cls._serialInst.isOpen():
+                try:
+                    print("isopen")
+                    cls._serialInst.close()
+                except Exception:
+                    pass
+            cls._serialInst.open()
+            cls._comport_is_open = "OPEN"
+        except Exception:
+            cls._comport_is_open = 'ERROR_COM'
+
+        cls._statemachine_state=cls._comport_is_open
+
+
 
     @classmethod
     def _send_reset(cls):
