@@ -16,7 +16,7 @@ from queue import Queue
 
 class UsbSerial():
     # Class variables
-    view_static = None
+    view_reference = None
     _statemachine_state = "INIT"
     _serialInst = serial.Serial()
     _comport_is_open = ""
@@ -38,8 +38,8 @@ class UsbSerial():
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
-        if cls.view_static == None:
-            print("ERRROR run cls.view_static=view")
+        if cls.view_reference == None:
+            print("ERRROR run cls.view_reference,view")
             return False
         init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
         init_com_thread.start()
@@ -48,7 +48,8 @@ class UsbSerial():
     @classmethod
     def _init_com_statemachine_loop(cls):
         '''
-        Statemachine to open comunication wit ESP32. -Open COM -Send CRTL-C Reset to ESP32 -Wait for ESP32 response 'IDLE'
+        Statemachine to open communication wit ESP32.
+        -Open COM -Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         '''
         last_state = 'LAST'
@@ -56,7 +57,7 @@ class UsbSerial():
 
             if cls._statemachine_state != last_state:
                 last_state = cls._statemachine_state
-                cls.view_static.text_status.set(cls._statemachine_state)
+                cls.view_reference.text_status.set(cls._statemachine_state)
 
             if cls._statemachine_state == 'INIT':
                 cls._is_default_port_existing()
@@ -71,7 +72,6 @@ class UsbSerial():
                 time.sleep(1)
                 continue
             elif cls._statemachine_state == 'WAIT_FOR_IDLE':
-
                 cls._wait_for_idle()
                 time.sleep(0.050)
                 continue
@@ -100,8 +100,9 @@ class UsbSerial():
 
     @classmethod
     def _read_loop(cls):
-        """Read ESP32 com port and put to queue
-        Read ESP32 com port in a thread loop. Output: Put read lines to queue. And put last input to _read_line.
+        """ Read ESP32 in a thread loop and write readings to queue.
+
+        :raises Errormessage and stop program if connection to ESP32 is lost.
         """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
@@ -114,12 +115,17 @@ class UsbSerial():
                         cls._read_line = ln
                         cls.queue.put(ln)
 
-                except Exception:
-                    messagebox.showerror('error', 'Connection lost\nClose the programm')
-                    cls.view_static.close()
+                except Exception as e:
+                    messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
+                    cls.view_reference.close()
 
     @classmethod
-    def write(cls, cmd):
+    def write(cls, cmd: str):
+        """ Send command to ESP32.
+
+        :param cmd: Command to send
+        :return: False if send not ok
+        """
         cls._serialInst.write_timeout = 1.0
 
         try:
@@ -130,38 +136,37 @@ class UsbSerial():
 
     @classmethod
     def request_parameter_from_esp(cls):
-        """
-        Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
-        """
-        cls.view_static.lbox_parameter.delete(0, tk.END)
+        """ Send request for parameter reading to ESP
 
-        cls.write('PARAMETER,?')
+        """
+        cls.view_reference.lbox_parameter.delete(0, tk.END) # Clear lbox with old parameters
+        cls.write('PARAMETER,?') # Send reqest or ESP
 
     @staticmethod
-    def _get_default_comport():
-        '''
-        Read default COM Port from File compport.pkl
-        :return: Default COM Port
-        '''
+    def _get_default_comport() -> str:
+        """ Read last used comport from pickle file.
+
+        :return: 'COMx'
+        """
         try:
             with open('data/comport.pkl', 'rb') as file:
-                myvar = pickle.load(file)
-                return myvar
+                port = pickle.load(file)
+                return port
         except OSError:
             return ""
 
     @staticmethod
-    def _put_default_comport(comport):
-        '''Write default COM Port to file comport.pkl'''
-        myvar = comport
+    def _put_default_comport(port: str):
+        '''Write default COM Port to pickle file comport.pkl'''
         with open('data/comport.pkl', 'wb') as file:
-            pickle.dump(myvar, file)
+            pickle.dump(port, file)
 
     @classmethod
-    def _get_ports(cls):
+    def _get_ports(cls) -> list[str]:
         """
-        get a list of serial ports available on computer
-        :return: portList
+        Get a list of serial ports actually available on computer.
+        
+        :return: port_list
         """
         port_list = []
         ports = serial.tools.list_ports.comports(0)
@@ -170,7 +175,12 @@ class UsbSerial():
         return port_list
 
     @classmethod
-    def _open_comport(cls, comport):
+    def _open_comport(cls, comport) -> str:
+        """ Opens comport
+
+        :param comport: COMx to be opened
+        :return: 'OPEN' if ok or 'ERROR'
+        """
         if cls._comport_is_open != 'OPEN':
             try:
                 cls._serialInst.baudrate = 115200
@@ -189,9 +199,12 @@ class UsbSerial():
 
     @classmethod
     def _is_default_port_existing(cls):
+        """ Check if requested port is available on computer.
+        Set statemachine_state to 'EXISTING' or 'ERROR_COM'
+        """
         # Check if default COM port is existing on Computer
         cls._actport = cls._get_default_comport()
-        cls.view_static.text_com_state.set(f'Connecting {cls._actport} ...')
+        cls.view_reference.text_com_state.set(f'Connecting {cls._actport} ...')
         cls.available_ports = cls._get_ports()
         port_exists = False
         for port in cls.available_ports:
@@ -199,7 +212,7 @@ class UsbSerial():
             if r:
                 port_exists = True
         if not port_exists:
-            cls.view_static.text_com_state.set(f'ERROR_COM {cls._actport} not available on Computer')
+            cls.view_reference.text_com_state.set(f'ERROR_COM {cls._actport} not available on Computer')
             cls._statemachine_state = 'ERROR_COM'
             return
         else:
@@ -247,14 +260,14 @@ class UsbSerial():
 
     @classmethod
     def _error(cls):
-        cls.view_static.frame_select_com_on()
+        cls.view_reference.frame_select_com_on()
         available_ports = cls._get_ports()
-        cls.view_static.display_comports(available_ports)
+        cls.view_reference.display_comports(available_ports)
 
         cls._com_port_read_is_started = False
         if cls._com_selected != "":
             cls._put_default_comport(cls._com_selected)
-            cls.view_static.frame_select_com_off()
+            cls.view_reference.frame_select_com_off()
             cls._statemachine_state = 'INIT'
             cls._com_selected = ""
             cls._com_port_read_is_started = False
