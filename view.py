@@ -25,11 +25,11 @@ class View(tk.Tk):
         self._style()
 
     def track_queue(self):
-        _first=False
+        _first = False
         while not UsbSerial.queue.empty():
 
             if not _first:
-                _first=True
+                _first = True
                 self._enable_buttons()
 
             res = UsbSerial.queue.get()
@@ -48,7 +48,7 @@ class View(tk.Tk):
         self.button_select_adjust['state'] = tk.NORMAL
         self.button_select_measure['state'] = tk.NORMAL
         self.button_select_reset['state'] = tk.NORMAL
-        self.text_com_state.set(f'Connected ')
+        self.text_com_state.set("Connected ")
 
     def main(self):
         self.after(2000, self.track_queue)
@@ -115,7 +115,7 @@ class View(tk.Tk):
         self.frame_com_state = ttk.LabelFrame(self.frame_main, text='COM State')
         self.frame_com_state.grid(row=2, column=0, padx=10, sticky='nesw')
 
-        self.text_com_state = tk.IntVar()
+        self.text_com_state = tk.StringVar()
         label_com_state = ttk.Label(self.frame_com_state,
                                     textvariable=self.text_com_state,
                                     width=40)

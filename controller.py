@@ -12,10 +12,9 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        UsbSerial.view_reference = self.view # pass view to UsbSerial
+        UsbSerial.view_reference = self.view  # pass view to UsbSerial
 
         UsbSerial.reset_com_esp32()
 
@@ -23,14 +22,12 @@ class Controller:
         UsbSerial.start_init_com_esp32()
         self.view.main()
 
-
     @staticmethod
     def select_measure():
         showinfo(
             title='Information',
             message='Measure clicked!'
         )
-
 
     def select_restart(self):
         self.view.frame_select_com_off()
@@ -48,7 +45,6 @@ class Controller:
 
         UsbSerial.reset_com_esp32()
 
-
     def select_adjust(self):
         self.view.button_select_adjust['state'] = tkinter.DISABLED
         self.view.button_select_measure['state'] = tkinter.DISABLED
@@ -57,7 +53,6 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
-
 
 
 if __name__ == '__main__':

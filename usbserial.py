@@ -14,8 +14,9 @@ from threading import Thread
 from queue import Queue
 
 
-class UsbSerial():
+class UsbSerial:
     # Class variables
+    available_ports = None
     view_reference = None
     _statemachine_state = "INIT"
     _serialInst = serial.Serial()
@@ -38,20 +39,20 @@ class UsbSerial():
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
-        if cls.view_reference == None:
-            print("ERRROR run cls.view_reference,view")
-            return False
-        init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
-        init_com_thread.start()
-        return True
+        if cls.view_reference is not None:
+            init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
+            init_com_thread.start()
+            return True
+        print("ERRROR run cls.view_reference,view")
+        return False
 
     @classmethod
     def _init_com_statemachine_loop(cls):
-        '''
+        """
         Statemachine to open communication wit ESP32.
         -Open COM -Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
-        '''
+        """
         last_state = 'LAST'
         while True:
 
@@ -139,8 +140,8 @@ class UsbSerial():
         """ Send request for parameter reading to ESP
 
         """
-        cls.view_reference.lbox_parameter.delete(0, tk.END) # Clear lbox with old parameters
-        cls.write('PARAMETER,?') # Send reqest or ESP
+        cls.view_reference.lbox_parameter.delete(0, tk.END)  # Clear lbox with old parameters
+        cls.write('PARAMETER,?')  # Send reqest or ESP
 
     @staticmethod
     def _get_default_comport() -> str:
@@ -157,7 +158,7 @@ class UsbSerial():
 
     @staticmethod
     def _put_default_comport(port: str):
-        '''Write default COM Port to pickle file comport.pkl'''
+        """Write default COM Port to pickle file comport.pkl"""
         with open('data/comport.pkl', 'wb') as file:
             pickle.dump(port, file)
 
@@ -173,7 +174,6 @@ class UsbSerial():
         for onePort in ports:
             port_list.append(str(onePort))
         return port_list
-
 
     @classmethod
     def _is_default_port_existing(cls):
@@ -223,9 +223,7 @@ class UsbSerial():
         except Exception:
             cls._comport_is_open = 'ERROR_COM'
 
-        cls._statemachine_state=cls._comport_is_open
-
-
+        cls._statemachine_state = cls._comport_is_open
 
     @classmethod
     def _send_reset(cls):
