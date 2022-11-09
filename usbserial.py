@@ -174,28 +174,6 @@ class UsbSerial():
             port_list.append(str(onePort))
         return port_list
 
-    @classmethod
-    def _open_comport(cls, comport) -> str:
-        """ Opens comport
-
-        :param comport: COMx to be opened
-        :return: 'OPEN' if ok or 'ERROR'
-        """
-        if cls._comport_is_open != 'OPEN':
-            try:
-                cls._serialInst.baudrate = 115200
-                cls._serialInst.port = comport
-                if cls._serialInst.isOpen():
-                    try:
-                        print("isopen")
-                        cls._serialInst.close()
-                    except Exception:
-                        pass
-                cls._serialInst.open()
-                cls._comport_is_open = "OPEN"
-            except Exception:
-                cls._comport_is_open = 'ERROR'
-        return cls._comport_is_open
 
     @classmethod
     def _is_default_port_existing(cls):
@@ -222,8 +200,23 @@ class UsbSerial():
     @classmethod
     def _open(cls):
         # try to open COM port on computer
-        result = cls._open_comport(cls._actport)
-        if result == 'OPEN':
+        #result = cls._open_comport(cls._actport)
+        if cls._comport_is_open != 'OPEN':
+            try:
+                cls._serialInst.baudrate = 115200
+                cls._serialInst.port = cls._actport
+                if cls._serialInst.isOpen():
+                    try:
+                        print("isopen")
+                        cls._serialInst.close()
+                    except Exception:
+                        pass
+                cls._serialInst.open()
+                cls._comport_is_open = "OPEN"
+            except Exception:
+                cls._comport_is_open = 'ERROR'
+
+        if cls._comport_is_open == 'OPEN':
             cls._statemachine_state = 'OPEN'
         else:
             cls._statemachine_state = 'ERROR_COM'

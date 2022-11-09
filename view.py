@@ -10,6 +10,7 @@ class View(tk.Tk):
 
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
+        self.com_selected = None
         self.controller = controller  # controller can be used as attribute in class View
 
         self._make_main_frame()
