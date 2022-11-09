@@ -34,20 +34,28 @@ class UsbSerial:
         cls._statemachine_state = 'INIT'
 
     @classmethod
-    def start_init_com_esp32(cls):
+    def set_com_selected(cls,com):
+        cls._com_selected=com
+
+    @classmethod
+    def get_com_selected(cls):
+        return cls._com_selected
+
+    @classmethod
+    def _start_com_esp32_loop(cls):
         """
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
         if cls.view_reference is not None:
-            init_com_thread = Thread(target=cls._init_com_statemachine_loop, daemon=True)
+            init_com_thread = Thread(target=cls._com_esp32_loop, daemon=True)
             init_com_thread.start()
             return True
         print("ERRROR run cls.view_reference,view")
         return False
 
     @classmethod
-    def _init_com_statemachine_loop(cls):
+    def _com_esp32_loop(cls):
         """
         Statemachine to open communication wit ESP32.
         -Open COM -Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'

@@ -8,6 +8,7 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
+
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
         self.com_selected = None
@@ -234,7 +235,9 @@ class View(tk.Tk):
     def lbox_comports_select(self, event):
         line = self.lbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]
+
         self.com_selected = temp
+        UsbSerial.set_com_selected(temp)
         print(temp)
 
     def parameter_select(self, event):
