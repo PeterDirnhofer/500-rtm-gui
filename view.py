@@ -8,8 +8,12 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
+
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
+
+        self.queue_available = tk.IntVar()
+
         self.parameter = None
         self.com_selected = None
         self.controller = controller  # controller can be used as attribute in class View
@@ -25,26 +29,11 @@ class View(tk.Tk):
 
         self._style()
 
-    def check_queue_loop_100ms(self):
-        """Check every 100ms, if 'queue' received data from ESP32.
-         'Queue' is filled by UsbSerial._read_loop"""
-
-        while not UsbSerial.queue.empty():
-
-            res = UsbSerial.queue.get()
-            x = res.split(",")
-            if x[0] == 'ADJUST':
-                self.label_adjust_update(x[1])
-            elif x[0] == 'PARAMETER':
-                self.lbox_parameter.insert(tk.END, f'{x[1]} , {x[2]}')
-            else:
-                self.lbox_com_read_update(res)
-
-        self.after(100, self.check_queue_loop_100ms)
 
     def main(self):
-        # Start 100ms loop, for checking if there are date from ESP32
-        self.check_queue_loop_100ms()
+        # Enable 'Interrupt' when 'UsbSerial._read_loop' has received data from ESP32
+        self.queue_available.trace_add("write", self._do_queue_available)
+
         self.mainloop()  # Tk mainloop
 
     def _make_main_frame(self):
@@ -183,6 +172,23 @@ class View(tk.Tk):
         self.style = ttk.Style(self)
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
+
+    def _do_queue_available(self, *args):
+        """ '_do_queue_available' is triggered, when tk.IntVar 'queue_available' was modified by 'UsbSerial._read_loop'.
+        After 'UsbSerial._read_loop' has stored received data from ESP32 in 'queue' it signals
+        that data are available by setting 'queue_available'
+        """
+        print ('queue received über IntVar')
+        while not UsbSerial.queue.empty():
+
+            res = UsbSerial.queue.get()
+            x = res.split(",")
+            if x[0] == 'ADJUST':
+                self.label_adjust_update(x[1])
+            elif x[0] == 'PARAMETER':
+                self.lbox_parameter.insert(tk.END, f'{x[1]} , {x[2]}')
+            else:
+                self.lbox_com_read_update(res)
 
     def display_comports(self, ports):
         """

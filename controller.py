@@ -22,6 +22,9 @@ class Controller:
         # Start statemachine in background to connect with ESP32 over USB interface
         UsbSerial.start_com_esp32_loop()
 
+
+
+
         self.view.main()
 
     @staticmethod

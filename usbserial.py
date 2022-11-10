@@ -127,6 +127,7 @@ class UsbSerial:
                     if len(ln) > 0:
                         cls._read_line = ln
                         cls.queue.put(ln)
+                        cls.view_reference.queue_available.set(len)
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
@@ -212,10 +213,11 @@ class UsbSerial:
 
     @classmethod
     def _open(cls):
-        """ Try to open COM  _actport.
+        """ Open COM  _actport.
 
         :return: Set _statemachine_state = 'OPEN' or 'ERROR_COM'
         """
+
         # if comport already open (after RESET)  skip open and set _statemachine_state = 'OPEN'
         if cls._comport_is_open:
             cls._statemachine_state = 'OPEN'
