@@ -11,7 +11,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
 
-        self.queue_available = tk.IntVar()
+        self. queue_available = tk.IntVar()
 
         self.parameter = None
         self.com_selected = None
@@ -29,10 +29,22 @@ class View(tk.Tk):
         self._style()
 
     def main(self):
-        # Enable 'Interrupt' when 'UsbSerial._read_loop' has received data from ESP32
-        self.queue_available.trace_add("write", self._do_queue_available)
 
+        self._enable_receive_from_UsbSerial()
         self.mainloop()  # Tk mainloop
+
+
+    def _enable_receive_from_UsbSerial(self):
+        """
+        Calls '_do_queue_available' when 'queue_available' was set by 'UsbSerial._read_loop'.
+        When 'UsbSerial._read_loop' has received data from ESP32 it saves it to the 'queue'.
+        Then 'UsbSerial._read_loop' signalizes that data are available in queue by setting 'queue_available'.
+
+        'queue_available' is a tk:IntVar: That means: Every change of 'queue_available' by UsbSerial #
+        forces the call of '_do_queue_available' with the '.trace_add' functionality below.
+        """
+
+        self.queue_available.trace_add("write", self._do_queue_available)
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render

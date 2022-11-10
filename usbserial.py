@@ -112,9 +112,8 @@ class UsbSerial:
 
     @classmethod
     def _read_loop(cls):
-        """ Read ESP32 in a thread loop and write readings to queue.
-
-        :raises Errormessage and stop program if connection to ESP32 is lost.
+        """ Polling ESP32 in a thread loop and put readings to 'queue'.
+        Signaling to view that data are available by setting the tk.IntVar 'queue_available'
         """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
@@ -123,9 +122,15 @@ class UsbSerial:
             if cls._serialInst.inWaiting:
                 try:
                     ln = cls._serialInst.readline().decode('utf').rstrip('\n')
+
+                    # data available
                     if len(ln) > 0:
                         cls._read_line = ln
+
+                        # put received data from ESP32 to queue
                         cls.queue.put(ln)
+
+                        # signal that data are available to queue
                         cls.view_reference.queue_available.set(len)
 
                 except Exception as e:
