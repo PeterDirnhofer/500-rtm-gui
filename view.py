@@ -6,6 +6,7 @@ from tkinter.constants import *
 from PIL import Image, ImageTk
 
 
+
 class View(tk.Tk):
 
     def __init__(self, controller):
