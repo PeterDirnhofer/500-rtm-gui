@@ -25,13 +25,11 @@ class View(tk.Tk):
 
         self._style()
 
-    def track_queue(self):
-        _first = False
-        while not UsbSerial.queue.empty():
+    def check_queue_loop_100ms(self):
+        """Check every 100ms, if 'queue' received data from ESP32.
+         'Queue' is filled by UsbSerial._read_loop"""
 
-            if not _first:
-                _first = True
-                self._enable_buttons()
+        while not UsbSerial.queue.empty():
 
             res = UsbSerial.queue.get()
             x = res.split(",")
@@ -42,16 +40,11 @@ class View(tk.Tk):
             else:
                 self.lbox_com_read_update(res)
 
-        self.after(100, self.track_queue)
-
-    def _enable_buttons(self):
-        self.button_select_adjust['state'] = tk.NORMAL
-        self.button_select_measure['state'] = tk.NORMAL
-        self.button_select_reset['state'] = tk.NORMAL
-        # self.text_com_state.set(f"Connected ")
+        self.after(100, self.check_queue_loop_100ms)
 
     def main(self):
-        self.after(2000, self.track_queue)
+        # Start 100ms loop, for checking if there are date from ESP32
+        self.check_queue_loop_100ms()
         self.mainloop()  # Tk mainloop
 
     def _make_main_frame(self):
@@ -83,18 +76,18 @@ class View(tk.Tk):
         self.frame_menu.grid(row=0, column=0, columnspan=2, sticky='nesw')
 
         self.button_select_reset = ttk.Button(self.frame_menu, text="RESET",
-                                              command=self.controller.select_restart,
-                                              state=DISABLED)
+                                              command=self.controller.select_restart)
+
         self.button_select_reset.pack(side=LEFT, padx=10, pady=2)
 
         self.button_select_measure = ttk.Button(self.frame_menu, text="Measure",
-                                                command=self.controller.select_measure,
-                                                state=DISABLED)
+                                                command=self.controller.select_measure)
+
         self.button_select_measure.pack(side=LEFT, padx=10, pady=2)
 
         self.button_select_adjust = ttk.Button(self.frame_menu, text="Adjust",
-                                               command=self.controller.select_adjust,
-                                               state=DISABLED)
+                                               command=self.controller.select_adjust)
+
         self.button_select_adjust.pack(side=LEFT, padx=10, pady=2)
 
     def _make_frame_comread(self):

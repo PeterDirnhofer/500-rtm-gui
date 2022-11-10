@@ -145,7 +145,7 @@ class UsbSerial:
             cls._serialInst.write(f'{cmd}\n'.encode('utf'))
             return True
         except Exception as e:
-            messagebox.showerror("Error send to ESP32", e)
+            messagebox.showerror(f"Error send to ESP32\n{str(e)}")
             return False
 
     @classmethod
