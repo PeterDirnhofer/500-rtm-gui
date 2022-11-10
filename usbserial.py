@@ -58,7 +58,8 @@ class UsbSerial:
     def _com_esp32_loop(cls):
         """
         Statemachine to open communication wit ESP32.
-        -Open COM -Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
+        - Open COM for sending and receiving
+        - Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         """
         last_state = 'LAST'
@@ -84,8 +85,11 @@ class UsbSerial:
                 cls._wait_for_idle()
                 time.sleep(0.050)
                 continue
+
             elif cls._statemachine_state == 'COM_READY':
-                cls._com_ready()
+                cls._request_parametes()
+                continue
+
             elif cls._statemachine_state == 'PASSIVE':
                 time.sleep(1)
                 continue
@@ -260,7 +264,9 @@ class UsbSerial:
         return
 
     @classmethod
-    def _com_ready(cls):
+    def _request_parametes(cls):
+        """Request parameters from ESP32 by sending 'PARAMETER,? to ESP32.
+        Set statemachine to 'PASSIVE'"""
         # Get parameter and display in parameter_frame
         cls.request_parameter_from_esp()
         cls._statemachine_state = 'PASSIVE'
