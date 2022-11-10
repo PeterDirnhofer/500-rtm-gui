@@ -19,7 +19,7 @@ class Controller:
         UsbSerial.reset_com_esp32()
 
     def main(self):
-        UsbSerial._start_com_esp32_loop()
+        UsbSerial.start_com_esp32_loop()
         self.view.main()
 
     @staticmethod

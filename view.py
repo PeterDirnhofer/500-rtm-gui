@@ -8,9 +8,9 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
-
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
+        self.parameter = None
         self.com_selected = None
         self.controller = controller  # controller can be used as attribute in class View
 
@@ -37,7 +37,6 @@ class View(tk.Tk):
             x = res.split(",")
             if x[0] == 'ADJUST':
                 self.label_adjust_update(x[1])
-                print(x[1])
             elif x[0] == 'PARAMETER':
                 self.lbox_parameter.insert(tk.END, f'{x[1]} , {x[2]}')
             else:
@@ -49,7 +48,7 @@ class View(tk.Tk):
         self.button_select_adjust['state'] = tk.NORMAL
         self.button_select_measure['state'] = tk.NORMAL
         self.button_select_reset['state'] = tk.NORMAL
-        self.text_com_state.set("Connected ")
+        # self.text_com_state.set(f"Connected ")
 
     def main(self):
         self.after(2000, self.track_queue)
@@ -232,6 +231,7 @@ class View(tk.Tk):
     def lbox_parameter_delete(self):
         self.lbox_parameter.delete(0, END)
 
+    # noinspection PyUnusedLocal
     def lbox_comports_select(self, event):
         line = self.lbox_comports.get(ANCHOR)
         temp = line.split(" ")[0]
@@ -240,6 +240,7 @@ class View(tk.Tk):
         UsbSerial.set_com_selected(temp)
         print(temp)
 
+    # noinspection PyUnusedLocal
     def parameter_select(self, event):
         selected_indices = self.lbox_parameter.curselection()
 

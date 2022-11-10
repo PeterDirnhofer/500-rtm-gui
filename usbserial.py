@@ -34,15 +34,15 @@ class UsbSerial:
         cls._statemachine_state = 'INIT'
 
     @classmethod
-    def set_com_selected(cls,com):
-        cls._com_selected=com
+    def set_com_selected(cls, com):
+        cls._com_selected = com
 
     @classmethod
     def get_com_selected(cls):
         return cls._com_selected
 
     @classmethod
-    def _start_com_esp32_loop(cls):
+    def start_com_esp32_loop(cls):
         """
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
@@ -140,7 +140,8 @@ class UsbSerial:
         try:
             cls._serialInst.write(f'{cmd}\n'.encode('utf'))
             return True
-        except Exception:
+        except Exception as e:
+            messagebox.showerror("Error send to ESP32", e)
             return False
 
     @classmethod
@@ -251,6 +252,8 @@ class UsbSerial:
 
         if cls._read_line == 'IDLE':
             cls._statemachine_state = 'COM_READY'
+            cls.view_reference.text_com_state.set(f'Connected to {cls._actport}')
+
             return
 
         cls._statemachine_state = "ERROR_COM"
