@@ -8,7 +8,6 @@ from PIL import Image, ImageTk
 
 class View(tk.Tk):
 
-
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
 
@@ -28,7 +27,6 @@ class View(tk.Tk):
         self._make_frame_adjust()
 
         self._style()
-
 
     def main(self):
         # Enable 'Interrupt' when 'UsbSerial._read_loop' has received data from ESP32
@@ -173,12 +171,13 @@ class View(tk.Tk):
         self.style.configure('TLabel', relief='sunken')
         self.style.configure('TButton', relief='sunken')
 
+    # noinspection PyUnusedLocal
     def _do_queue_available(self, *args):
         """ '_do_queue_available' is triggered, when tk.IntVar 'queue_available' was modified by 'UsbSerial._read_loop'.
         After 'UsbSerial._read_loop' has stored received data from ESP32 in 'queue' it signals
         that data are available by setting 'queue_available'
         """
-        print ('queue received über IntVar')
+        print('queue received über IntVar')
         while not UsbSerial.queue.empty():
 
             res = UsbSerial.queue.get()

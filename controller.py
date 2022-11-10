@@ -14,16 +14,13 @@ class Controller:
     def __init__(self):
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        #
+
         UsbSerial.view_reference = self.view  # pass view to UsbSerial
         UsbSerial.reset_com_esp32()
 
     def main(self):
         # Start statemachine in background to connect with ESP32 over USB interface
         UsbSerial.start_com_esp32_loop()
-
-
-
 
         self.view.main()
 

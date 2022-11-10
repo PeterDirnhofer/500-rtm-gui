@@ -10,22 +10,21 @@ from tkinter import messagebox
 import serial.tools.list_ports
 import serial
 from threading import Thread
-
 from queue import Queue
 
 
 class UsbSerial:
     # Class variables
-    available_ports = None
+    available_ports: [str] = None
     view_reference = None
-    _statemachine_state = "INIT"
+    _statemachine_state: str = "INIT"
     _serialInst = serial.Serial()
-    _comport_is_open = ""
-    _read_line = ""
-    _com_port_read_is_started = False
-    _actport = None
-    queue = Queue()
-    _com_selected = ""
+    _comport_is_open: str = ""
+    _read_line: str = ""
+    _com_port_read_is_started: bool = False
+    _actport: str = None
+    queue: Queue[str] = Queue()
+    _com_selected: str = ""
 
     #############################################
     # Statemachine connect to ESP32
@@ -34,7 +33,7 @@ class UsbSerial:
         cls._statemachine_state = 'INIT'
 
     @classmethod
-    def set_com_selected(cls, com):
+    def set_com_selected(cls, com: str):
         cls._com_selected = com
 
     @classmethod
@@ -224,10 +223,12 @@ class UsbSerial:
             return
 
         # If not open, try to open _actport
+        # noinspection PyBroadException
         try:
             cls._serialInst.baudrate = 115200
             cls._serialInst.port = cls._actport
             if cls._serialInst.isOpen():
+                # noinspection PyBroadException
                 try:
                     print("isopen")
                     cls._serialInst.close()
@@ -241,7 +242,7 @@ class UsbSerial:
         cls._statemachine_state = cls._comport_is_open
 
     @classmethod
-    def _send_reset(cls):
+    def _send_reset(cls) -> bool:
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
         if cls.write(chr(3)):
@@ -267,7 +268,7 @@ class UsbSerial:
 
     @classmethod
     def _request_parametes(cls):
-        """Request parameters from ESP32 by sending 'PARAMETER,? to ESP32.
+        """Request parameters from ESP32 by sending 'PARAMETER,?' to ESP32.
         Set statemachine to 'PASSIVE'"""
         # Get parameter and display in parameter_frame
         cls.request_parameter_from_esp()
