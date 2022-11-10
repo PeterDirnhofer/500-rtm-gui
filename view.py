@@ -11,7 +11,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
 
-        self. queue_available = tk.IntVar()
+        self.queue_available = tk.IntVar()
 
         self.parameter = None
         self.com_selected = None
@@ -30,11 +30,10 @@ class View(tk.Tk):
 
     def main(self):
 
-        self._enable_receive_from_UsbSerial()
+        self._enable_receive_from_usbserial()
         self.mainloop()  # Tk mainloop
 
-
-    def _enable_receive_from_UsbSerial(self):
+    def _enable_receive_from_usbserial(self):
         """
         Calls '_do_queue_available' when 'queue_available' was set by 'UsbSerial._read_loop'.
         When 'UsbSerial._read_loop' has received data from ESP32 it saves it to the 'queue'.
@@ -189,7 +188,7 @@ class View(tk.Tk):
         After 'UsbSerial._read_loop' has stored received data from ESP32 in 'queue' it signals
         that data are available by setting 'queue_available'
         """
-        print('queue received über IntVar')
+
         while not UsbSerial.queue.empty():
 
             res = UsbSerial.queue.get()
@@ -203,8 +202,8 @@ class View(tk.Tk):
 
     def display_comports(self, ports):
         """
-        Gets list of actual available COM ports from laptop\
-        Displays COM List in listbox_comports
+        Gets list of actual available COM ports from laptop.
+        Render COM List in listbox_comports
         """
         # ports = self.sf.get_ports()
         self.lbox_comports.delete(0, 'end')

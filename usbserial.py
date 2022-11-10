@@ -125,13 +125,14 @@ class UsbSerial:
 
                     # data available
                     if len(ln) > 0:
-                        cls._read_line = ln
 
                         # put received data from ESP32 to queue
                         cls.queue.put(ln)
 
                         # signal that data are available to queue
                         cls.view_reference.queue_available.set(len)
+
+                        cls._read_line = ln
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
