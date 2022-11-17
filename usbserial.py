@@ -47,19 +47,20 @@ class UsbSerial:
         :return:
         """
         if cls.view_reference is not None:
-            init_com_thread = Thread(target=cls._com_esp32_loop, daemon=True)
+            init_com_thread = Thread(target=cls._establish_com_esp32_loop, daemon=True)
             init_com_thread.start()
             return True
         print("ERRROR run cls.view_reference,view")
         return False
 
     @classmethod
-    def _com_esp32_loop(cls):
+    def _establish_com_esp32_loop(cls):
         """
-        Statemachine to open communication wit ESP32.
+        Statemachine to establish communication wit ESP32.
         - Open COM for sending and receiving
         - Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
+        - This method uses view to display status or get COM port in a dialog if needed
         """
         last_state = 'LAST'
         while True:
@@ -100,7 +101,7 @@ class UsbSerial:
                 raise Exception(f'Invalid state in state_machine: {cls._statemachine_state}')
 
     ####################################################################
-    # COM READ THREAD
+    # start ESP32 COM READ THREAD
     @classmethod
     def _start_read_loop(cls):
         if cls._com_port_read_is_started:

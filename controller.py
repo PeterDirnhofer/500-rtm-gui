@@ -4,7 +4,7 @@
 import tkinter
 from tkinter.messagebox import showinfo
 
-from model import Model
+
 from usbserial import UsbSerial
 from view import View
 
@@ -12,7 +12,7 @@ from view import View
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-        self.model = Model()
+
         self.view = View(self)  # self (instance of controller) is passed to View
 
         UsbSerial.view_reference = self.view  # pass view to UsbSerial

@@ -29,6 +29,9 @@ License:
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+# https://www.geeksforgeeks.org/how-to-embed-matplotlib-charts-in-tkinter-gui/
+# How to embed Matplotlib charts in Tkinter GUI?
+
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
@@ -53,7 +56,7 @@ def get_data_from_scan(csv_file: Path, exclude_extrems: Optional[bool] = True,
         If 'True' replaces extreme values with the median value to make the
         plot look better
     scan_length_x: int, optional
-        The index/length after the RTM starts a new x-axis for the next 3D
+        The index/length after the STM starts a new x-axis for the next 3D
         measurement (important for the refactoring so the 2D-numpy arrays for
         the plot can be generated from the (.csv)-file
 
