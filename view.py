@@ -1,5 +1,8 @@
 import ctypes
 import tkinter as tk
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 from usbserial import UsbSerial
 from tkinter import ttk
 from tkinter.constants import *
@@ -173,6 +176,7 @@ class View(tk.Tk):
 
         self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
+
     def frame_select_com_on(self):
         self.frame_select_com.grid(row=1, column=1)
         self.lbox_comports.pack(padx=10, pady=10)
@@ -271,7 +275,7 @@ class View(tk.Tk):
 
             print(i)
 
-    def plot_3d(self, fig, data: List, intp: Optional[bool] = True) -> None:
+    def __plot_3d(self, fig, data: List, intp: Optional[bool] = True) -> None:
         """Plots the x, y, z from data contained within a dict
 
         Parameters
@@ -291,26 +295,34 @@ class View(tk.Tk):
         ax.set_zlabel("z")
         ax.set_title("3D Height profile (antialised)")
 
-    def plotter(self, data: List, plt_save: Optional[bool] = False) -> None:
+    def plotter(self, data: List) -> None:
         """Makes a two page plot of the (.csv)-file's RTM scan input
+        Based on Marten Scheuck. See model.py
 
         Parameters
         ----------
-        data_dict: Dict
+        data: List
             The restructured data from the (.csv)-file
-        plt_save: bool, optional
-            If 'True' saves the plot in the folder, where this script is located
         """
-        fig = plt.figure(figsize=(12, 12))
+        fig = plt.figure(figsize=(6, 6))
         fig.suptitle("RTM Scan")
-        self.plot_3d(fig, data)
+        self.__plot_3d(fig, data)
         # plot_single_scan(fig, data)
-        plt.show()
 
-        # if plt_save:
-        #     plt.savefig("RTM_scan.png")
-        # else:
-        #     plt.show()
+        __canvas = FigureCanvasTkAgg(fig, master = self.frame_select_com)
+        __canvas.draw()
+        __canvas.get_tk_widget().pack()
+
+
+
+
+
+
+        #plt.show()
+
+    # https://www.geeksforgeeks.org/how-to-embed-matplotlib-charts-in-tkinter-gui/
+    # How to embed Matplotlib charts in Tkinter GUI?
+
 
     def close(self):
         self.destroy()
