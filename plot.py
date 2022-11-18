@@ -148,7 +148,7 @@ def plotter(data: List, plt_save: Optional[bool] = False) -> None:
     fig = plt.figure(figsize=(12, 12))
     fig.suptitle("RTM Scan")
     plot_3d(fig, data)
-    plot_single_scan(fig, data)
+    #plot_single_scan(fig, data)
 
     if plt_save:
         plt.savefig("RTM_scan.png")

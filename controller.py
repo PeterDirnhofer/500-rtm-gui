@@ -7,12 +7,13 @@ from tkinter.messagebox import showinfo
 
 from usbserial import UsbSerial
 from view import View
+from model import Model
 
 
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
     def __init__(self):
-
+        self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
 
         UsbSerial.view_reference = self.view  # pass view to UsbSerial
@@ -24,12 +25,16 @@ class Controller:
 
         self.view.main()
 
-    @staticmethod
-    def select_measure():
-        showinfo(
-            title='Information',
-            message='Measure clicked!'
-        )
+
+    def select_measure(self):
+
+        file_name = "plot_data/newScan.csv"
+        data = self.model.get_data_from_scan(file_name)
+
+
+
+
+
 
     def select_restart(self):
         self.view.frame_select_com_off()

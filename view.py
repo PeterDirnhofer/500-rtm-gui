@@ -6,6 +6,17 @@ from tkinter.constants import *
 from PIL import Image, ImageTk
 
 
+import numpy as np
+import warnings
+import matplotlib.pyplot as plt
+
+from scipy import interpolate
+from pathlib import Path
+from matplotlib import cm
+from typing import Any, Dict, List, Union, Optional
+
+
+
 
 class View(tk.Tk):
 
@@ -259,6 +270,26 @@ class View(tk.Tk):
             self.parameter.edit_parameter(self, i)
 
             print(i)
+
+    def plot_3d(self, fig, data: List, intp: Optional[bool] = True) -> None:
+        """Plots the x, y, z from data contained within a dict
+
+        Parameters
+        ----------
+        data: List
+            The data with the x, y, z as 2D-numpy arrays
+        intp: bool, optional
+            If 'True' then the contour is interpolated for a more smooth look
+        """
+        ax = fig.add_subplot(2, 1, 1, projection="3d")
+
+        ax.plot_surface(*data, rstride=1, cstride=1,
+                        antialiased=True, cmap=cm.coolwarm)
+
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_title("3D Height profile (antialised)")
 
     def close(self):
         self.destroy()
