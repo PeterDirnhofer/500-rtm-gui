@@ -30,11 +30,7 @@ class Controller:
 
         file_name = "plot_data/newScan.csv"
         data = self.model.get_data_from_scan(file_name)
-
-
-
-
-
+        self.view.plotter(data, plt_save=False)
 
     def select_restart(self):
         self.view.frame_select_com_off()

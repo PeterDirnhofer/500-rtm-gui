@@ -291,5 +291,26 @@ class View(tk.Tk):
         ax.set_zlabel("z")
         ax.set_title("3D Height profile (antialised)")
 
+    def plotter(self, data: List, plt_save: Optional[bool] = False) -> None:
+        """Makes a two page plot of the (.csv)-file's RTM scan input
+
+        Parameters
+        ----------
+        data_dict: Dict
+            The restructured data from the (.csv)-file
+        plt_save: bool, optional
+            If 'True' saves the plot in the folder, where this script is located
+        """
+        fig = plt.figure(figsize=(12, 12))
+        fig.suptitle("RTM Scan")
+        self.plot_3d(fig, data)
+        # plot_single_scan(fig, data)
+        plt.show()
+
+        # if plt_save:
+        #     plt.savefig("RTM_scan.png")
+        # else:
+        #     plt.show()
+
     def close(self):
         self.destroy()
