@@ -140,7 +140,7 @@ class UsbSerial:
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
-                    cls.view_reference.close()
+                    cls.view_reference.on_closing()
 
     @classmethod
     def write(cls, cmd: str):

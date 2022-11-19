@@ -4,7 +4,7 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from usbserial import UsbSerial
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from tkinter.constants import *
 from PIL import Image, ImageTk
 
@@ -41,9 +41,13 @@ class View(tk.Tk):
 
         self._style()
 
+
+
+
     def main(self):
 
         self._enable_receive_from_usbserial()
+        self.protocol("WM_DELETE_WINDOW", self.on_closing) # call on_closing when app is canceled
         self.mainloop()  # Tk mainloop
 
     def _enable_receive_from_usbserial(self):
@@ -327,16 +331,18 @@ class View(tk.Tk):
         __canvas.draw()
         __canvas.get_tk_widget().pack()
 
-
-
-
-
-
         #plt.show()
+
+
 
     # https://www.geeksforgeeks.org/how-to-embed-matplotlib-charts-in-tkinter-gui/
     # How to embed Matplotlib charts in Tkinter GUI?
 
 
-    def close(self):
+    def on_closing(self):
+        """
+        Close app and stop Python
+        :return:
+        """
         self.destroy()
+        exit()

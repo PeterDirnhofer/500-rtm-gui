@@ -37,6 +37,8 @@ class Controller:
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
 
+
+
         UsbSerial.write(chr(3))
 
         self.view.lb_com_read_delete()
