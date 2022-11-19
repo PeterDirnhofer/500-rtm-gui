@@ -1,18 +1,15 @@
 import ctypes
 import tkinter as tk
+from tkinter import ttk
+from tkinter.constants import *
+from typing import List, Optional
 
+import matplotlib.pyplot as plt
+from PIL import Image, ImageTk
+from matplotlib import cm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from usbserial import UsbSerial
-from tkinter import ttk
-from tkinter.constants import *
-from PIL import Image, ImageTk
-
-import matplotlib.pyplot as plt
-
-from matplotlib import cm
-from typing import List, Optional
-from configurations import *
 
 
 class View(tk.Tk):
@@ -82,7 +79,7 @@ class View(tk.Tk):
 
     def _make_frame_menu(self):
         self.frame_menu = ttk.Frame(self.frame_main)
-        self.frame_menu.grid(row=0, column=0, columnspan=2, sticky='nesw')
+        self.frame_menu.grid(row=0, column=0, columnspan=2, sticky=NSEW)
 
         self.button_select_reset = ttk.Button(self.frame_menu, text="RESET",
                                               command=self.controller.select_restart)
@@ -101,11 +98,10 @@ class View(tk.Tk):
 
     def _make_frame_measure(self):
         self.frame_measure = ttk.LabelFrame(self.frame_main, text='Measure')
-        # self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
 
     def _make_frame_comread(self):
         self.frame_com_read = ttk.LabelFrame(self.frame_main, text='COM read')
-        self.frame_com_read.grid(row=1, column=0, padx=10, pady=10, sticky='nesw')
+        self.frame_com_read.grid(row=1, column=0, padx=10, pady=10, sticky=NSEW)
 
         # add a scrollbar https://youtu.be/BckVJoE94Lk
         self.scrollbar = ttk.Scrollbar(self.frame_com_read, orient='vertical')
@@ -119,7 +115,7 @@ class View(tk.Tk):
 
     def _make_frame_comstate(self):
         self.frame_com_state = ttk.LabelFrame(self.frame_main, text='COM State')
-        self.frame_com_state.grid(row=2, column=0, padx=10, sticky='nesw')
+        self.frame_com_state.grid(row=2, column=0, padx=10, sticky=NSEW)
 
         self.text_com_state = tk.StringVar()
         label_com_state = ttk.Label(self.frame_com_state,
@@ -129,12 +125,12 @@ class View(tk.Tk):
 
     def _make_frame_parameter(self):
         self.frame_parameter = ttk.LabelFrame(self.frame_main, text="Parameter")
-        self.frame_parameter.grid(row=3, column=0, padx=10, pady=10, sticky=E + W + S + N)
+        self.frame_parameter.grid(row=3, column=0, padx=10, pady=10, sticky=NSEW)
 
         self.lbox_parameter = tk.Listbox(self.frame_parameter, width=60)
 
         self.lbox_parameter.bind('<<ListboxSelect>>', self.parameter_select)
-        self.lbox_parameter.grid(row=0, column=0, padx=10, pady=5, sticky=E + W + S + N)
+        self.lbox_parameter.grid(row=0, column=0, padx=10, pady=5, sticky=NSEW)
 
         # Define refresh Image using pillow  https://youtu.be/kjc53i4xUmw
         self.pillow_image = Image.open(r"data/refresh_icon-icons.png")
@@ -150,7 +146,7 @@ class View(tk.Tk):
 
     def _make_frame_state(self):
         self.frame_status = ttk.LabelFrame(self.frame_main, text="State")
-        self.frame_status.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky='nesw')
+        self.frame_status.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky=NSEW)
         self.text_status = tk.StringVar()
 
         self.label_status = tk.Label(self.frame_status, padx=10, pady=5,
@@ -185,14 +181,14 @@ class View(tk.Tk):
         self.frame_select_com.grid_forget()
 
     def frame_measure_on(self):
-        self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
+        self.frame_measure.grid(row=1, column=1, rowspan=3, sticky=NSEW)
 
     def frame_measure_off(self):
         self.frame_measure.grid_forget()
 
     def frame_adjust_on(self):
-        self.frame_adjust.grid(row=1, column=1, sticky=E + W)
-        self.label_adjust.grid(row=0, column=0, sticky=E + W)
+        self.frame_adjust.grid(row=1, column=1, sticky=E+W)
+        self.label_adjust.grid(row=0, column=0, sticky=NSEW)
 
     def frame_adjust_off(self):
         self.label_adjust.grid_forget()
@@ -280,7 +276,8 @@ class View(tk.Tk):
 
             print(i)
 
-    def __plot_3d(self, fig, data: List, intp: Optional[bool] = True) -> None:
+    @staticmethod
+    def __plot_3d(fig, data: List, intp: Optional[bool] = True) -> None:
         """Plots the x, y, z from data contained within a dict
 
         Parameters
@@ -301,7 +298,7 @@ class View(tk.Tk):
         ax.set_title("3D Height profile (antialised)")
 
     def plotter(self, data: List) -> None:
-        """Makes a two page plot of the (.csv)-file's RTM scan input
+        """Makes a two-page plot of the (.csv)-file's RTM scan input
         Based on Marten Scheuck. See model.py
 
         Parameters

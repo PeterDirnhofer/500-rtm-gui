@@ -37,7 +37,8 @@ from typing import List, Optional
 
 class Model:
 
-    def get_data_from_scan(self, csv_file: str, exclude_extremes: Optional[bool] = True,
+    @staticmethod
+    def get_data_from_scan(csv_file: str, exclude_extremes: Optional[bool] = True,
                            scan_length_x: Optional[int] = 200) -> List:
         """Gets the data from the (.csv)-file and reforms it. So it can be used for
         a 3D contour plot, it then returns a list containing the x, y and z

@@ -11,6 +11,7 @@ import serial.tools.list_ports
 import serial
 from threading import Thread
 from queue import Queue
+from configurations import *
 
 
 class UsbSerial:
@@ -22,7 +23,7 @@ class UsbSerial:
     _comport_is_open: str = ""
     _read_line: str = ""
     _com_port_read_is_started: bool = False
-    _actport: str = None
+    _act_port: str = None
     queue: Queue[str] = Queue()
     _com_selected: str = ""
 
@@ -50,7 +51,7 @@ class UsbSerial:
             init_com_thread = Thread(target=cls._establish_com_esp32_loop, daemon=True)
             init_com_thread.start()
             return True
-        print("ERRROR run cls.view_reference,view")
+        print("ERROR run cls.view_reference,view")
         return False
 
     @classmethod
@@ -58,7 +59,7 @@ class UsbSerial:
         """
         Statemachine to establish communication wit ESP32.
         - Open COM for sending and receiving
-        - Send CRTL-C to ESP32 -Wait for ESP32 response 'IDLE'
+        - Send CTRL-C to ESP32 -Wait for ESP32 response 'IDLE'
         - Request parameters from ESP32 and render in Frame parameters
         - This method uses view to display status or get COM port in a dialog if needed
         """
@@ -87,7 +88,7 @@ class UsbSerial:
                 continue
 
             elif cls._statemachine_state == 'COM_READY':
-                cls._request_parametes()
+                cls._request_parameters()
                 continue
 
             elif cls._statemachine_state == 'PASSIVE':
@@ -134,10 +135,8 @@ class UsbSerial:
                         # signal that data are available to queue
                         cls.view_ptr.queue_available.set(len)
 
-
-
                 except Exception as e:
-                    messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
+                    messagebox.showerror('Error. Connection lost to ESP32', f'Close the program\nError detail: \n{e}')
                     cls.view_ptr.on_closing()
 
     @classmethod
@@ -160,26 +159,26 @@ class UsbSerial:
         """ Send request for parameter reading to ESP
 
         """
-        cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear lbox with old parameters
-        cls.write('PARAMETER,?')  # Send reqest or ESP
+        cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear listbox with old parameters
+        cls.write('PARAMETER,?')  # Send request or ESP
 
     @staticmethod
-    def _get_default_comport() -> str:
+    def _get_default_comport_nvm() -> str:
         """ Read last used comport from pickle file.
 
         :return: 'COMx'
         """
         try:
-            with open('data/comport.pkl', 'rb') as file:
+            with open(COMPORT_PICKLE_FILE, 'rb') as file:
                 port = pickle.load(file)
                 return port
         except OSError:
             return ""
 
     @staticmethod
-    def _put_default_comport(port: str):
+    def _put_default_comport_nvm(port: str):
         """Write default COM Port to pickle file comport.pkl"""
-        with open('data/comport.pkl', 'wb') as file:
+        with open(COMPORT_PICKLE_FILE, 'wb') as file:
             pickle.dump(port, file)
 
     @classmethod
@@ -201,16 +200,16 @@ class UsbSerial:
         Set statemachine_state to 'EXISTING' or 'ERROR_COM'
         """
         # Check if default COM port is existing on Computer
-        cls._actport = cls._get_default_comport()
-        cls.view_ptr.text_com_state.set(f'Connecting {cls._actport} ...')
+        cls._act_port = cls._get_default_comport_nvm()
+        cls.view_ptr.text_com_state.set(f'Connecting {cls._act_port} ...')
         cls.available_ports = cls._get_ports()
         port_exists = False
         for port in cls.available_ports:
-            r = cls._actport in port
+            r = cls._act_port in port
             if r:
                 port_exists = True
         if not port_exists:
-            cls.view_ptr.text_com_state.set(f'ERROR_COM {cls._actport} not available on Computer')
+            cls.view_ptr.text_com_state.set(f'ERROR_COM {cls._act_port} not available on Computer')
             cls._statemachine_state = 'ERROR_COM'
             return
         else:
@@ -219,7 +218,7 @@ class UsbSerial:
 
     @classmethod
     def _open(cls):
-        """ Open COM  _actport.
+        """ Open COM  _act_port.
 
         :return: Set _statemachine_state = 'OPEN' or 'ERROR_COM'
         """
@@ -229,15 +228,15 @@ class UsbSerial:
             cls._statemachine_state = 'OPEN'
             return
 
-        # If not open, try to open _actport
+        # If not open, try to open _act_port
         # noinspection PyBroadException
         try:
             cls._serialInst.baudrate = 115200
-            cls._serialInst.port = cls._actport
+            cls._serialInst.port = cls._act_port
             if cls._serialInst.isOpen():
                 # noinspection PyBroadException
                 try:
-                    print("isopen")
+                    print("is open")
                     cls._serialInst.close()
                 except Exception:
                     pass
@@ -266,7 +265,7 @@ class UsbSerial:
 
         if cls._read_line == 'IDLE':
             cls._statemachine_state = 'COM_READY'
-            cls.view_ptr.text_com_state.set(f'Connected to {cls._actport}')
+            cls.view_ptr.text_com_state.set(f'Connected to {cls._act_port}')
 
             return
 
@@ -274,7 +273,7 @@ class UsbSerial:
         return
 
     @classmethod
-    def _request_parametes(cls):
+    def _request_parameters(cls):
         """Request parameters from ESP32 by sending 'PARAMETER,?' to ESP32.
         Set statemachine to 'PASSIVE'"""
         # Get parameter and display in parameter_frame
@@ -289,7 +288,7 @@ class UsbSerial:
 
         cls._com_port_read_is_started = False
         if cls._com_selected != "":
-            cls._put_default_comport(cls._com_selected)
+            cls._put_default_comport_nvm(cls._com_selected)
             cls.view_ptr.frame_select_com_off()
             cls._statemachine_state = 'INIT'
             cls._com_selected = ""
