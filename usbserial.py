@@ -16,7 +16,7 @@ from queue import Queue
 class UsbSerial:
     # Class variables
     available_ports: [str] = None
-    view_reference = None
+    view_ptr = None
     _statemachine_state: str = "INIT"
     _serialInst = serial.Serial()
     _comport_is_open: str = ""
@@ -46,7 +46,7 @@ class UsbSerial:
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
-        if cls.view_reference is not None:
+        if cls.view_ptr is not None:
             init_com_thread = Thread(target=cls._establish_com_esp32_loop, daemon=True)
             init_com_thread.start()
             return True
@@ -67,7 +67,7 @@ class UsbSerial:
             # while cls._statemachine_state != 'PASSIVE':
             if cls._statemachine_state != last_state:
                 last_state = cls._statemachine_state
-                cls.view_reference.text_status.set(cls._statemachine_state)
+                cls.view_ptr.text_status.set(cls._statemachine_state)
 
             if cls._statemachine_state == 'INIT':
                 cls._is_default_port_existing()
@@ -112,7 +112,7 @@ class UsbSerial:
             com_thread.start()
 
     @classmethod
-    def _read_loop(cls):
+    def _read_loop(cls) -> None:
         """ Polling ESP32 in a thread loop and put readings to 'queue'.
         Signaling to view that data are available by setting the tk.IntVar 'queue_available'
         """
@@ -132,18 +132,17 @@ class UsbSerial:
                         cls.queue.put(ln)
 
                         # signal that data are available to queue
-                        cls.view_reference.queue_available.set(len)
+                        cls.view_ptr.queue_available.set(len)
 
 
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
-                    cls.view_reference.on_closing()
+                    cls.view_ptr.on_closing()
 
     @classmethod
-    def write(cls, cmd: str):
+    def write(cls, cmd: str) -> bool:
         """ Send command to ESP32.
-
         :param cmd: Command to send
         :return: False if send not ok
         """
@@ -161,7 +160,7 @@ class UsbSerial:
         """ Send request for parameter reading to ESP
 
         """
-        cls.view_reference.lbox_parameter.delete(0, tk.END)  # Clear lbox with old parameters
+        cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear lbox with old parameters
         cls.write('PARAMETER,?')  # Send reqest or ESP
 
     @staticmethod
@@ -203,7 +202,7 @@ class UsbSerial:
         """
         # Check if default COM port is existing on Computer
         cls._actport = cls._get_default_comport()
-        cls.view_reference.text_com_state.set(f'Connecting {cls._actport} ...')
+        cls.view_ptr.text_com_state.set(f'Connecting {cls._actport} ...')
         cls.available_ports = cls._get_ports()
         port_exists = False
         for port in cls.available_ports:
@@ -211,7 +210,7 @@ class UsbSerial:
             if r:
                 port_exists = True
         if not port_exists:
-            cls.view_reference.text_com_state.set(f'ERROR_COM {cls._actport} not available on Computer')
+            cls.view_ptr.text_com_state.set(f'ERROR_COM {cls._actport} not available on Computer')
             cls._statemachine_state = 'ERROR_COM'
             return
         else:
@@ -267,7 +266,7 @@ class UsbSerial:
 
         if cls._read_line == 'IDLE':
             cls._statemachine_state = 'COM_READY'
-            cls.view_reference.text_com_state.set(f'Connected to {cls._actport}')
+            cls.view_ptr.text_com_state.set(f'Connected to {cls._actport}')
 
             return
 
@@ -284,14 +283,14 @@ class UsbSerial:
 
     @classmethod
     def _error(cls):
-        cls.view_reference.frame_select_com_on()
+        cls.view_ptr.frame_select_com_on()
         available_ports = cls._get_ports()
-        cls.view_reference.display_comports(available_ports)
+        cls.view_ptr.display_comports(available_ports)
 
         cls._com_port_read_is_started = False
         if cls._com_selected != "":
             cls._put_default_comport(cls._com_selected)
-            cls.view_reference.frame_select_com_off()
+            cls.view_ptr.frame_select_com_off()
             cls._statemachine_state = 'INIT'
             cls._com_selected = ""
             cls._com_port_read_is_started = False

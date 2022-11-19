@@ -7,6 +7,8 @@ from usbserial import UsbSerial
 from view import View
 from model import Model
 
+from configurations import *
+
 
 # Timer Class https://youtu.be/5NJ9cc0dnCM
 class Controller:
@@ -14,7 +16,7 @@ class Controller:
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
 
-        UsbSerial.view_reference = self.view  # pass view to UsbSerial
+        UsbSerial.view_ptr = self.view  # pass view to UsbSerial
         UsbSerial.reset_com_esp32()
 
     def main(self):
@@ -24,8 +26,8 @@ class Controller:
         self.view.main()
 
     def select_measure(self):
-        file_name = "plot_data/newScan.csv"
-        data = self.model.get_data_from_scan(file_name)
+        self.view.text_status.set('Measure ...')
+        data = self.model.get_data_from_scan(SCAN_FILE_NAME)
         self.view.plotter(data)
 
     def select_restart(self):
