@@ -36,13 +36,10 @@ from typing import List, Optional
 
 
 class Model:
-    def __init__(self):
-        self.__file = "plot_data/newScan.csv"
-        pass
 
-    def get_data_from_scan(self, csv_file: str, exclude_extrems: Optional[bool] = True,
+    def get_data_from_scan(self, csv_file: str, exclude_extremes: Optional[bool] = True,
                            scan_length_x: Optional[int] = 200) -> List:
-        """Gets the data from the (.csv)-file and reforms is so it can be used for
+        """Gets the data from the (.csv)-file and reforms it. So it can be used for
         a 3D contour plot, it then returns a list containing the x, y and z
         component as numpy arrays
 
@@ -50,13 +47,13 @@ class Model:
         ----------
         csv_file: str
             The path to the (.csv)-file
-        exclude_extrems: bool, optional
+        exclude_extremes: bool, optional
             If 'True' replaces extreme values with the median value to make the
             plot look better
         scan_length_x: int, optional
             The index/length after the STM starts a new x-axis for the next 3D
             measurement (important for the refactoring so the 2D-numpy arrays for
-            the plot can be generated from the (.csv)-file
+            the plot can be generated from the .csv)-file
 
         Returns
         -------
@@ -92,7 +89,7 @@ class Model:
 
         x, y, z = map(lambda n: n.reshape(new_dimensions, scan_length_x), [x, y, z])
 
-        if exclude_extrems:
+        if exclude_extremes:
             ind_max = np.where(z.copy() / np.mean(z) > 1.)
             z[ind_max] = np.median(z).astype(int)
             warnings.warn(f"Replaced extreme values at indices {ind_max}, with the"
