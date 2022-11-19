@@ -26,6 +26,7 @@ class UsbSerial:
     queue: Queue[str] = Queue()
     _com_selected: str = ""
 
+
     #############################################
     # Statemachine connect to ESP32
     @classmethod
@@ -64,7 +65,7 @@ class UsbSerial:
         """
         last_state = 'LAST'
         while True:
-
+        #while cls._statemachine_state != 'PASSIVE':
             if cls._statemachine_state != last_state:
                 last_state = cls._statemachine_state
                 cls.view_reference.text_status.set(cls._statemachine_state)
@@ -126,6 +127,8 @@ class UsbSerial:
 
                     # data available
                     if len(ln) > 0:
+                        cls._read_line = ln
+
 
                         # put received data from ESP32 to queue
                         cls.queue.put(ln)
@@ -133,7 +136,7 @@ class UsbSerial:
                         # signal that data are available to queue
                         cls.view_reference.queue_available.set(len)
 
-                        cls._read_line = ln
+
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the programm\nError detail: \n{e}')
@@ -294,3 +297,4 @@ class UsbSerial:
             cls._statemachine_state = 'INIT'
             cls._com_selected = ""
             cls._com_port_read_is_started = False
+

@@ -18,9 +18,6 @@ from pathlib import Path
 from matplotlib import cm
 from typing import Any, Dict, List, Union, Optional
 
-
-
-
 class View(tk.Tk):
 
     def __init__(self, controller):
@@ -40,6 +37,7 @@ class View(tk.Tk):
         self._make_frame_state()
         self._make_frame_selectcom()
         self._make_frame_adjust()
+        self._make_frame_measure()
 
         self._style()
 
@@ -75,14 +73,14 @@ class View(tk.Tk):
         self.frame_main.grid(row=0, column=0, sticky=NSEW)
 
         # define main frames
-        self.frame_main.grid_columnconfigure(0, weight=8)
-        self.frame_main.grid_columnconfigure(1, weight=8)
-
-        self.frame_main.grid_rowconfigure(0, weight=5)
-        self.frame_main.grid_rowconfigure(1, weight=10)
-        self.frame_main.grid_rowconfigure(2, weight=10)
-        self.frame_main.grid_rowconfigure(3, weight=60)
-        self.frame_main.grid_rowconfigure(4, weight=5)
+        # self.frame_main.grid_columnconfigure(0, weight=8)
+        # self.frame_main.grid_columnconfigure(1, weight=8)
+        #
+        # self.frame_main.grid_rowconfigure(0, weight=5)
+        # self.frame_main.grid_rowconfigure(1, weight=10)
+        # self.frame_main.grid_rowconfigure(2, weight=10)
+        # self.frame_main.grid_rowconfigure(3, weight=10)
+        # self.frame_main.grid_rowconfigure(4, weight=5)
 
     def _make_frame_menu(self):
         self.frame_menu = ttk.Frame(self.frame_main)
@@ -102,6 +100,11 @@ class View(tk.Tk):
                                                command=self.controller.select_adjust)
 
         self.button_select_adjust.pack(side=LEFT, padx=10, pady=2)
+
+    def _make_frame_measure(self):
+        self.frame_measure = ttk.LabelFrame(self.frame_main, text='Measure')
+        #self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
+
 
     def _make_frame_comread(self):
         self.frame_com_read = ttk.LabelFrame(self.frame_main, text='COM read')
@@ -159,7 +162,7 @@ class View(tk.Tk):
 
     def _make_frame_selectcom(self):
         self.frame_select_com = ttk.LabelFrame(self.frame_main, text="Select COM")
-        self.frame_select_com.grid(row=1, column=1, padx=10, pady=5)
+        self.frame_select_com.grid(row=3, column=1, padx=10, pady=5)
 
         self.lbox_comports = tk.Listbox(self.frame_select_com,
                                         width=70)
@@ -168,7 +171,7 @@ class View(tk.Tk):
 
     def _make_frame_adjust(self):
         self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Adjust")
-        self.frame_adjust.grid(row=2, column=1)
+        self.frame_adjust.grid(row=3, column=1)
         self.frame_adjust.grid_forget()
 
         self.text_label_adjust = tk.StringVar()
@@ -184,6 +187,14 @@ class View(tk.Tk):
     def frame_select_com_off(self):
         self.lbox_comports.grid_forget()
         self.frame_select_com.grid_forget()
+
+    def frame_measure_on(self):
+        self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
+
+
+    def frame_measure_off(self):
+        self.frame_measure.grid_forget()
+
 
     def frame_adjust_on(self):
         self.frame_adjust.grid(row=1, column=1, sticky=E + W)
@@ -304,12 +315,15 @@ class View(tk.Tk):
         data: List
             The restructured data from the (.csv)-file
         """
+        self.frame_adjust_off()
+        self.frame_measure_on()
         fig = plt.figure(figsize=(6, 6))
         fig.suptitle("RTM Scan")
         self.__plot_3d(fig, data)
         # plot_single_scan(fig, data)
 
-        __canvas = FigureCanvasTkAgg(fig, master = self.frame_select_com)
+        __canvas = FigureCanvasTkAgg(fig, master = self.frame_measure)
+        #__canvas = FigureCanvasTkAgg(fig, master=self.frame_main)
         __canvas.draw()
         __canvas.get_tk_widget().pack()
 

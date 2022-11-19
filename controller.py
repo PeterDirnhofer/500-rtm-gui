@@ -4,7 +4,6 @@
 import tkinter
 from tkinter.messagebox import showinfo
 
-
 from usbserial import UsbSerial
 from view import View
 from model import Model
@@ -25,9 +24,7 @@ class Controller:
 
         self.view.main()
 
-
     def select_measure(self):
-
         file_name = "plot_data/newScan.csv"
         data = self.model.get_data_from_scan(file_name)
         self.view.plotter(data)
@@ -35,6 +32,7 @@ class Controller:
     def select_restart(self):
         self.view.frame_select_com_off()
         self.view.frame_adjust_off()
+        self.view.frame_measure_off()
         self.view.button_select_adjust['state'] = tkinter.NORMAL
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
@@ -53,6 +51,7 @@ class Controller:
         self.view.button_select_measure['state'] = tkinter.DISABLED
 
         UsbSerial.write('ADJUST')
+        self.view.frame_measure_off()
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
