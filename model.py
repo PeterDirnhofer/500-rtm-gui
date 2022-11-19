@@ -31,13 +31,8 @@ License:
 
 import numpy as np
 import warnings
-import matplotlib.pyplot as plt
 
-from scipy import interpolate
-from pathlib import Path
-from matplotlib import cm
-from typing import Any, Dict, List, Union, Optional
-
+from typing import List, Optional
 
 
 class Model:
@@ -79,8 +74,8 @@ class Model:
                 if o in [0, scan_length_x - 1]:
                     break_line = i
                 if o not in [0, scan_length_x - 1]:
-                    warnings.warn(f"From line {i} datastructure is not of form [0," \
-                                  f" {scan_length_x - 1}] in x anymore... " \
+                    warnings.warn(f"From line {i} datastructure is not of form [0," 
+                                  f" {scan_length_x - 1}] in x anymore... " 
                                   f" Values from then on will be discarded")
                     break
 
@@ -90,7 +85,7 @@ class Model:
         else:
             if x.shape[0] % scan_length_x != 0:
 
-                raise IOError(f"The input (.csv)-file is not of the right form" \
+                raise IOError(f"The input (.csv)-file is not of the right form"
                               f" for the given scan length: {scan_length_x}")
             else:
                 new_dimensions = x.shape[0] // scan_length_x
@@ -100,15 +95,11 @@ class Model:
         if exclude_extrems:
             ind_max = np.where(z.copy() / np.mean(z) > 1.)
             z[ind_max] = np.median(z).astype(int)
-            warnings.warn(f"Replaced extreme values at indices {ind_max}, with the" \
+            warnings.warn(f"Replaced extreme values at indices {ind_max}, with the"
                           f" median value {np.median(z).astype(int).astype(int)}",
                           category=Warning)
-            warnings.warn("CAUTION: The inserted values may lead to wrong" \
+            warnings.warn("CAUTION: The inserted values may lead to wrong"
                           " estimations of the surface profile",
                           category=FutureWarning)
         print("Refactoring (.csv)-file into dictionary done!")
         return [x, y, z]
-
-
-
-

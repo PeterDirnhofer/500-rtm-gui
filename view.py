@@ -4,19 +4,15 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from usbserial import UsbSerial
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from tkinter.constants import *
 from PIL import Image, ImageTk
 
-
-import numpy as np
-import warnings
 import matplotlib.pyplot as plt
 
-from scipy import interpolate
-from pathlib import Path
 from matplotlib import cm
-from typing import Any, Dict, List, Union, Optional
+from typing import List, Optional
+
 
 class View(tk.Tk):
 
@@ -41,13 +37,10 @@ class View(tk.Tk):
 
         self._style()
 
-
-
-
     def main(self):
 
         self._enable_receive_from_usbserial()
-        self.protocol("WM_DELETE_WINDOW", self.on_closing) # call on_closing when app is canceled
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call on_closing when app is canceled
         self.mainloop()  # Tk mainloop
 
     def _enable_receive_from_usbserial(self):
@@ -107,8 +100,7 @@ class View(tk.Tk):
 
     def _make_frame_measure(self):
         self.frame_measure = ttk.LabelFrame(self.frame_main, text='Measure')
-        #self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
-
+        # self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
 
     def _make_frame_comread(self):
         self.frame_com_read = ttk.LabelFrame(self.frame_main, text='COM read')
@@ -183,7 +175,6 @@ class View(tk.Tk):
 
         self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
-
     def frame_select_com_on(self):
         self.frame_select_com.grid(row=1, column=1)
         self.lbox_comports.pack(padx=10, pady=10)
@@ -195,10 +186,8 @@ class View(tk.Tk):
     def frame_measure_on(self):
         self.frame_measure.grid(row=1, column=1, rowspan=3, sticky='nesw')
 
-
     def frame_measure_off(self):
         self.frame_measure.grid_forget()
-
 
     def frame_adjust_on(self):
         self.frame_adjust.grid(row=1, column=1, sticky=E + W)
@@ -326,18 +315,15 @@ class View(tk.Tk):
         self.__plot_3d(fig, data)
         # plot_single_scan(fig, data)
 
-        __canvas = FigureCanvasTkAgg(fig, master = self.frame_measure)
-        #__canvas = FigureCanvasTkAgg(fig, master=self.frame_main)
+        __canvas = FigureCanvasTkAgg(fig, master=self.frame_measure)
+        # __canvas = FigureCanvasTkAgg(fig, master=self.frame_main)
         __canvas.draw()
         __canvas.get_tk_widget().pack()
 
-        #plt.show()
-
-
+        # plt.show()
 
     # https://www.geeksforgeeks.org/how-to-embed-matplotlib-charts-in-tkinter-gui/
     # How to embed Matplotlib charts in Tkinter GUI?
-
 
     def on_closing(self):
         """

@@ -2,7 +2,6 @@
 # https://youtu.be/ek47NMFW_mk
 
 import tkinter
-from tkinter.messagebox import showinfo
 
 from usbserial import UsbSerial
 from view import View
@@ -36,8 +35,6 @@ class Controller:
         self.view.button_select_adjust['state'] = tkinter.NORMAL
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
-
-
 
         UsbSerial.write(chr(3))
 
