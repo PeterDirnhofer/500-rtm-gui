@@ -5,7 +5,6 @@ from tkinter import messagebox
 from configurations import *
 
 
-
 class Measure:
 
     def __init__(self, view):
@@ -42,15 +41,12 @@ class Measure:
                 continue
             elif self.__status_measure_loop == "ERROR":
                 messagebox.showerror('Timeout Error. No response from ESP', f'No response from ESP.\n')
-                self.__status_measure_loop="DONE"
-
-
-
+                self.__status_measure_loop = "DONE"
 
     def __ml_request_measure(self):
         # send start meaasuring to ESP
         time.sleep(1)
-        self.__status_measure_loop="WAIT"
+        self.__status_measure_loop = "WAIT"
 
     def __ml_init(self):
         self.__start_time = time.time()
@@ -67,12 +63,3 @@ class Measure:
         self.view.text_label_measure.set(self.view.text_label_measure.get() + '.')
         if int(time.time() - self.__start_time) > TIMEOUT_MEASURING:
             self.__status_measure_loop = 'ERROR'
-
-
-
-
-
-
-
-
-

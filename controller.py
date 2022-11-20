@@ -28,13 +28,11 @@ class Controller:
         self.view.main()
 
     def select_measure(self):
-        if self.measure.start_measure_cycle == False:
+        #self.view.plotter(data)
+        if self.measure.start_measure_cycle != False:
             return
 
-
-        #data = self.model.get_data_from_scan(SCAN_FILE_NAME)
-
-        #self.view.plotter(data)
+        # data = self.model.get_data_from_scan(SCAN_FILE_NAME)
 
     def select_restart(self):
         self.view.frame_select_com_off()
