@@ -8,6 +8,7 @@ from view import View
 from model import Model
 
 from configurations import *
+from measure import *
 
 
 # Timer Class https://youtu.be/5NJ9cc0dnCM
@@ -15,6 +16,7 @@ class Controller:
     def __init__(self):
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
+        self.measure= Measure(self.view)
 
         UsbSerial.view_ptr = self.view  # pass view to UsbSerial
         UsbSerial.reset_com_esp32()
@@ -26,9 +28,13 @@ class Controller:
         self.view.main()
 
     def select_measure(self):
-        self.view.text_status.set('Measure ...')
-        data = self.model.get_data_from_scan(SCAN_FILE_NAME)
-        self.view.plotter(data)
+        if self.measure.start_measure_cycle == False:
+            return
+
+
+        #data = self.model.get_data_from_scan(SCAN_FILE_NAME)
+
+        #self.view.plotter(data)
 
     def select_restart(self):
         self.view.frame_select_com_off()
@@ -56,6 +62,8 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
+
+
 
 
 if __name__ == '__main__':

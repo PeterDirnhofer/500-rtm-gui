@@ -98,6 +98,11 @@ class View(tk.Tk):
 
     def _make_frame_measure(self):
         self.frame_measure = ttk.LabelFrame(self.frame_main, text='Measure')
+        self.text_label_measure = tk.StringVar()
+        self.label_measure = ttk.Label(self.frame_measure,
+                                    textvariable=self.text_label_measure,
+                                    width=40)
+
 
     def _make_frame_comread(self):
         self.frame_com_read = ttk.LabelFrame(self.frame_main, text='COM read')
@@ -306,8 +311,9 @@ class View(tk.Tk):
         data: List
             The restructured data from the (.csv)-file
         """
-        self.frame_adjust_off()
-        self.frame_measure_on()
+
+
+
         fig = plt.figure(figsize=(6, 6))
         fig.suptitle("RTM Scan")
         self.__plot_3d(fig, data)
@@ -316,6 +322,7 @@ class View(tk.Tk):
         __canvas = FigureCanvasTkAgg(fig, master=self.frame_measure)
         # __canvas = FigureCanvasTkAgg(fig, master=self.frame_main)
         __canvas.draw()
+        self.label_measure.grid_forget()
         __canvas.get_tk_widget().pack()
 
         # plt.show()
