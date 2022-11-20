@@ -16,7 +16,7 @@ class Controller:
     def __init__(self):
         self.model = Model()
         self.view = View(self)  # self (instance of controller) is passed to View
-        self.measure= Measure(self.view)
+        self.measure= Measure(self.view, self.model)
 
         UsbSerial.view_ptr = self.view  # pass view to UsbSerial
         UsbSerial.reset_com_esp32()
@@ -44,7 +44,7 @@ class Controller:
 
         UsbSerial.write(chr(3))
 
-        self.view.lb_com_read_delete()
+        self.view.lbox_com_read_delete()
         self.view.lbox_com_read_update('RESET')
 
         self.view.lbox_parameter_delete()

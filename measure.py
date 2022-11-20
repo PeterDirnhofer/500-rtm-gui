@@ -1,17 +1,19 @@
 from threading import Thread
 import time
 from tkinter import messagebox
+from usbserial import UsbSerial
 
 from configurations import *
 
 
 class Measure:
 
-    def __init__(self, view):
+    def __init__(self, view, model):
         self.__measure_loop_is_started = None
         self.__status_measure_loop = None
         self.__start_time: float
         self.view = view
+        self.model = model
 
     @property
     def start_measure_cycle(self):
@@ -44,7 +46,10 @@ class Measure:
                 self.__status_measure_loop = "DONE"
 
     def __ml_request_measure(self):
-        # send start meaasuring to ESP
+        # In sumulation ESP sends IDLE
+        if not SIMULATION:
+            UsbSerial.write('MEASURE')
+        self.view.lbox_com_read_delete()
         time.sleep(1)
         self.__status_measure_loop = "WAIT"
 
@@ -59,7 +64,18 @@ class Measure:
         self.__status_measure_loop = "REQUEST_MEASURE"
 
     def __ml_wait(self):
+        """
+        Wait for measuring data from ESP. Write data to file.
+        If all data received. set status 'DATA_COMPLETE'
+        On timeout set status 'ERROR'
+        :return:
+        """
 
         self.view.text_label_measure.set(self.view.text_label_measure.get() + '.')
+
+
         if int(time.time() - self.__start_time) > TIMEOUT_MEASURING:
-            self.__status_measure_loop = 'ERROR'
+            if SIMULATION:
+                self.__status_measure_loop = ""
+            else:
+                self.__status_measure_loop = 'ERROR'

@@ -254,7 +254,7 @@ class View(tk.Tk):
     def label_adjust_update(self, value):
         self.text_label_adjust.set(value)
 
-    def lb_com_read_delete(self):
+    def lbox_com_read_delete(self):
         self.lbox_com_read['state'] = NORMAL
         self.lbox_com_read.delete(0, END)
         self.lbox_com_read['state'] = DISABLED
