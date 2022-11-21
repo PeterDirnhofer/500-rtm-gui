@@ -19,6 +19,7 @@ class Controller:
         self.measure= Measure(self.view, self.model)
 
         UsbSerial.view_ptr = self.view  # pass view to UsbSerial
+        UsbSerial.model_ptr=self.model
         UsbSerial.reset_com_esp32()
 
     def main(self):
@@ -32,7 +33,8 @@ class Controller:
         if self.measure.start_measure_cycle != False:
             return
 
-        # data = self.model.get_data_from_scan(SCAN_FILE_NAME)
+        #data = self.model.get_data_from_scan(SCAN_FILE_NAME)
+        #self.view.plotter(data)
 
     def select_restart(self):
         self.view.frame_select_com_off()

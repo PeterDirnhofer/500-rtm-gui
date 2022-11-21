@@ -62,11 +62,13 @@ class Model:
             A list containing 2D-np.ndarrays containing the x, y and z
             information
         """
-        break_line = None
+        break_line = None # last valid line
 
         x, y, z = map(lambda n: np.array(n).astype(int),
                       map(list, zip(*np.genfromtxt(csv_file, delimiter=";"))))
 
+        # Plausibility check. After scan_length x must be 0 or scan_length-1.
+        # break_line contains last valid line
         for i, o in enumerate(x):
             if i % scan_length_x == 0:
                 if o in [0, scan_length_x - 1]:
@@ -77,7 +79,10 @@ class Model:
                                   f" Values from then on will be discarded")
                     break
 
+        # If last line not reached, then use only data from start to break_line.
+        # new_dimension 0 number of valid datasets from beginning
         if break_line != x.shape[0]:
+            h1=x[:break_line].shape[0]
             new_dimensions = x[:break_line].shape[0] // scan_length_x
             x, y, z = map(lambda n: n[:break_line], [x, y, z])
         else:
@@ -101,3 +106,12 @@ class Model:
                           category=FutureWarning)
         print("Refactoring (.csv)-file into dictionary done!")
         return [x, y, z]
+
+    @staticmethod
+    def new_file():
+        pass
+
+    @staticmethod
+    def write_to_file():
+        # send("DATA,%d,%d,%d\r", X, Y, Z);
+        pass

@@ -12,6 +12,7 @@ import serial
 from threading import Thread
 from queue import Queue
 from configurations import *
+from model import *
 
 
 class UsbSerial:
@@ -128,6 +129,11 @@ class UsbSerial:
                     # data available
                     if len(ln) > 0:
                         cls._read_line = ln
+
+                        Model.write_to_file()
+
+
+
 
                         # put received data from ESP32 to queue
                         cls.queue.put(ln)
