@@ -75,14 +75,17 @@ class UsbSerial:
                 cls._is_default_port_existing()
                 time.sleep(0.050)
                 continue
+
             elif cls._statemachine_state == 'EXISTING':
                 cls._open()
                 time.sleep(0.050)
                 continue
+
             elif cls._statemachine_state == 'OPEN':
                 cls._send_reset()
-                time.sleep(1)
+                time.sleep(1) # Wait 1 Second until ESP has finished old protocol e.g. Parameters
                 continue
+
             elif cls._statemachine_state == 'WAIT_FOR_IDLE':
                 cls._wait_for_idle()
                 time.sleep(0.050)
