@@ -12,6 +12,7 @@ from configurations import *
 class Measure:
 
     def __init__(self, view, model) -> object:
+        self.__old_data_sets_received = 0
         self.__measure_loop_is_started = None
         self.__status_measure_loop = None
         self.__start_time: float
@@ -56,11 +57,20 @@ class Measure:
                 time.sleep(1)
                 continue
 
+            elif self.__status_measure_loop == 'DONE':
+                continue
+
 
             elif self.__status_measure_loop == "ERROR":
                 messagebox.showerror('Timeout Error. No response from ESP', f'No response from ESP.\n')
                 self.__status_measure_loop = "DONE"
-        # DONE
+
+        self.view.text_status.set('Measureloop DONE')
+
+
+
+
+
 
 
     def __ml_request_measuring_from_ESP32(self):
@@ -93,9 +103,9 @@ class Measure:
         self.view.text_status.set('Measureloop WAIT')
 
 
+
         if Model.data_sets_received > 0:
             self.__status_measure_loop = 'MEASURING'
-
             self.view.text_status.set('Measuring')
             return
 
@@ -104,8 +114,13 @@ class Measure:
             self.__status_measure_loop = 'ERROR'
 
     def __ml_wait_for_done(self):
-        self.view.text_label_measure.set(self.view.text_label_measure.get() + '.')
-        return
 
-        pass
+        if Model.data_sets_received == -1:
+            self.__status_measure_loop = 'DONE'
+            return
+
+        if Model.data_sets_received != self.__old_data_sets_received:
+            self.__old_data_sets_received=Model.data_sets_received
+            self.view.text_label_measure.set(f"Datasets {Model.data_sets_received}")
+
 

@@ -135,17 +135,23 @@ class UsbSerial:
                     if len(ln) > 0:
                         cls._read_line = ln
 
+                        # If data from measure, save
+                        ln_split = ln.split(",")
+
+                        if ln_split[0] == "DATA":
+                            if ln_split[1] == 'DONE':
+                                Model.dataframe_to_csv()
+                                cls.view_ptr.text_status.set("Data saved in " + SCAN_FILE_NAME)
+
+                            Model.write_to_dataframe(ln)
+                            continue
+
                         # put received data from ESP32 to queue
                         cls.queue.put(ln)
 
                         # signal that data are available to queue
                         cls.view_ptr.queue_available.set(len)
 
-                        # If data from measure, save
-                        ln0 = ln.split(",")[0]
-                        if ln0 == "DATA":
-                            Model.write_to_file(ln)
-                        continue
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the program\nError detail: \n{e}')

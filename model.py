@@ -101,32 +101,21 @@ class Model:
         finally:
             cls.data_frame = pd.DataFrame(columns=['X', 'Y', 'Z'])
 
-
     @classmethod
-    def write_to_file(cls, ln: str):
+    def write_to_dataframe(cls, ln: str):
         # DATA,X,Y,Z
         s_split = ln.split(",")
+
         if len(s_split) == 4:
-            cls.data_frame.loc[len(cls.data_frame.index)] = [s_split[1],s_split[2],s_split[3]]
+            cls.data_frame.loc[len(cls.data_frame.index)] = [s_split[1], s_split[2], s_split[3]]
+            # One set is finished
             if s_split[1] == '0':
                 cls.data_sets_received += 1
                 return
             return
 
-        if s_split[1] != 'DONE':
-            # ERROR
+    @classmethod
+    def dataframe_to_csv(cls):
+        print(cls.data_frame.head)
 
-            return
-
-        cls.data_frame.to_csv(SCAN_FILE_NAME,index=false,sep=',')
-
-
-
-
-
-
-
-
-
-
-
+        cls.data_frame.to_csv(SCAN_FILE_NAME, index= False, header=False)
