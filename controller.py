@@ -3,6 +3,7 @@
 
 import tkinter
 
+import measure
 from usbserial import UsbSerial
 from view import View
 from model import Model
@@ -29,12 +30,12 @@ class Controller:
         self.view.main()
 
     def select_measure(self):
-        #self.view.plotter(data)
-        if self.measure.start_measure_cycle != False:
+        # self.view.plotter(data)
+        if self.measure.start_measure_loop != False:
             return
 
-        #data = self.model.get_data_from_scan(SCAN_FILE_NAME)
-        #self.view.plotter(data)
+        # data = self.model.get_data_from_scan(SCAN_FILE_NAME)
+        # self.view.plotter(data)
 
     def select_restart(self):
         self.view.frame_select_com_off()
@@ -43,11 +44,12 @@ class Controller:
         self.view.button_select_adjust['state'] = tkinter.NORMAL
         self.view.button_select_measure['state'] = tkinter.NORMAL
         self.view.button_select_reset['state'] = tkinter.NORMAL
-
+        self.measure.stop_measure_loop()
         UsbSerial.write(chr(3))
 
         self.view.lbox_com_read_delete()
         self.view.lbox_com_read_update('RESET')
+
 
         self.view.lbox_parameter_delete()
 
@@ -62,9 +64,6 @@ class Controller:
         self.view.frame_adjust_on()
 
         self.view.text_status.set('ADJUST')
-
-
-
 
 if __name__ == '__main__':
     app = Controller()

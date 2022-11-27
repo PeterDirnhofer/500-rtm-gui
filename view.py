@@ -96,15 +96,14 @@ class View(tk.Tk):
 
         self.button_select_adjust.pack(side=LEFT, padx=10, pady=2)
 
-    def _make_frame_measure(self):
+    def _make_frame_measure(self) -> None:
         self.frame_measure = ttk.LabelFrame(self.frame_main, text='Measure')
         self.text_label_measure = tk.StringVar()
         self.label_measure = ttk.Label(self.frame_measure,
-                                    textvariable=self.text_label_measure,
-                                    width=40)
+                                       textvariable=self.text_label_measure,
+                                       width=40)
 
-
-    def _make_frame_comread(self):
+    def _make_frame_comread(self) -> None:
         self.frame_com_read = ttk.LabelFrame(self.frame_main, text='COM read')
         self.frame_com_read.grid(row=1, column=0, padx=10, pady=10, sticky=NSEW)
 
@@ -118,7 +117,7 @@ class View(tk.Tk):
 
         self.scrollbar.config(command=self.lbox_com_read.yview)
 
-    def _make_frame_comstate(self):
+    def _make_frame_comstate(self) -> None:
         self.frame_com_state = ttk.LabelFrame(self.frame_main, text='COM State')
         self.frame_com_state.grid(row=2, column=0, padx=10, sticky=NSEW)
 
@@ -128,7 +127,7 @@ class View(tk.Tk):
                                     width=40)
         label_com_state.grid(row=0, column=0, padx=10)
 
-    def _make_frame_parameter(self):
+    def _make_frame_parameter(self) -> None:
         self.frame_parameter = ttk.LabelFrame(self.frame_main, text="Parameter")
         self.frame_parameter.grid(row=3, column=0, padx=10, pady=10, sticky=NSEW)
 
@@ -149,7 +148,7 @@ class View(tk.Tk):
         # self.btn_get_parameter.pack(side = LEFT)
         self.btn_get_parameter.grid(row=1, column=0, sticky=W, padx=10, pady=5)
 
-    def _make_frame_state(self):
+    def _make_frame_state(self) -> None:
         self.frame_status = ttk.LabelFrame(self.frame_main, text="State")
         self.frame_status.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky=NSEW)
         self.text_status = tk.StringVar()
@@ -158,7 +157,7 @@ class View(tk.Tk):
                                      textvariable=self.text_status)
         self.label_status.pack(side=LEFT)
 
-    def _make_frame_selectcom(self):
+    def _make_frame_selectcom(self) -> None:
         self.frame_select_com = ttk.LabelFrame(self.frame_main, text="Select COM")
         self.frame_select_com.grid(row=3, column=1, padx=10, pady=5)
 
@@ -167,7 +166,7 @@ class View(tk.Tk):
 
         self.lbox_comports.bind('<<ListboxSelect>>', self.lbox_comports_select)
 
-    def _make_frame_adjust(self):
+    def _make_frame_adjust(self) -> None:
         self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Adjust")
         self.frame_adjust.grid(row=3, column=1)
         self.frame_adjust.grid_forget()
@@ -177,25 +176,25 @@ class View(tk.Tk):
 
         self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
-    def frame_select_com_on(self):
+    def frame_select_com_on(self) -> None:
         self.frame_select_com.grid(row=1, column=1)
         self.lbox_comports.pack(padx=10, pady=10)
 
-    def frame_select_com_off(self):
+    def frame_select_com_off(self) -> None:
         self.lbox_comports.grid_forget()
         self.frame_select_com.grid_forget()
 
-    def frame_measure_on(self):
+    def frame_measure_on(self) -> None:
         self.frame_measure.grid(row=1, column=1, rowspan=3, sticky=NSEW)
 
-    def frame_measure_off(self):
+    def frame_measure_off(self) -> None:
         self.frame_measure.grid_forget()
 
-    def frame_adjust_on(self):
-        self.frame_adjust.grid(row=1, column=1, sticky=E+W)
+    def frame_adjust_on(self) -> None:
+        self.frame_adjust.grid(row=1, column=1, sticky=E + W)
         self.label_adjust.grid(row=0, column=0, sticky=NSEW)
 
-    def frame_adjust_off(self):
+    def frame_adjust_off(self) -> None:
         self.label_adjust.grid_forget()
         self.frame_adjust.grid_forget()
 
@@ -212,7 +211,6 @@ class View(tk.Tk):
         """
 
         while not UsbSerial.queue.empty():
-
             res = UsbSerial.queue.get()
             x = res.split(",")
             if x[0] == 'ADJUST':
@@ -222,10 +220,9 @@ class View(tk.Tk):
             else:
                 self.lbox_com_read_update(res)
 
-    def display_comports(self, ports):
-        """
-        Gets list of actual available COM ports from laptop.
-        Render COM List in listbox_comports
+    def display_comports(self, ports: list[str]) -> None:
+        """Render available ports in listbox_comports
+        :param ports: List of available ports
         """
         # ports = self.sf.get_ports()
         self.lbox_comports.delete(0, 'end')
@@ -311,8 +308,6 @@ class View(tk.Tk):
         data: List
             The restructured data from the (.csv)-file
         """
-
-
 
         fig = plt.figure(figsize=(6, 6))
         fig.suptitle("RTM Scan")

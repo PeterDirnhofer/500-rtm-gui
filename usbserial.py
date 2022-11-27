@@ -43,20 +43,20 @@ class UsbSerial:
         return cls._com_selected
 
     @classmethod
-    def start_com_esp32_loop(cls):
+    def start_com_esp32_loop(cls) -> bool:
         """
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
         if cls.view_ptr is not None:
-            init_com_thread = Thread(target=cls._establish_com_esp32_loop, daemon=True)
+            init_com_thread = Thread(target=cls._start_com_esp32_loop, daemon=True)
             init_com_thread.start()
             return True
         print("ERROR run cls.view_reference,view")
         return False
 
     @classmethod
-    def _establish_com_esp32_loop(cls):
+    def _start_com_esp32_loop(cls):
         """
         Statemachine to establish communication wit ESP32.
         - Open COM for sending and receiving
@@ -93,11 +93,13 @@ class UsbSerial:
 
             elif cls._statemachine_state == 'COM_READY':
                 cls._request_parameters()
+                time.sleep(0.5)
                 continue
 
             elif cls._statemachine_state == 'PASSIVE':
-                time.sleep(1)
+                time.sleep(0.3)
                 continue
+
             elif cls._statemachine_state == "ERROR_COM":
                 cls._error()
                 time.sleep(0.200)
@@ -129,20 +131,21 @@ class UsbSerial:
                 try:
                     ln = cls._serialInst.readline().decode('utf').rstrip('\n')
 
-                    # data available
+                    # data from ESP32 available
                     if len(ln) > 0:
                         cls._read_line = ln
-
-                        Model.write_to_file()
-
-
-
 
                         # put received data from ESP32 to queue
                         cls.queue.put(ln)
 
                         # signal that data are available to queue
                         cls.view_ptr.queue_available.set(len)
+
+                        # If data from measure, save
+                        ln0 = ln.split(",")[0]
+                        if ln0 == "DATA":
+                            Model.write_to_file(ln)
+                        continue
 
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the program\nError detail: \n{e}')
@@ -151,8 +154,8 @@ class UsbSerial:
     @classmethod
     def write(cls, cmd: str) -> bool:
         """ Send command to ESP32.
-        :param cmd: Command to send
-        :return: False if send not ok
+        :param cmd: Command to send as string
+        :return: False if not ok
         """
         cls._serialInst.write_timeout = 1.0
 
@@ -164,9 +167,8 @@ class UsbSerial:
             return False
 
     @classmethod
-    def request_parameter_from_esp(cls):
+    def request_parameter_from_esp(cls) -> None:
         """ Send request for parameter reading to ESP
-
         """
         cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear listbox with old parameters
         cls.write('PARAMETER,?')  # Send request or ESP
