@@ -5,13 +5,13 @@
 import pickle
 import time
 import tkinter as tk
+from queue import Queue
+from threading import Thread
 from tkinter import messagebox
 
-import serial.tools.list_ports
 import serial
-from threading import Thread
-from queue import Queue
-from configurations import *
+import serial.tools.list_ports
+
 from model import *
 
 
@@ -83,7 +83,7 @@ class UsbSerial:
 
             elif cls._statemachine_state == 'OPEN':
                 cls._send_reset()
-                time.sleep(1) # Wait 1 Second until ESP has finished old protocol e.g. Parameters
+                time.sleep(1)  # Wait 1 Second until ESP has finished old protocol e.g. Parameters
                 continue
 
             elif cls._statemachine_state == 'WAIT_FOR_IDLE':

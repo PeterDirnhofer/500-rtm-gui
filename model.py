@@ -16,16 +16,15 @@ License:
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import gc
-
 import numpy as np
 import pandas as pd
 import warnings
-import csv
 from typing import List, Optional
 from configurations import *
 
 
 class Model:
+    last_set_number = ''
     data_sets_received = 0
     scan_file = None
     data_frame = None
@@ -68,7 +67,7 @@ class Model:
         # If last line not reached, then use only data from start to break_line.
         # new_dimension 0 number of valid datasets from beginning
         if break_line != x.shape[0]:
-            h1 = x[:break_line].shape[0]
+
             new_dimensions = x[:break_line].shape[0] // scan_length_x
             x, y, z = map(lambda n: n[:break_line], [x, y, z])
         else:
@@ -95,6 +94,7 @@ class Model:
 
     @classmethod
     def clear_data_frame(cls):
+        cls.data_sets_received = 0
         try:
             del cls.data_frame
             gc.collect()
@@ -105,17 +105,17 @@ class Model:
     def write_to_dataframe(cls, ln: str):
         # DATA,X,Y,Z
         s_split = ln.split(",")
+        
 
         if len(s_split) == 4:
             cls.data_frame.loc[len(cls.data_frame.index)] = [s_split[1], s_split[2], s_split[3]]
             # One set is finished
-            if s_split[1] == '0':
+            if s_split[2] != cls.last_set_number:
                 cls.data_sets_received += 1
-                return
-            return
+                cls.last_set_number=s_split[2]
 
     @classmethod
     def dataframe_to_csv(cls):
-        print(cls.data_frame.head)
 
-        cls.data_frame.to_csv(SCAN_FILE_NAME, index= False, header=False)
+        cls.data_frame.to_csv(SCAN_FILE_NAME, index=False, header=False)
+        cls.clear_data_frame()
