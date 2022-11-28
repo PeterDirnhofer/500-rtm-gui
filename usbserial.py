@@ -4,6 +4,7 @@
 # pip install pyserial
 import pickle
 import time
+import tkinter
 import tkinter as tk
 from queue import Queue
 from threading import Thread
@@ -32,6 +33,8 @@ class UsbSerial:
     # Statemachine connect to ESP32
     @classmethod
     def reset_com_esp32(cls):
+        cls.view_ptr.button_select_adjust['state'] = tkinter.DISABLED
+        cls.view_ptr.button_select_measure['state'] = tkinter.DISABLED
         cls._statemachine_state = 'INIT'
 
     @classmethod
@@ -48,15 +51,16 @@ class UsbSerial:
         Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
         :return:
         """
+
         if cls.view_ptr is not None:
-            init_com_thread = Thread(target=cls._start_com_esp32_loop, daemon=True)
+            init_com_thread = Thread(target=cls._esp32_start_statemachine, daemon=True)
             init_com_thread.start()
             return True
         print("ERROR run cls.view_reference,view")
         return False
 
     @classmethod
-    def _start_com_esp32_loop(cls):
+    def _esp32_start_statemachine(cls):
         """
         Statemachine to establish communication wit ESP32.
         - Open COM for sending and receiving
@@ -94,6 +98,8 @@ class UsbSerial:
             elif cls._statemachine_state == 'COM_READY':
                 cls._request_parameters()
                 time.sleep(0.5)
+                cls.view_ptr.button_select_adjust['state'] = tkinter.NORMAL
+                cls.view_ptr.button_select_measure['state'] = tkinter.NORMAL
                 continue
 
             elif cls._statemachine_state == 'PASSIVE':
@@ -141,16 +147,20 @@ class UsbSerial:
                         if ln_split[0] == "DATA":
                             if ln_split[1] == 'DONE':
                                 Model.dataframe_to_csv()
-                                cls.view_ptr.text_status.set("Data saved in " + SCAN_FILE_NAME)
-
-                            Model.write_to_dataframe(ln)
+                                # cls.view_ptr.text_status.set("Data saved in " + SCAN_FILE_NAME)
+                                cls.view_ptr.text_label_measure.set("Data saved in " + SCAN_FILE_NAME)
+                                cls.data_sets_received = -1
+                            else:
+                                Model.write_to_dataframe(ln)
                             continue
 
-                        # put received data from ESP32 to queue
-                        cls.queue.put(ln)
+                        else:
 
-                        # signal that data are available to queue
-                        cls.view_ptr.queue_available.set(len)
+                            # put received data from ESP32 to queue
+                            cls.queue.put(ln)
+
+                            # signal that data are available to queue
+                            cls.view_ptr.queue_is_available.set(len)
 
 
                 except Exception as e:

@@ -27,7 +27,7 @@ class Model:
     last_set_number = ''
     data_sets_received = 0
     scan_file = None
-    data_frame = None
+    data_frame = pd.DataFrame(columns=['X', 'Y', 'Z'])
     writer = None
 
     @staticmethod
@@ -94,28 +94,30 @@ class Model:
 
     @classmethod
     def clear_data_frame(cls):
-        cls.data_sets_received = 0
-        try:
+
+        if not cls.data_frame.empty:
             del cls.data_frame
             gc.collect()
-        finally:
             cls.data_frame = pd.DataFrame(columns=['X', 'Y', 'Z'])
+
+        return
 
     @classmethod
     def write_to_dataframe(cls, ln: str):
+
         # DATA,X,Y,Z
         s_split = ln.split(",")
-        
 
         if len(s_split) == 4:
             cls.data_frame.loc[len(cls.data_frame.index)] = [s_split[1], s_split[2], s_split[3]]
             # One set is finished
             if s_split[2] != cls.last_set_number:
                 cls.data_sets_received += 1
-                cls.last_set_number=s_split[2]
+                cls.last_set_number = s_split[2]
 
     @classmethod
     def dataframe_to_csv(cls):
 
         cls.data_frame.to_csv(SCAN_FILE_NAME, index=False, header=False)
+        cls.data_sets_received = -1
         cls.clear_data_frame()

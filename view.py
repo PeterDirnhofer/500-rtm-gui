@@ -17,7 +17,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
 
-        self.queue_available = tk.IntVar()
+        self.queue_is_available = tk.IntVar()  # Callback variable set by UsbSerial
 
         self.parameter = None
         self.com_selected = None
@@ -37,8 +37,9 @@ class View(tk.Tk):
 
     def main(self):
 
-        self._enable_receive_from_usbserial()
+        self._enable_receive_from_usbserial()  # Start read ESP read loop in background before entering mainloop
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call on_closing when app is canceled
+
         self.mainloop()  # Tk mainloop
 
     def _enable_receive_from_usbserial(self):
@@ -47,11 +48,12 @@ class View(tk.Tk):
         When 'UsbSerial._read_loop' has received data from ESP32 it saves it to the 'queue'.
         Then 'UsbSerial._read_loop' signalizes that data are available in queue by setting 'queue_available'.
 
-        'queue_available' is a tk:IntVar: That means: Every change of 'queue_available' by UsbSerial #
+        'queue_available' is a tk:IntVar: That means: Every change of 'queue_available' by UsbSerial
         forces the call of '_do_queue_available' with the '.trace_add' functionality below.
         """
 
-        self.queue_available.trace_add("write", self._do_queue_available)
+        # call _do_queue_available, when data is written to queue_is_availble
+        self.queue_is_available.trace_add("write", self._do_queue_available)
 
     def _make_main_frame(self):
         # https://stackoverflow.com/questions/44548176/how-to-fix-the-low-quality-of-tkinter-render
@@ -330,5 +332,6 @@ class View(tk.Tk):
         Close app and stop Python
         :return:
         """
+        self.controller.select_restart()
         self.destroy()
         exit()

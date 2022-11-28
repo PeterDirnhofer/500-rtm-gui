@@ -16,6 +16,7 @@ class Controller:
 
         UsbSerial.view_ptr = self.view  # pass view to UsbSerial
         UsbSerial.model_ptr = self.model
+
         UsbSerial.reset_com_esp32()
 
     def main(self):
