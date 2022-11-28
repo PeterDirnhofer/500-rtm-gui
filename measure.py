@@ -38,7 +38,7 @@ class Measure:
                 self.__ml_init()
                 continue
             elif self.__status_measure_loop == "REQUEST_MEASURE":
-                self.__ml_request_measuring_from_ESP32()
+                self.__ml_request_measuring_from_esp32()
                 time.sleep(1)
                 continue
             elif self.__status_measure_loop == 'WAIT':
@@ -50,27 +50,25 @@ class Measure:
                 time.sleep(0.2)
                 continue
 
-            # elif self.__status_measure_loop == 'DATA_COMPLETE':
-            #   time.sleep(1)
-
-            #    continue
-
             elif self.__status_measure_loop == "ERROR":
                 messagebox.showerror('Timeout Error. No response from ESP', f'No response from ESP.\n')
                 self.__status_measure_loop = "DONE"
 
-        self.view.text_status.set('Measureloop DONE')
+        self.view.text_status.set('Measure loop DONE')
+        self.view.button_select_adjust['state'] = tkinter.NORMAL
+        self.view.button_select_measure['state'] = tkinter.NORMAL
 
-    def __ml_request_measuring_from_ESP32(self):
+
+    def __ml_request_measuring_from_esp32(self):
 
         UsbSerial.write('MEASURE')
-        self.view.text_status.set('Measureloop REQUEST_MEASURE')
+        self.view.text_status.set('Measure loop REQUEST_MEASURE')
         self.view.lbox_com_read_delete()
         self.__status_measure_loop = "WAIT"
 
     def __ml_init(self):
         self.__start_time = time.time()
-        self.view.text_status.set('Measureloop INIT')
+        self.view.text_status.set('Measure loop INIT')
         self.view.text_status.set('Measuring ')
         self.view.frame_adjust_off()
         self.view.frame_measure_on()
@@ -88,7 +86,7 @@ class Measure:
         :return:
         """
         self.view.text_label_measure.set(self.view.text_label_measure.get() + '.')
-        self.view.text_status.set('Measureloop WAIT')
+        self.view.text_status.set('Measure loop WAIT')
 
         if Model.data_sets_received > 0:
             self.__status_measure_loop = 'MEASURING'
@@ -101,7 +99,7 @@ class Measure:
     def __ml_wait_for_data_complete(self):
         """
         Wait until all data are received in Model.
-        Set dtatus to 'DONE' when data complete
+        Set status to 'DONE' when data complete
         :return:
         """
 

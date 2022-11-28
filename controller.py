@@ -1,8 +1,6 @@
 # Python Tutorial: GUI Calculator with Model View Controller #1
 # https://youtu.be/ek47NMFW_mk
 
-import tkinter
-
 from measure import *
 from view import View
 

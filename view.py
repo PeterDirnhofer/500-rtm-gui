@@ -52,7 +52,7 @@ class View(tk.Tk):
         forces the call of '_do_queue_available' with the '.trace_add' functionality below.
         """
 
-        # call _do_queue_available, when data is written to queue_is_availble
+        # call _do_queue_available, when data is written to queue_is_available
         self.queue_is_available.trace_add("write", self._do_queue_available)
 
     def _make_main_frame(self):

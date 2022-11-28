@@ -162,7 +162,6 @@ class UsbSerial:
                             # signal that data are available to queue
                             cls.view_ptr.queue_is_available.set(len)
 
-
                 except Exception as e:
                     messagebox.showerror('Error. Connection lost to ESP32', f'Close the program\nError detail: \n{e}')
                     cls.view_ptr.on_closing()
