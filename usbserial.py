@@ -3,137 +3,216 @@
 # https://youtu.be/AHr94RtMj1A
 # pip install pyserial
 import pickle
+import time
+import tkinter
 import tkinter as tk
+from queue import Queue
+from threading import Thread
 from tkinter import messagebox
 
-import serial.tools.list_ports
 import serial
-from threading import Thread
+import serial.tools.list_ports
 
-NUMBER_OF_PARAMETERS = 10
+from model import *
 
 
 class UsbSerial:
-    def __init__(self, view):
-        self.serialInst = serial.Serial()
-        self.m_status = ""
-        self.m_read_line = ""
-        self.view = view
-        self.m_com_port_read_is_started = False
-        self.m_line_to_consume = ""
-        self.parameters_needed = 0
-        self.m_parameter_list = []
-        self.m_sm_state = "INIT"
-        self.m_actport = ""
+    # Class variables
+    available_ports: [str] = None
+    view_ptr = None
+    _statemachine_state: str = "INIT"
+    _serialInst = serial.Serial()
+    _comport_is_open: str = ""
+    _read_line: str = ""
+    _com_port_read_is_started: bool = False
+    _act_port: str = None
+    queue: Queue[str] = Queue()
+    _com_selected: str = ""
 
-    def init_com_statemachine(self):
+    #############################################
+    # Statemachine connect to ESP32
+    @classmethod
+    def reset_com_esp32(cls):
+        cls.view_ptr.button_select_adjust['state'] = tkinter.DISABLED
+        cls.view_ptr.button_select_measure['state'] = tkinter.DISABLED
+        cls._statemachine_state = 'INIT'
 
+    @classmethod
+    def set_com_selected(cls, com: str):
+        cls._com_selected = com
+
+    @classmethod
+    def get_com_selected(cls):
+        return cls._com_selected
+
+    @classmethod
+    def start_com_esp32_loop(cls) -> bool:
         """
-        Initialize PC COM Port to ESP32.
-        Read default portnumber from flash. Open port, start receive loop.
-        Send CTRL-C and wait for ESP32 response='IDLE'.
-        On Error, open dialog to select other portnumber
+        Start thread with _init_com_statemachine_loop to connect to ESP32. Status is monitored in view
+        :return:
         """
-        self.view.text_status.set(self.m_sm_state)
-        if self.m_sm_state == 'INIT':
-            self.m_is_default_port_existing()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'EXISTING':
-            self.m_open()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'OPEN':
-            self.m_send_reset()
-            self.view.trigger_state_machine_after(1000)
-            return
-        elif self.m_sm_state == 'WAIT_FOR_IDLE':
-            self.parameters_needed = 0
-            self.m_wait_for_idle()
-            self.view.trigger_state_machine_after(50)
-            return
-        elif self.m_sm_state == 'COM_READY':
-            self.m_com_ready()
-        elif self.m_sm_state == "ERROR_COM":
-            self.m_error()
-            self.view.trigger_state_machine_after(200)
 
-        else:
-            raise Exception(f'Invalid state in state_machine: {self.m_sm_state}')
-
-    def write(self, cmd):
-        self.serialInst.write_timeout = 1.0
-
-        try:
-            self.serialInst.write(f'{cmd}\n'.encode('utf'))
+        if cls.view_ptr is not None:
+            init_com_thread = Thread(target=cls._esp32_start_statemachine, daemon=True)
+            init_com_thread.start()
             return True
-        except Exception:
-            return False
+        print("ERROR run cls.view_reference,view")
+        return False
 
-    def get_parameter(self):
+    @classmethod
+    def _esp32_start_statemachine(cls):
         """
-        Trigger reading NUMBER_OF_PARAMETERS parameters in m_read_loop to m_parameter_list
+        Statemachine to establish communication wit ESP32.
+        - Open COM for sending and receiving
+        - Send CTRL-C to ESP32 -Wait for ESP32 response 'IDLE'
+        - Request parameters from ESP32 and render in Frame parameters
+        - This method uses view to display status or get COM port in a dialog if needed
         """
-        self.view.tbox_parameter.delete(0, tk.END)
-        self.m_parameter_list.clear()
-        self.parameters_needed = NUMBER_OF_PARAMETERS
-        self.write('PARAMETER,?')
+        last_state = 'LAST'
+        while True:
+            # while cls._statemachine_state != 'PASSIVE':
+            if cls._statemachine_state != last_state:
+                last_state = cls._statemachine_state
+                cls.view_ptr.text_status.set(cls._statemachine_state)
 
-    def m_start_read_loop(self):
-        if self.m_com_port_read_is_started:
-            print("m_read_loop already started")
+            if cls._statemachine_state == 'INIT':
+                cls._is_default_port_existing()
+                time.sleep(0.050)
+                continue
+
+            elif cls._statemachine_state == 'EXISTING':
+                cls._open()
+                time.sleep(0.050)
+                continue
+
+            elif cls._statemachine_state == 'OPEN':
+                cls._send_reset()
+                time.sleep(1)  # Wait 1 Second until ESP has finished old protocol e.g. Parameters
+                continue
+
+            elif cls._statemachine_state == 'WAIT_FOR_IDLE':
+                cls._wait_for_idle()
+                time.sleep(0.050)
+                continue
+
+            elif cls._statemachine_state == 'COM_READY':
+                cls._request_parameters()
+                time.sleep(0.5)
+                cls.view_ptr.button_select_adjust['state'] = tkinter.NORMAL
+                cls.view_ptr.button_select_measure['state'] = tkinter.NORMAL
+                continue
+
+            elif cls._statemachine_state == 'PASSIVE':
+                time.sleep(0.3)
+                continue
+
+            elif cls._statemachine_state == "ERROR_COM":
+                cls._error()
+                time.sleep(0.200)
+
+            else:
+                raise Exception(f'Invalid state in state_machine: {cls._statemachine_state}')
+
+    ####################################################################
+    # start ESP32 COM READ THREAD
+    @classmethod
+    def _start_read_loop(cls):
+        if cls._com_port_read_is_started:
             return
         else:
-            self.m_com_port_read_is_started = True
-            com_thread = Thread(target=self.m_read_loop, daemon=True)
+            cls._com_port_read_is_started = True
+            com_thread = Thread(target=cls._read_loop, daemon=True)
             com_thread.start()
 
-    def m_read_loop(self):
-        """
-        Loop that reads comport. Monitor reads in
-        :return:
+    @classmethod
+    def _read_loop(cls) -> None:
+        """ Polling ESP32 in a thread loop and put readings to 'queue'.
+        Signaling to view that data are available by setting the tk.IntVar 'queue_available'
         """
         # https://youtu.be/AHr94RtMj1A
         # Python Tutorial - How to Read Data from Arduino via Serial Port
 
         while True:
-            if self.serialInst.inWaiting:
+            if cls._serialInst.inWaiting:
                 try:
-                    ln = self.serialInst.readline().decode('utf').rstrip('\n')
+                    ln = cls._serialInst.readline().decode('utf').rstrip('\n')
+
+                    # data from ESP32 available
                     if len(ln) > 0:
-                        self.m_read_line = ln
-                        if self.parameters_needed > 0:
-                            self.m_parameter_list.append(self.m_read_line)
-                            self.view.tbox_parameter.insert(tk.END, self.m_read_line)
-                            self.parameters_needed -= 1
+                        cls._read_line = ln
+
+                        # If data from measure, save
+                        ln_split = ln.split(",")
+
+                        if ln_split[0] == "DATA":
+                            if ln_split[1] == 'DONE':
+                                Model.dataframe_to_csv()
+                                # cls.view_ptr.text_status.set("Data saved in " + SCAN_FILE_NAME)
+                                cls.view_ptr.text_label_measure.set("Data saved in " + SCAN_FILE_NAME)
+                                cls.data_sets_received = -1
+                            else:
+                                Model.write_to_dataframe(ln)
+                            continue
+
                         else:
-                            self.view.lbox_com_read_update(self.m_read_line)
-                            self.view.label_adjust_update(self.m_read_line)
 
+                            # put received data from ESP32 to queue
+                            cls.queue.put(ln)
 
-                except Exception:
-                    messagebox.showerror('error', 'Connection lost\nClose the programm')
-                    self.view.close()
+                            # signal that data are available to queue
+                            cls.view_ptr.queue_is_available.set(len)
+
+                except Exception as e:
+                    messagebox.showerror('Error. Connection lost to ESP32', f'Close the program\nError detail: \n{e}')
+                    cls.view_ptr.on_closing()
+
+    @classmethod
+    def write(cls, cmd: str) -> bool:
+        """ Send command to ESP32.
+        :param cmd: Command to send as string
+        :return: False if not ok
+        """
+        cls._serialInst.write_timeout = 1.0
+
+        try:
+            cls._serialInst.write(f'{cmd}\n'.encode('utf'))
+            return True
+        except Exception as e:
+            messagebox.showerror(f"Error send to ESP32\n{str(e)}")
+            return False
+
+    @classmethod
+    def send_request_parameter_to_esp(cls) -> None:
+        """ Send request for parameter reading to ESP
+        """
+        cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear listbox with old parameters
+        cls.write('PARAMETER,?')  # Send request or ESP
 
     @staticmethod
-    def m_get_default_comport():
+    def _get_default_comport_nvm() -> str:
+        """ Read last used comport from pickle file.
+
+        :return: 'COMx'
+        """
         try:
-            with open('data/comport.pkl', 'rb') as file:
-                myvar = pickle.load(file)
-                return myvar
+            with open(COMPORT_PICKLE_FILE, 'rb') as file:
+                port = pickle.load(file)
+                return port
         except OSError:
             return ""
 
     @staticmethod
-    def m_put_default_comport(comport):
-        myvar = comport
-        with open('data/comport.pkl', 'wb') as file:
-            pickle.dump(myvar, file)
+    def _put_default_comport_nvm(port: str):
+        """Write default COM Port to pickle file comport.pkl"""
+        with open(COMPORT_PICKLE_FILE, 'wb') as file:
+            pickle.dump(port, file)
 
-    def m_get_ports(self):
+    @classmethod
+    def _get_ports(cls) -> list[str]:
         """
-        get a list of serial ports available on laptop
-        :return: portList
+        Get a list of serial ports actually available on computer.
+        
+        :return: port_list
         """
         port_list = []
         ports = serial.tools.list_ports.comports(0)
@@ -141,90 +220,102 @@ class UsbSerial:
             port_list.append(str(onePort))
         return port_list
 
-    def m_open_comport(self, comport):
-        if self.m_status != 'OPEN':
-            try:
-                self.serialInst.baudrate = 115200
-                self.serialInst.port = comport
-                if self.serialInst.isOpen():
-                    try:
-                        print("isopen")
-                        self.serialInst.close()
-                    except Exception:
-                        pass
-                self.serialInst.open()
-                self.m_status = "OPEN"
-            except Exception:
-                self.m_status = 'ERROR'
-        return self.m_status
-
-    ##########################################################
-    # State machine
-    def m_is_default_port_existing(self):
+    @classmethod
+    def _is_default_port_existing(cls):
+        """ Check if requested port is available on computer.
+        Set statemachine_state to 'EXISTING' or 'ERROR_COM'
+        """
         # Check if default COM port is existing on Computer
-        self.m_actport = self.m_get_default_comport()
-        self.view.text_com_state.set(f'Connecting {self.m_actport} ...')
-        available_ports = self.m_get_ports()
+        cls._act_port = cls._get_default_comport_nvm()
+        cls.view_ptr.text_com_state.set(f'Connecting {cls._act_port} ...')
+        cls.available_ports = cls._get_ports()
         port_exists = False
-        for port in available_ports:
-            r = self.m_actport in port
+        for port in cls.available_ports:
+            r = cls._act_port in port
             if r:
                 port_exists = True
         if not port_exists:
-            self.view.text_com_state.set(f'ERROR_COM {self.m_actport} not available on Computer')
-            self.m_sm_state = 'ERROR_COM'
+            cls.view_ptr.text_com_state.set(f'ERROR_COM {cls._act_port} not available on Computer')
+            cls._statemachine_state = 'ERROR_COM'
             return
         else:
-            self.m_sm_state = 'EXISTING'
+            cls._statemachine_state = 'EXISTING'
             return
 
-    def m_open(self):
-        # try to open COM port on computer
-        result = self.m_open_comport(self.m_actport)
-        if result == 'OPEN':
-            self.m_sm_state = 'OPEN'
-        else:
-            self.m_sm_state = 'ERROR_COM'
-        return
+    @classmethod
+    def _open(cls):
+        """ Open COM  _act_port.
 
-    def m_send_reset(self):
+        :return: Set _statemachine_state = 'OPEN' or 'ERROR_COM'
+        """
+
+        # if comport already open (after RESET)  skip open and set _statemachine_state = 'OPEN'
+        if cls._comport_is_open:
+            cls._statemachine_state = 'OPEN'
+            return
+
+        # If not open, try to open _act_port
+        # noinspection PyBroadException
+        try:
+            cls._serialInst.baudrate = 115200
+            cls._serialInst.port = cls._act_port
+            if cls._serialInst.isOpen():
+                # noinspection PyBroadException
+                try:
+                    print("is open")
+                    cls._serialInst.close()
+                except Exception:
+                    pass
+            cls._serialInst.open()
+            cls._comport_is_open = "OPEN"
+        except Exception:
+            cls._comport_is_open = 'ERROR_COM'
+
+        cls._statemachine_state = cls._comport_is_open
+
+    @classmethod
+    def _send_reset(cls) -> bool:
         # Check if it is possible to send CTRL-C to ESP32
         # Start COM read in background thread
-        if self.write(chr(3)):
-            self.m_start_read_loop()  # enable receiver
-            self.m_sm_state = 'WAIT_FOR_IDLE'
+        if cls.write(chr(3)):
+            cls._start_read_loop()  # enable receiver
+            cls._statemachine_state = 'WAIT_FOR_IDLE'
+            return True
         else:
-            self.m_sm_state = 'ERROR_COM'
+            cls._statemachine_state = 'ERROR_COM'
+            return False
 
-    def m_wait_for_idle(self):
+    @classmethod
+    def _wait_for_idle(cls):
         # Wait for 'IDLE' from ESP32
 
-        if self.m_read_line == 'IDLE':
-            self.m_sm_state = 'COM_READY'
+        if cls._read_line == 'IDLE':
+            cls._statemachine_state = 'COM_READY'
+            cls.view_ptr.text_com_state.set(f'Connected to {cls._act_port}')
+
             return
 
-        self.m_sm_state = "ERROR_COM"
+        cls._statemachine_state = "ERROR_COM"
         return
 
-    def m_com_ready(self):
-        self.view.button_select_adjust['state'] = tk.NORMAL
-        self.view.button_select_measure['state'] = tk.NORMAL
-        self.view.button_select_reset['state'] = tk.NORMAL
-        self.view.text_com_state.set(f'Connected {self.m_actport}')
-
+    @classmethod
+    def _request_parameters(cls):
+        """Request parameters from ESP32 by sending 'PARAMETER,?' to ESP32.
+        Set statemachine to 'PASSIVE'"""
         # Get parameter and display in parameter_frame
-        self.view.controller.usb_serial_get_parameter_handle()
+        cls.send_request_parameter_to_esp()
+        cls._statemachine_state = 'PASSIVE'
 
-    def m_error(self):
-        self.view.frame_select_com_on()
-        available_ports = self.m_get_ports()
-        self.view.display_comports(available_ports)
+    @classmethod
+    def _error(cls):
+        cls.view_ptr.frame_select_com_on()
+        available_ports = cls._get_ports()
+        cls.view_ptr.display_comports(available_ports)
 
-        self.m_com_port_read_is_started = False
-        if self.view.com_selected != "":
-            self.m_put_default_comport(self.view.com_selected)
-            # self.view.text_com_read_update(f'{self.view.com_selected} selected')
-            self.view.frame_select_com_off()
-            self.m_sm_state = 'INIT'
-            self.view.com_selected = ""
-            self.m_com_port_read_is_started = False
+        cls._com_port_read_is_started = False
+        if cls._com_selected != "":
+            cls._put_default_comport_nvm(cls._com_selected)
+            cls.view_ptr.frame_select_com_off()
+            cls._statemachine_state = 'INIT'
+            cls._com_selected = ""
+            cls._com_port_read_is_started = False
