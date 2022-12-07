@@ -182,7 +182,7 @@ class UsbSerial:
             return False
 
     @classmethod
-    def request_parameter_from_esp(cls) -> None:
+    def send_request_parameter_to_esp(cls) -> None:
         """ Send request for parameter reading to ESP
         """
         cls.view_ptr.lbox_parameter.delete(0, tk.END)  # Clear listbox with old parameters
@@ -303,7 +303,7 @@ class UsbSerial:
         """Request parameters from ESP32 by sending 'PARAMETER,?' to ESP32.
         Set statemachine to 'PASSIVE'"""
         # Get parameter and display in parameter_frame
-        cls.request_parameter_from_esp()
+        cls.send_request_parameter_to_esp()
         cls._statemachine_state = 'PASSIVE'
 
     @classmethod

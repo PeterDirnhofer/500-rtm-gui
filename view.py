@@ -10,6 +10,7 @@ from matplotlib import cm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from usbserial import UsbSerial
+from view_parameter import View_parameter
 
 
 class View(tk.Tk):
@@ -19,7 +20,6 @@ class View(tk.Tk):
 
         self.queue_is_available = tk.IntVar()  # Callback variable set by UsbSerial
 
-        self.parameter = None
         self.com_selected = None
         self.controller = controller  # controller can be used as attribute in class View
 
@@ -32,6 +32,8 @@ class View(tk.Tk):
         self._make_frame_selectcom()
         self._make_frame_adjust()
         self._make_frame_measure()
+
+        self.parameter_class = View_parameter(self.frame_main, self.lbox_parameter)
 
         self._style()
 
@@ -145,7 +147,7 @@ class View(tk.Tk):
 
         self.btn_get_parameter = ttk.Button(self.frame_parameter,
                                             image=self.image,
-                                            command=UsbSerial.request_parameter_from_esp)
+                                            command=UsbSerial.send_request_parameter_to_esp)
 
         # self.btn_get_parameter.pack(side = LEFT)
         self.btn_get_parameter.grid(row=1, column=0, sticky=W, padx=10, pady=5)
@@ -274,11 +276,18 @@ class View(tk.Tk):
     def parameter_select(self, event):
         selected_indices = self.lbox_parameter.curselection()
 
-        print(f'selected: {selected_indices}')
-        for i in selected_indices:
-            self.parameter.edit_parameter(self, i)
+        # newWindow= tk.Toplevel(self.frame_main)
+        # newWindow.title("Edit Parameter")
+        # newWindow.geometry("200*200")
 
-            print(i)
+        for anchor in selected_indices:
+            self.parameter_class.create_window(anchor)
+
+        st = self.parameter_class.get_parameter_string
+
+        print(st)
+        #self.parameter_class.close_window()
+
 
     @staticmethod
     def __plot_3d(fig, data: List, intp: Optional[bool] = True) -> None:
