@@ -58,6 +58,18 @@ class Controller:
 
         self.view.text_status.set('ADJUST')
 
+    def tip_up_cmd(self):
+        pass
+
+    def tip_down_cmd(self):
+        pass
+
+    def tip_neutral_cmd(self):
+        pass
+
+
+
+
 
 if __name__ == '__main__':
     app = Controller()

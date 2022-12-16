@@ -18,6 +18,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()  # call __init__ Tk
 
+        self.cmd_plus_tip = None
         self.queue_is_available = tk.IntVar()  # Callback variable set by UsbSerial
 
         self.com_selected = None
@@ -177,8 +178,17 @@ class View(tk.Tk):
 
         self.text_label_adjust = tk.StringVar()
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
-
         self.label_adjust.grid(row=0, column=0, sticky=E + W)
+
+        self.tip_up = ttk.Button(self.frame_adjust, text='up', command=self.controller.tip_up_cmd)
+        self.tip_up.grid(row=1,column=0)
+
+        self.tip_down = ttk.Button(self.frame_adjust, text='down', command=self.controller.tip_down_cmd)
+        self.tip_down.grid(row=1, column=1)
+
+        self.tip_neutral = ttk.Button(self.frame_adjust, text='0', command=self.controller.tip_neutral_cmd)
+        self.tip_neutral.grid(row=1, column=2)
+
 
     def frame_select_com_on(self) -> None:
         self.frame_select_com.grid(row=1, column=1)
