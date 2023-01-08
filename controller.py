@@ -58,13 +58,8 @@ class Controller:
 
         self.view.text_status.set('ADJUST')
 
-    def tip_up_cmd(self):
-        pass
-
-    def tip_down_cmd(self):
-        pass
-
-    def tip_neutral_cmd(self):
+    def tip_up_down_cmd(self, offset):
+        print("OFFSET:",offset)
         pass
 
 

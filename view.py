@@ -180,15 +180,56 @@ class View(tk.Tk):
         self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
         self.label_adjust.grid(row=0, column=0, sticky=E + W)
 
-        self.tip_up = ttk.Button(self.frame_adjust, text='up', command=self.controller.tip_up_cmd)
-        self.tip_up.grid(row=1,column=0)
+        #############################
+        self.frame_tip_1 = ttk.Frame(self.frame_adjust)
+        self.frame_tip_1.grid(row=1, column=0, sticky=W)
 
-        self.tip_down = ttk.Button(self.frame_adjust, text='down', command=self.controller.tip_down_cmd)
-        self.tip_down.grid(row=1, column=1)
+        self.btn_p1 = ttk.Button(self.frame_tip_1, text="+ 1",
+                                    command= lambda : self.controller.tip_up_down_cmd(1))
+        self.btn_p1.pack(side=LEFT,padx=10, pady=10)
 
-        self.tip_neutral = ttk.Button(self.frame_adjust, text='0', command=self.controller.tip_neutral_cmd)
-        self.tip_neutral.grid(row=1, column=2)
+        #self.label_value = ttk.Label(self.frame_tip_1, text='Z Position:')
+        #self.label_value.pack(side = LEFT,padx=10, pady=10)
 
+        self.btn_m1 = ttk.Button(self.frame_tip_1, text="- 1",
+                                    command= lambda : self.controller.tip_up_down_cmd(-1))
+        self.btn_m1.pack(side=LEFT, padx=10, pady=10)
+
+        #############################
+        self.frame_tip_10 = ttk.Frame(self.frame_adjust)
+        self.frame_tip_10.grid(row=2, column=0, sticky=W)
+
+        self.btn_p10 = ttk.Button(self.frame_tip_10, text="+ 10",
+                                 command=lambda: self.controller.tip_up_down_cmd(10))
+        self.btn_p10.pack(side=LEFT, padx=10, pady=10)
+
+        self.btn_m10 = ttk.Button(self.frame_tip_10, text="- 10",
+                                 command=lambda: self.controller.tip_up_down_cmd(-10))
+        self.btn_m10.pack(side=LEFT, padx=10, pady=10)
+
+        #############################
+        self.frame_tip_100 = ttk.Frame(self.frame_adjust)
+        self.frame_tip_100.grid(row=3, column=0, sticky=W)
+
+        self.btn_p100 = ttk.Button(self.frame_tip_100, text="+ 100",
+                                  command=lambda: self.controller.tip_up_down_cmd(100))
+        self.btn_p100.pack(side=LEFT, padx=10, pady=10)
+
+        self.btn_m100 = ttk.Button(self.frame_tip_100, text="- 100",
+                                  command=lambda: self.controller.tip_up_down_cmd(-100))
+        self.btn_m100.pack(side=LEFT, padx=10, pady=10)
+
+        #############################
+        self.frame_tip_1000 = ttk.Frame(self.frame_adjust)
+        self.frame_tip_1000.grid(row=4, column=0, sticky=W)
+
+        self.btn_p1000 = ttk.Button(self.frame_tip_1000, text="+ 1000",
+                                   command=lambda: self.controller.tip_up_down_cmd(1000))
+        self.btn_p1000.pack(side=LEFT, padx=10, pady=10)
+
+        self.btn_m1000 = ttk.Button(self.frame_tip_1000, text="- 1000",
+                                   command=lambda: self.controller.tip_up_down_cmd(-1000))
+        self.btn_m1000.pack(side=LEFT, padx=10, pady=10)
 
     def frame_select_com_on(self) -> None:
         self.frame_select_com.grid(row=1, column=1)
@@ -296,8 +337,7 @@ class View(tk.Tk):
         st = self.parameter_class.get_parameter_string
 
         print(st)
-        #self.parameter_class.close_window()
-
+        # self.parameter_class.close_window()
 
     @staticmethod
     def __plot_3d(fig, data: List, intp: Optional[bool] = True) -> None:
