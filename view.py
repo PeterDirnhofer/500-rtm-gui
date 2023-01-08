@@ -231,6 +231,18 @@ class View(tk.Tk):
                                    command=lambda: self.controller.tip_up_down_cmd(-1000))
         self.btn_m1000.pack(side=LEFT, padx=10, pady=10)
 
+        #############################
+        self.frame_tip_10000 = ttk.Frame(self.frame_adjust)
+        self.frame_tip_10000.grid(row=5, column=0, sticky=W)
+
+        self.btn_p10000 = ttk.Button(self.frame_tip_10000, text="+ 10000",
+                                    command=lambda: self.controller.tip_up_down_cmd(10000))
+        self.btn_p10000.pack(side=LEFT, padx=10, pady=10)
+
+        self.btn_m10000 = ttk.Button(self.frame_tip_10000, text="- 10000",
+                                    command=lambda: self.controller.tip_up_down_cmd(-10000))
+        self.btn_m10000.pack(side=LEFT, padx=10, pady=10)
+
     def frame_select_com_on(self) -> None:
         self.frame_select_com.grid(row=1, column=1)
         self.lbox_comports.pack(padx=10, pady=10)

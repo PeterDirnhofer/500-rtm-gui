@@ -59,7 +59,12 @@ class Controller:
         self.view.text_status.set('ADJUST')
 
     def tip_up_down_cmd(self, offset):
-        print("OFFSET:",offset)
+
+        sendstring = 'TIP,'
+        sendstring += str(offset)
+        print(sendstring)
+        UsbSerial.write(sendstring)
+
         pass
 
 
