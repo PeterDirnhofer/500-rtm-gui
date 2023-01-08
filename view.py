@@ -172,76 +172,89 @@ class View(tk.Tk):
         self.lbox_comports.bind('<<ListboxSelect>>', self.lbox_comports_select)
 
     def _make_frame_adjust(self) -> None:
-        self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Adjust")
-        self.frame_adjust.grid(row=3, column=1)
+        self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Tunnel Current")
+        self.frame_adjust.grid(row=1, column=1)
         self.frame_adjust.grid_forget()
 
         self.text_label_adjust = tk.StringVar()
-        self.label_adjust = ttk.Label(self.frame_adjust, textvariable=self.text_label_adjust, font=("Arial", 50))
-        self.label_adjust.grid(row=0, column=0, sticky=E + W)
+        self.text_label_adjust.set('')
+        self.label_adjust = ttk.Label(self.frame_adjust,
+                                      textvariable=self.text_label_adjust,
+                                      font=("Arial", 40),
+                                      width=10)
+        self.label_adjust.grid(row=0, column=0, sticky=NSEW)
 
-        #############################
+
+
+        # TIP 1 ############################
         self.frame_tip_1 = ttk.Frame(self.frame_adjust)
-        self.frame_tip_1.grid(row=1, column=0, sticky=W)
+        self.frame_tip_1.grid(row=1, column=0, sticky=NW)
 
         self.btn_p1 = ttk.Button(self.frame_tip_1, text="+ 1",
                                     command= lambda : self.controller.tip_up_down_cmd(1))
-        self.btn_p1.pack(side=LEFT,padx=10, pady=10)
-
-        #self.label_value = ttk.Label(self.frame_tip_1, text='Z Position:')
-        #self.label_value.pack(side = LEFT,padx=10, pady=10)
+        self.btn_p1.pack(side=LEFT,padx=10, pady=1)
 
         self.btn_m1 = ttk.Button(self.frame_tip_1, text="- 1",
                                     command= lambda : self.controller.tip_up_down_cmd(-1))
-        self.btn_m1.pack(side=LEFT, padx=10, pady=10)
+        self.btn_m1.pack(side=LEFT, padx=10, pady=1)
 
-        #############################
+        # TIP 10 ############################
         self.frame_tip_10 = ttk.Frame(self.frame_adjust)
         self.frame_tip_10.grid(row=2, column=0, sticky=W)
 
         self.btn_p10 = ttk.Button(self.frame_tip_10, text="+ 10",
                                  command=lambda: self.controller.tip_up_down_cmd(10))
-        self.btn_p10.pack(side=LEFT, padx=10, pady=10)
+        self.btn_p10.pack(side=LEFT, padx=10, pady=1)
 
         self.btn_m10 = ttk.Button(self.frame_tip_10, text="- 10",
                                  command=lambda: self.controller.tip_up_down_cmd(-10))
-        self.btn_m10.pack(side=LEFT, padx=10, pady=10)
+        self.btn_m10.pack(side=LEFT, padx=10, pady=1)
 
-        #############################
+        # TIP 100 ############################
         self.frame_tip_100 = ttk.Frame(self.frame_adjust)
         self.frame_tip_100.grid(row=3, column=0, sticky=W)
 
         self.btn_p100 = ttk.Button(self.frame_tip_100, text="+ 100",
                                   command=lambda: self.controller.tip_up_down_cmd(100))
-        self.btn_p100.pack(side=LEFT, padx=10, pady=10)
+        self.btn_p100.pack(side=LEFT, padx=10, pady=1)
 
         self.btn_m100 = ttk.Button(self.frame_tip_100, text="- 100",
                                   command=lambda: self.controller.tip_up_down_cmd(-100))
-        self.btn_m100.pack(side=LEFT, padx=10, pady=10)
+        self.btn_m100.pack(side=LEFT, padx=10, pady=1)
 
-        #############################
+        # TIP 1000 ############################
         self.frame_tip_1000 = ttk.Frame(self.frame_adjust)
         self.frame_tip_1000.grid(row=4, column=0, sticky=W)
 
         self.btn_p1000 = ttk.Button(self.frame_tip_1000, text="+ 1000",
                                    command=lambda: self.controller.tip_up_down_cmd(1000))
-        self.btn_p1000.pack(side=LEFT, padx=10, pady=10)
+        self.btn_p1000.pack(side=LEFT, padx=10, pady=1)
 
         self.btn_m1000 = ttk.Button(self.frame_tip_1000, text="- 1000",
                                    command=lambda: self.controller.tip_up_down_cmd(-1000))
-        self.btn_m1000.pack(side=LEFT, padx=10, pady=10)
+        self.btn_m1000.pack(side=LEFT, padx=10, pady=1)
 
-        #############################
+        # TIP 10000 ############################
         self.frame_tip_10000 = ttk.Frame(self.frame_adjust)
         self.frame_tip_10000.grid(row=5, column=0, sticky=W)
 
         self.btn_p10000 = ttk.Button(self.frame_tip_10000, text="+ 10000",
                                     command=lambda: self.controller.tip_up_down_cmd(10000))
-        self.btn_p10000.pack(side=LEFT, padx=10, pady=10)
+        self.btn_p10000.pack(side=LEFT, padx=10, pady=1)
 
         self.btn_m10000 = ttk.Button(self.frame_tip_10000, text="- 10000",
                                     command=lambda: self.controller.tip_up_down_cmd(-10000))
-        self.btn_m10000.pack(side=LEFT, padx=10, pady=10)
+        self.btn_m10000.pack(side=LEFT, padx=10, pady=1)
+
+        # Display Actual DAC Z Position ###################
+        self.frame_actual_tip = ttk.Frame(self.frame_adjust)
+        self.frame_actual_tip.grid(row=6, column=0, sticky=NSEW, pady=10)
+
+        self.frame_act_value = ttk.LabelFrame(self.frame_actual_tip, text='Z Position')
+        self.frame_act_value.grid(row=0, column=0, sticky=W)
+        self.text_actual_z = tk.StringVar()
+        self.label_value = ttk.Label(self.frame_act_value, textvariable=self.text_actual_z, font=("Arial", 30))
+        self.label_value.grid(row=0, column=0)
 
     def frame_select_com_on(self) -> None:
         self.frame_select_com.grid(row=1, column=1)
@@ -282,8 +295,12 @@ class View(tk.Tk):
             x = res.split(",")
             if x[0] == 'ADJUST':
                 self.label_adjust_update(x[1])
+                self.lbox_com_read_update(res)
             elif x[0] == 'PARAMETER':
                 self.lbox_parameter.insert(tk.END, f'{x[1]} , {x[2]}')
+            elif x[0] == 'TIP':
+                self.text_actual_z.set(x[2])
+                self.lbox_com_read_update(res)
             else:
                 self.lbox_com_read_update(res)
 

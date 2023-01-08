@@ -62,13 +62,9 @@ class Controller:
 
         sendstring = 'TIP,'
         sendstring += str(offset)
-        print(sendstring)
         UsbSerial.write(sendstring)
 
         pass
-
-
-
 
 
 if __name__ == '__main__':
