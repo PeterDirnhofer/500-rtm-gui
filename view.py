@@ -173,7 +173,7 @@ class View(tk.Tk):
 
     def _make_frame_adjust(self) -> None:
         self.frame_adjust = ttk.LabelFrame(self.frame_main, text="Tunnel Current")
-        self.frame_adjust.grid(row=1, column=1)
+        self.frame_adjust.grid(row=1, column=1, rowspan=2)
         self.frame_adjust.grid_forget()
 
         self.text_label_adjust = tk.StringVar()
